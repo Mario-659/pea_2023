@@ -4,6 +4,10 @@ set(SOURCES
         main.cpp
         utils/Utils.h
         utils/Utils.cpp
+        graphs/AdjacencyList.h
+        graphs/AdjacencyList.cpp
+        graphs/AdjacencyMatrix.h
+        graphs/AdjacencyMatrix.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
