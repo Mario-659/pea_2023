@@ -8,6 +8,9 @@ set(SOURCES
         graphs/AdjacencyList.cpp
         graphs/AdjacencyMatrix.h
         graphs/AdjacencyMatrix.cpp
+        algorithms/Prim.h
+        algorithms/Prim.cpp
+        algorithms/Heap.h
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
