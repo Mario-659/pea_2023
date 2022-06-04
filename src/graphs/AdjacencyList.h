@@ -2,8 +2,8 @@
 #define SDIZO_2_ADJACENCYLIST_H
 
 #include <string>
-#include <vector>
 #include <iostream>
+#include "../algorithms/LinkedList.h"
 
 struct ListNode {
     int weight;
@@ -45,7 +45,7 @@ public:
     // Removes edge from the graph
     void removeEdge(int start, int end);
 
-    std::vector<ListNode> getVertexNeighbours(int index);
+    LinkedList<ListNode>* getVertexNeighbours(int index);
 
     // Returns size
     int getSize();
@@ -57,7 +57,7 @@ public:
 
 private:
     int size;
-    std::vector<ListNode>* adj;
+    LinkedList<ListNode>* adj;
 
     bool validateEdge(int start, int end);
 };

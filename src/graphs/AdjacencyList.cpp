@@ -36,27 +36,29 @@ bool ListNode::operator>=(const ListNode &rhs) const {
 
 
 AdjacencyList::AdjacencyList(int size) {
-    adj = new std::vector<ListNode> [size];
+    adj = new LinkedList<ListNode> [size];
     this->size = size;
 }
 
 void AdjacencyList::addEdge(int start, int end, int weight) {
     if (!validateEdge(start, end)) return;
 
-    adj[start].emplace_back(weight, end);
-    adj[end].emplace_back(weight,start);
+    adj[start].pushBack({weight, end});
+    adj[end].pushBack({weight, start});
+//    adj[start].emplace_back(weight, end);
+//    adj[end].emplace_back(weight,start);
 }
 
 void AdjacencyList::removeEdge(int start, int end) {
     if (!validateEdge(start, end)) return;
 
-    for (int i=0; i<adj[start].size(); i++) {
-        if (adj[start][i].index == end) adj[start].erase(adj[start].begin() + i);
-    }
-
-    for (int i=0; i<adj[end].size(); i++) {
-        if (adj[end][i].index == start) adj[end].erase(adj[end].begin() + i);
-    }
+//    for (int i=0; i<adj[start].size(); i++) {
+//        if (adj[start][i].index == end) adj[start].erase(adj[start].begin() + i);
+//    }
+//
+//    for (int i=0; i<adj[end].size(); i++) {
+//        if (adj[end][i].index == start) adj[end].erase(adj[end].begin() + i);
+//    }
 }
 
 int AdjacencyList::getSize() {
@@ -64,22 +66,22 @@ int AdjacencyList::getSize() {
 }
 
 std::string AdjacencyList::toString() {
-    std::string text;
-    for (int i=0; i<size; i++) {
-        if (adj[i].empty()) text += "Vertex has no edges\n";
-        else {
-            text += std::to_string(i);
-            text += " -> ";
-            for (auto node: adj[i]) {
-                text += std::to_string(node.index);
-                text += "(";
-                text += std::to_string(node.weight);
-                text += "), ";
-            }
-            text += "\n";
-        }
-    }
-    return text;
+//    std::string text;
+//    for (int i=0; i<size; i++) {
+//        if (adj[i].size() == 0) text += "Vertex has no edges\n";
+//        else {
+//            text += std::to_string(i);
+//            text += " -> ";
+//            for (auto node: adj[i]) {
+//                text += std::to_string(node.index);
+//                text += "(";
+//                text += std::to_string(node.weight);
+//                text += "), ";
+//            }
+//            text += "\n";
+//        }
+//    }
+//    return text;
 }
 
 bool AdjacencyList::validateEdge(int start, int end) {
@@ -92,6 +94,6 @@ bool AdjacencyList::validateEdge(int start, int end) {
     return true;
 }
 
-std::vector<ListNode> AdjacencyList::getVertexNeighbours(int index) {
-    return adj[index];
+LinkedList<ListNode>* AdjacencyList::getVertexNeighbours(int index) {
+    return &adj[index];
 }

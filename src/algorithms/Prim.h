@@ -1,15 +1,11 @@
 #ifndef SDIZO_2_PRIM_H
 #define SDIZO_2_PRIM_H
 
-#include <string>
-#include <algorithm>
-
-#include <algorithm>
-#include <functional>
 #include <iostream>
-#include <vector>
+#include <string>
 
 #include "Heap.h"
+#include "LinkedList.h"
 #include "../graphs/AdjacencyList.h"
 #include "../graphs/AdjacencyMatrix.h"
 

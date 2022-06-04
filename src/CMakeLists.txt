@@ -11,6 +11,7 @@ set(SOURCES
         algorithms/Prim.h
         algorithms/Prim.cpp
         algorithms/Heap.h
+        algorithms/LinkedList.h
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})

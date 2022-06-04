@@ -24,7 +24,10 @@ void Prim::mst(AdjacencyList graph) {
     while (queue.getSize() != 0) {
         auto item = queue.extractMin();
         // for every neighbour of vertex
-        for (auto edge : graph.getVertexNeighbours(item.index)) {
+        Node<ListNode>* node = graph.getVertexNeighbours(item.index)->getHeadNode();
+        // check every edge for neighbour
+        while (node != nullptr) {
+            auto edge = node->data;
             int v = edge.index;
             if (queue.contains({key[v], v }) && edge.weight < key[v]) {
                 // update solution mst with better path
@@ -32,6 +35,7 @@ void Prim::mst(AdjacencyList graph) {
                 key[v] = edge.weight;
                 connection[v] = item.index;
             }
+            node = node->next;
         }
     }
 }
