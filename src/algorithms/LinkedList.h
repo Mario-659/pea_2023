@@ -66,8 +66,13 @@ public:
     // Removes first occurrence of a value. Returns true if value was deleted, false if value not found
     bool removeValue(T value);
 
+    // Sets list from start to end
+    void set(Node<T>* start, Node<T>* end);
+
+    // Returns item T at a given index
     T get(int index);
 
+    // Returns first node of the list
     Node<T>* getHeadNode();
 
     // String representation from head to tail
@@ -321,6 +326,12 @@ T LinkedList<T>::get(int index) {
 template<typename T>
 Node<T> *LinkedList<T>::getHeadNode() {
     return head;
+}
+
+template<typename T>
+void LinkedList<T>::set(Node<T> *start, Node<T> *end) {
+    this->head = start;
+    this->tail = end;
 }
 
 #endif //SDIZO_2_LINKEDLIST_H

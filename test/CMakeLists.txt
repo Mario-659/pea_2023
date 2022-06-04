@@ -17,6 +17,8 @@ set(TEST_SOURCES
         UtilsTest.cpp
         HeapTest.cpp
         PrimTest.cpp
+        KruskalTest.cpp
+        MergeSortTest.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})
