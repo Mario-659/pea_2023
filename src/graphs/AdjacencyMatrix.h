@@ -16,7 +16,10 @@ public:
     // Constructor for graph
     AdjacencyMatrix(int size);
 
-    // Adds new edge to the graph
+    // Adds new undirected edge to the graph
+    void addUndEdge(int start, int end, int weight);
+
+    // Adds new directed edge to the graph
     void addEdge(int start, int end, int weight);
 
     // Removes edge from the graph

@@ -40,18 +40,24 @@ AdjacencyList::AdjacencyList(int size) {
     this->size = size;
 }
 
-void AdjacencyList::addEdge(int start, int end, int weight) {
+void AdjacencyList::addUndEdge(int start, int end, int weight) {
     if (!validateEdge(start, end)) return;
 
     adj[start].pushBack({weight, end});
     adj[end].pushBack({weight, start});
-//    adj[start].emplace_back(weight, end);
-//    adj[end].emplace_back(weight,start);
 }
+
+void AdjacencyList::addEdge(int start, int end, int weight) {
+    if (!validateEdge(start, end)) return;
+
+    adj[start].pushBack({weight, end});
+}
+
 
 void AdjacencyList::removeEdge(int start, int end) {
     if (!validateEdge(start, end)) return;
 
+    // TODO implement this or remove if not used (same with matrix)
 //    for (int i=0; i<adj[start].size(); i++) {
 //        if (adj[start][i].index == end) adj[start].erase(adj[start].begin() + i);
 //    }
@@ -66,22 +72,24 @@ int AdjacencyList::getSize() {
 }
 
 std::string AdjacencyList::toString() {
-//    std::string text;
-//    for (int i=0; i<size; i++) {
-//        if (adj[i].size() == 0) text += "Vertex has no edges\n";
-//        else {
-//            text += std::to_string(i);
-//            text += " -> ";
-//            for (auto node: adj[i]) {
-//                text += std::to_string(node.index);
-//                text += "(";
-//                text += std::to_string(node.weight);
-//                text += "), ";
-//            }
-//            text += "\n";
-//        }
-//    }
-//    return text;
+    std::string text;
+    for (int i=0; i<size; i++) {
+        if (adj[i].size() == 0) text += "Vertex has no edges\n";
+        else {
+            text += std::to_string(i);
+            text += " -> ";
+            auto node = adj[i].getHeadNode();
+            while (node != nullptr) {
+                text += std::to_string(node->data.index);
+                text += "(";
+                text += std::to_string(node->data.weight);
+                text += "), ";
+                node = node->next;
+            }
+            text += "\n";
+        }
+    }
+    return text;
 }
 
 bool AdjacencyList::validateEdge(int start, int end) {
@@ -96,4 +104,13 @@ bool AdjacencyList::validateEdge(int start, int end) {
 
 LinkedList<ListNode>* AdjacencyList::getVertexNeighbours(int index) {
     return &adj[index];
+}
+
+int AdjacencyList::getEdge(int start, int end) {
+    Node<ListNode>* ptr = adj[start].getHeadNode();
+    while(ptr != nullptr) {
+        if(ptr->data.index == end) return ptr->data.weight;
+        ptr = ptr->next;
+    }
+    return INT_MAX;
 }

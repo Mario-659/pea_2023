@@ -39,7 +39,10 @@ public:
     // Constructor for graph
     AdjacencyList(int size);
 
-    // Adds new edge to the graph
+    // Adds new undirected edge to the graph
+    void addUndEdge(int start, int end, int weight);
+
+    // Adds new directed edge to the graph
     void addEdge(int start, int end, int weight);
 
     // Removes edge from the graph
@@ -49,6 +52,9 @@ public:
 
     // Returns size
     int getSize();
+
+    // Returns size of the edge
+    int getEdge(int start, int end);
 
     // Returns string representation
     std::string toString();

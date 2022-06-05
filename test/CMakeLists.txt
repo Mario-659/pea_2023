@@ -19,6 +19,7 @@ set(TEST_SOURCES
         PrimTest.cpp
         KruskalTest.cpp
         MergeSortTest.cpp
+        DijkstraTest.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})

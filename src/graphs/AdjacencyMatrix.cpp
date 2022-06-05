@@ -13,11 +13,17 @@ AdjacencyMatrix::~AdjacencyMatrix() {
 //    delete matrix;
 }
 
-void AdjacencyMatrix::addEdge(int start, int end, int weight) {
+void AdjacencyMatrix::addUndEdge(int start, int end, int weight) {
     if (!validateEdge(start, end)) return;
 
     matrix[start*size + end] = weight;
     matrix[end*size + start] = weight;
+}
+
+void AdjacencyMatrix::addEdge(int start, int end, int weight) {
+    if (!validateEdge(start, end)) return;
+
+    matrix[start*size + end] = weight;
 }
 
 void AdjacencyMatrix::removeEdge(int start, int end) {
@@ -73,3 +79,4 @@ bool AdjacencyMatrix::validateEdge(int start, int end) {
     }
     return true;
 }
+

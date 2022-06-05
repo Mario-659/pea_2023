@@ -16,6 +16,8 @@ set(SOURCES
         algorithms/MergeSort.h
         algorithms/Heap.h
         algorithms/LinkedList.h
+        algorithms/Dijkstra.h
+        algorithms/Dijkstra.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
