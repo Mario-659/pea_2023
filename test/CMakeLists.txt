@@ -20,6 +20,7 @@ set(TEST_SOURCES
         KruskalTest.cpp
         MergeSortTest.cpp
         DijkstraTest.cpp
+        BellmanFordTest.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})

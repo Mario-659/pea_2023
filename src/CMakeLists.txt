@@ -18,6 +18,8 @@ set(SOURCES
         algorithms/LinkedList.h
         algorithms/Dijkstra.h
         algorithms/Dijkstra.cpp
+        algorithms/BellmanFord.h
+        algorithms/BellmanFord.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
