@@ -56,6 +56,8 @@ public:
     // Returns size of the edge
     int getEdge(int start, int end);
 
+    AdjacencyList* copy();
+
     // Returns string representation
     std::string toString();
 

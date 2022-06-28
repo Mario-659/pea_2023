@@ -76,7 +76,6 @@ void Kruskal::mst(AdjacencyList graph) {
     LinkedList<Edge> edges;
 
     // add all edges to the list
-    // TODO make if faster???
     for (int i = 0; i < graph.getSize(); i++) {
         LinkedList<ListNode>* row = graph.getVertexNeighbours(i);
         Node<ListNode>* node = row->getHeadNode();

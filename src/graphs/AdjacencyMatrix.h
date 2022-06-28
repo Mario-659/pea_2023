@@ -28,6 +28,8 @@ public:
     // Returns size
     int getSize();
 
+    AdjacencyMatrix* copy();
+
     // Returns string representation
     std::string toString();
 

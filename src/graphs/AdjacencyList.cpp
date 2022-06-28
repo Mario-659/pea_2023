@@ -114,3 +114,16 @@ int AdjacencyList::getEdge(int start, int end) {
     }
     return INT_MAX;
 }
+
+AdjacencyList *AdjacencyList::copy() {
+    auto copy = new AdjacencyList(size);
+
+    for (int i=0; i<size; i++) {
+        auto node = adj[i].getHeadNode();
+        while(node != nullptr) {
+            copy->addEdge(i, node->data.index, node->data.weight);
+            node = node->next;
+        }
+    }
+    return copy;
+}

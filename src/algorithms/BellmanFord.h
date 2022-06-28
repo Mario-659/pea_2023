@@ -9,8 +9,8 @@
 
 class BellmanFord {
 private:
-    // weights of the edges
-    int* weights;
+    // p of the predecessors
+    int* p;
 
     // connections of the predecessors
     int* connections;

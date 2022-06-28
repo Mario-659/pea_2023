@@ -80,3 +80,13 @@ bool AdjacencyMatrix::validateEdge(int start, int end) {
     return true;
 }
 
+AdjacencyMatrix *AdjacencyMatrix::copy() {
+    auto copy = new AdjacencyMatrix(size);
+    for (int i=0; i<size; i++) {
+        for (int j=0; j<size; j++) {
+            copy->addEdge(i, j, matrix[i*size + j]);
+        }
+    }
+    return copy;
+}
+

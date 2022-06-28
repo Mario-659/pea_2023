@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 
-#include "Heap.h"
 #include "LinkedList.h"
 #include "../graphs/AdjacencyList.h"
 #include "../graphs/AdjacencyMatrix.h"

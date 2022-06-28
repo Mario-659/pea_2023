@@ -54,3 +54,127 @@ vector<int> utils::getRandVect(int size, int min, int max) {
     }
     return values;
 }
+
+void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, AdjacencyList *&list, int size, int density) {
+    matrix = new AdjacencyMatrix(size);
+    list = new AdjacencyList(size);
+
+    // https://www.baeldung.com/cs/graphs-max-number-of-edges
+    int maxEdges = size * (size-1) / 2;
+
+    if (density == 99) {
+        random_device rd;
+        mt19937_64 generator(rd());
+
+        // 1% to remove
+        int numOfEdgesToRemove = int(0.01 * maxEdges);
+        uniform_int_distribution<int> distribution(0, maxEdges-1);
+        set<int> toRemove;
+        while (numOfEdgesToRemove > 0) {
+            toRemove.insert(distribution(generator));
+            numOfEdgesToRemove--;
+        }
+        // random p
+        vector<int> weights = getRandVect(maxEdges, 1, 100);
+        // 99% density
+        int counter = 0;
+        for (int i=0; i<size; i++) {
+            for(int j=i+1; j<size; j++) {
+                // if index in toRemove omit
+                if(toRemove.find(counter) != toRemove.end()) {
+                    counter++;
+                    continue;
+                }
+                matrix->addUndEdge(i, j, weights[counter]);
+                list->addUndEdge(i, j, weights[counter]);
+                counter++;
+            }
+        }
+        return;
+    }
+
+    // create tree (weight from 1 to 100)
+    for (int i=0; i<size-1; i++) {
+        int weight = (rand() % 100) + 1;
+        list->addUndEdge(i, i + 1, weight);
+        matrix->addUndEdge(i, i + 1, weight);
+    }
+
+    int edgesToAdd = int(0.01 * density * maxEdges);
+
+    // adding the rest of the edges
+    while (edgesToAdd > 0) {
+        int weight = (rand() % 100) + 1;
+        int start = rand() % size;
+        int end = rand() % size;
+
+        if(matrix->getEdge(start, end) == NO_EDGE) {
+            matrix->addUndEdge(start, end, weight);
+            list->addUndEdge(start, end, weight);
+            edgesToAdd--;
+        }
+    }
+}
+
+void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList*& list, int size, int density) {
+    matrix = new AdjacencyMatrix(size);
+    list = new AdjacencyList(size);
+
+    // https://www.baeldung.com/cs/graphs-max-number-of-edges
+    int maxEdges = size * (size-1);
+
+    if (density == 99) {
+        random_device rd;
+        mt19937_64 generator(rd());
+
+        // 1% to remove
+        int numOfEdgesToRemove = int(0.01 * maxEdges);
+        uniform_int_distribution<int> distribution(0, maxEdges-1);
+        set<int> toRemove;
+        while (numOfEdgesToRemove > 0) {
+            toRemove.insert(distribution(generator));
+            numOfEdgesToRemove--;
+        }
+        // random p
+        vector<int> weights = getRandVect(size*size, 1, 100);
+        // 99% density
+        int counter = 0;
+        for (int i=0; i<size; i++) {
+            for(int j=0; j<size; j++) {
+                // don't point to itself
+                if(i == j) continue;
+                // if index in toRemove omit
+                if(toRemove.find(counter) != toRemove.end()) {
+                    counter++;
+                    continue;
+                }
+                matrix->addEdge(i, j, weights[counter]);
+                list->addEdge(i, j, weights[counter]);
+                counter++;
+            }
+        }
+        return;
+    }
+
+    // create tree (weight from 1 to 100)
+    for (int i=0; i<size-1; i++) {
+        int weight = (rand() % 100) + 1;
+        list->addEdge(i, i + 1, weight);
+        matrix->addEdge(i, i + 1, weight);
+    }
+
+    int edgesToAdd = int(0.01 * density * maxEdges);
+
+    // adding the rest of the edges
+    while (edgesToAdd > 0) {
+        int weight = (rand() % 100) + 1;
+        int start = rand() % size;
+        int end = rand() % size;
+
+        if(matrix->getEdge(start, end) == NO_EDGE) {
+            matrix->addEdge(start, end, weight);
+            list->addEdge(start, end, weight);
+            edgesToAdd--;
+        }
+    }
+}

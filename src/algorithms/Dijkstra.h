@@ -9,8 +9,8 @@
 
 class Dijkstra {
 private:
-    // weights of the edges
-    int* weights;
+    // weights of the predecessors
+    int* p;
 
     // connections of the predecessors
     int* connections;

@@ -21,6 +21,7 @@ set(TEST_SOURCES
         MergeSortTest.cpp
         DijkstraTest.cpp
         BellmanFordTest.cpp
+        GraphTest.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})

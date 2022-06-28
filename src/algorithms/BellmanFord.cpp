@@ -3,24 +3,24 @@
 void BellmanFord::shortestPath(AdjacencyMatrix graph, int start) {
     size = graph.getSize();
     connections = new int[size];
-    weights = new int[size];
+    p = new int[size];
     this->start = start;
 
-    // fill weights with INT_MAX and connections as undefined
+    // fill p with INT_MAX and connections as undefined
     for (int i = 0; i < size; i++) {
-        weights[i] = INT_MAX;
+        p[i] = INT_MAX;
         connections[i] = -1;
     }
 
-    weights[start] = 0;
+    p[start] = 0;
 
     for (int i = 0; i < size; i++) {
         // edge relaxation for every edge
         for (int u = 0; u < size; u++) {
             for (int v = 0; v < size; v++) {
                 int weight = graph.getEdge(u, v);
-                if (weight != INT_MAX && weights[u] + weight < weights[v] && weights[u] != INT_MAX) {
-                    weights[v] = weights[u] + weight;
+                if (weight != INT_MAX && p[u] + weight < p[v] && p[u] != INT_MAX) {
+                    p[v] = p[u] + weight;
                     connections[v] = u;
                 }
             }
@@ -31,23 +31,23 @@ void BellmanFord::shortestPath(AdjacencyMatrix graph, int start) {
 void BellmanFord::shortestPath(AdjacencyList graph, int start) {
     size = graph.getSize();
     connections = new int[size];
-    weights = new int[size];
+    p = new int[size];
     this->start = start;
 
     for (int i = 0; i < size; i++) {
-        weights[i] = INT_MAX;
+        p[i] = INT_MAX;
         connections[i] = -1;
     }
 
-    weights[start] = 0;
+    p[start] = 0;
 
     for (int i = 0; i < size; i++) {
         for (int u = 0; u < size; u++) {
             auto node = graph.getVertexNeighbours(u)->getHeadNode();
             while (node != nullptr) {
                 ListNode item = node->data;
-                if (weights[u] + item.weight < weights[item.index] && weights[u] != INT_MAX) {
-                    weights[item.index] = weights[u] + item.weight;
+                if (p[u] + item.weight < p[item.index] && p[u] != INT_MAX) {
+                    p[item.index] = p[u] + item.weight;
                     connections[item.index] = u;
                 }
                 node = node->next;
@@ -57,7 +57,7 @@ void BellmanFord::shortestPath(AdjacencyList graph, int start) {
 }
 
 int *BellmanFord::getWeights() {
-    return weights;
+    return p;
 }
 
 int *BellmanFord::getPredeccesorArray() {
@@ -68,7 +68,7 @@ int BellmanFord::getPathLen(int end) {
     if (end < 0 || end >= size)
         return INT_MAX;
 
-    return weights[end];
+    return p[end];
 }
 
 std::string BellmanFord::toString() {
@@ -76,7 +76,7 @@ std::string BellmanFord::toString() {
     std::string path;
 
     for (int i = 0; i < size; i++) {
-        if (weights[i] == INT_MAX) continue;
+        if (p[i] == INT_MAX) continue;
         int v = i;
         while (v != start) {
             path.insert(0, std::to_string(connections[v]) + " -> ");
@@ -87,7 +87,7 @@ std::string BellmanFord::toString() {
                     + " -> "
                     + std::to_string(i)
                     + " (weight="
-                    + std::to_string(weights[i]) + "): ");
+                    + std::to_string(p[i]) + "): ");
         text.append("Path to vertex: " + path + "\n");
         path.clear();
     }
@@ -97,6 +97,6 @@ std::string BellmanFord::toString() {
 BellmanFord::BellmanFord() = default;
 
 BellmanFord::~BellmanFord() {
-    delete[] weights;
-    delete[] connections;
+//    delete[] p;
+//    delete[] connections;
 }

@@ -10,8 +10,7 @@ template <typename T>
 void split(Node<T>* source,
            Node<T>** front, Node<T>** back);
 
-/* sorts the linked l
- * ist by changing next pointers (not data) */
+/* sorts the linked list by changing next pointers (not data) */
 template <typename T>
 void mergeSort(Node<T>** headRef) {
 
@@ -57,12 +56,7 @@ Node<T>* sortedMerge(Node<T>* a, Node<T>* b) {
     return (result);
 }
 
-// TODO change comment, refactor
-/* UTILITY FUNCTIONS */
-/* Split the nodes of the given list into front and back halves,
-    and return the two lists using the reference parameters.
-    If the length is odd, the extra node should go in the front list.
-    Uses the fast/slow pointer strategy. */
+
 template <typename T>
 void split(Node<T>* source, Node<T>** front, Node<T>** back) {
     Node<T>* fast;
@@ -70,7 +64,7 @@ void split(Node<T>* source, Node<T>** front, Node<T>** back) {
     slow = source;
     fast = source->next;
 
-    /* Advance 'fast' two nodes, and advance 'slow' one node */
+    // fast -> iterate two nodes, slow -> one node
     while (fast != nullptr) {
         fast = fast->next;
         if (fast != nullptr) {
@@ -79,8 +73,6 @@ void split(Node<T>* source, Node<T>** front, Node<T>** back) {
         }
     }
 
-    /* 'slow' is before the midpoint in the list, so split it in two
-    at that point. */
     *front = source;
     *back = slow->next;
     slow->next = nullptr;
