@@ -3,24 +3,98 @@
 #include "graphs/AdjacencyList.h"
 #include "graphs/AdjacencyMatrix.h"
 #include "algorithms/Prim.h"
-
+#include "algorithms/Kruskal.h"
+#include "algorithms/Dijkstra.h"
+#include "algorithms/BellmanFord.h"
 #include "utils/Utils.h"
 
 using namespace std;
 
-void loadFromFile(string filename);
+// reads data from file as undirected graph
+void loadFromFileUnd(string filename);
+// reads data from file as directed graph
+void loadFromFileDir(string filename);
 
 AdjacencyList* listGraph = nullptr;
 AdjacencyMatrix* matrixGraph = nullptr;
 
 void displayGraphs();
 
-void randGraphs(int size, int density);
+void startSPMenu() {
+    listGraph = nullptr;
+    matrixGraph = nullptr;
+    Dijkstra dijkstra;
+    BellmanFord bellman;
+
+    string input;
+    while(true){
+        cout << R"(Wybierz opcje:
+                   1. Wczytaj z pliku
+                   2. Losowy graf
+                   3. Dijkstra
+                   4. Bellman Ford
+                   5. Wyswietl
+                   6. Wroc)";
+        cout << "\nInput: ";
+        cin >> input;
+        int option = stoi(input);
+        switch (option) {
+            case 1:
+                cout << "Podaj nazwe pliku";
+                cin >> input;
+                loadFromFileDir(input);
+                displayGraphs();
+                break;
+            case 2:
+                int numV, dens;
+                cout << "Podaj liczbe wierzcholkow: ";
+                cin >> numV;
+                cout << "Podaj gestosc: ";
+                cin >> dens;
+                utils::generateRandomDirectedGraphs(matrixGraph, listGraph, numV, dens);
+                displayGraphs();
+                break;
+            case 3:
+                cout << "Podaj poczatkowy wierzcholek: ";
+                cin >> numV;
+                dijkstra.shortestPath(*listGraph, numV);
+                cout << "Graph as a list representation:" << endl;
+                cout << dijkstra.toString() << endl;
+
+                dijkstra.shortestPath(*matrixGraph, numV);
+                cout << "Graph as a matrix representation:" << endl;
+                cout << dijkstra.toString() << endl;
+                break;
+
+            case 4:
+                cout << "Podaj poczatkowy wierzcholek: ";
+                cin >> numV;
+                bellman.shortestPath(*listGraph, numV);
+                cout << "Graph as a list representation:" << endl;
+                cout << bellman.toString() << endl;
+
+                dijkstra.shortestPath(*matrixGraph, numV);
+                cout << "Graph as a matrix representation:" << endl;
+                cout << bellman.toString() << endl;
+                break;
+
+            case 5:
+                displayGraphs();
+                break;
+            case 6:
+                // return to prev menu options
+                return;
+            default:
+                cout << "Nieprawidlowy numer" << endl;
+        }
+    }
+}
 
 void startMSTMenu() {
     listGraph = nullptr;
     matrixGraph = nullptr;
     Prim prim;
+    Kruskal kruskal;
 
     string input;
     while(true){
@@ -38,7 +112,7 @@ void startMSTMenu() {
             case 1:
                 cout << "Podaj nazwe pliku";
                 cin >> input;
-                loadFromFile(input);
+                loadFromFileUnd(input);
                 displayGraphs();
                 break;
             case 2:
@@ -47,7 +121,7 @@ void startMSTMenu() {
                 cin >> numV;
                 cout << "Podaj gestosc: ";
                 cin >> dens;
-                randGraphs(numV, dens);
+                utils::generateRandomUndirectedGraphs(matrixGraph, listGraph, numV, dens);
                 displayGraphs();
                 break;
             case 3:
@@ -61,6 +135,13 @@ void startMSTMenu() {
                 break;
 
             case 4:
+                kruskal.mst(*listGraph);
+                cout << "Graph as a list representation:" << endl;
+                cout << prim.toString() << endl;
+
+                kruskal.mst(*matrixGraph);
+                cout << "Graph as a matrix representation:" << endl;
+                cout << prim.toString() << endl;
                 break;
 
             case 5:
@@ -79,18 +160,35 @@ int main(){
     string input;
     do{
         cout << R"(Wybierz problem:
-                  1. Minimalne drzewo rozpinajace (MST)
-                  2. Wyjdz)";
+                  1. Minimalne drzewo rozpinajace
+                  2. Najkrotsza droga w grafie
+                  3. Wyjdz)";
         cout << "\nInput: ";
         cin >> input;
         if(input == "1") {
             startMSTMenu();
         }
-    } while(input != "2");
+        else if(input == "2") {
+            startSPMenu();
+        }
+    } while(input != "3");
     return 0;
 }
 
-void loadFromFile(string filename) {
+void loadFromFileUnd(string filename) {
+    vector<vector<int>> nums = utils::readFromFile(filename);
+    vector<int> firsLine = nums[0];
+    int validLines = firsLine[0];
+    int size = firsLine[1];
+    listGraph = new AdjacencyList(size);
+    matrixGraph = new AdjacencyMatrix(size);
+    for (int i=1; i<=validLines; i++) {
+        listGraph->addUndEdge(nums[i][0], nums[i][1], nums[i][2]);
+        matrixGraph->addUndEdge(nums[i][0], nums[i][1], nums[i][2]);
+    }
+}
+
+void loadFromFileDir(string filename) {
     vector<vector<int>> nums = utils::readFromFile(filename);
     vector<int> firsLine = nums[0];
     int validLines = firsLine[0];
@@ -108,70 +206,3 @@ void displayGraphs() {
     cout << matrixGraph->toString() << endl;
 }
 
-void randGraphs(int size, int density) {
-    listGraph = new AdjacencyList(size);
-    matrixGraph = new AdjacencyMatrix(size);
-
-    // create tree (weight from 1 to 100)
-    for (int i=0; i<size-1; i++) {
-        int weight = (rand() % 100) + 1;
-        listGraph->addEdge(i, i+1, weight);
-        matrixGraph->addEdge(i, i+1, weight);
-    }
-
-    // https://www.baeldung.com/cs/graphs-max-number-of-edges
-    int maxEdges = size * (size-1) / 2;
-    int availableEdges = maxEdges - size - 1;
-    int edgesToAdd = int(0.01 * density * maxEdges);
-    if (availableEdges < edgesToAdd) return;
-
-    edgesToAdd -= size - 1;
-
-    // adding the rest of the edges
-    for (int i=0; i<edgesToAdd; i++) {
-        int weight = (rand() % 100) + 1;
-        int start = rand() % size;
-        int end = rand() % size;
-
-        if(matrixGraph->getEdge(start, end) == NO_EDGE) {
-            matrixGraph->addEdge(start, end, weight);
-            listGraph->addEdge(start, end, weight);
-        }
-    }
-//    matrixGraph = new AdjacencyMatrix(size);
-//    listGraph = new AdjacencyList(size);
-//
-//    //Maksymalna ilość wierzchołków to suma ciągu arytmetycznego an = n.
-//    int maxEdges = static_cast<int>(density / 100.0f * (((size + 1) / 2.0f) * size));
-//    int edgeCount = 0;
-//    //Generujemy drzewo rozpinające.
-//    for (int i = 0; i < size - 1; i++)
-//    {
-//        //Dla problemu minimalnego drzewa rozpinającego krawędzie są nieskierowane.
-//        int weight = (rand() % maxEdges) + 1;
-//        matrixGraph->addEdge(i, i + 1, weight);
-////        matrix->addEdge(i + 1, i, weight);
-//
-//        listGraph->addEdge(i, i + 1, weight);
-////        list->addEdge(i + 1, i, weight);
-//        edgeCount++;
-//    }
-//
-//    //Dodajemy pozostałe krawędzie (zawsze zostanie wygenerowane chociaż drzewo rozpinające).
-//    while (edgeCount < maxEdges)
-//    {
-//        int start = rand() % size;
-//        int end = rand() % size;
-//        int weight = (rand() % maxEdges) + 1;
-//
-//        if (matrixGraph->getEdge(start, end) == 0)
-//        {
-//            matrix->addEdge(start, end, weight);
-//            matrix->addEdge(end, start, weight);
-//
-//            list->addEdge(start, end, weight);
-//            list->addEdge(end, start, weight);
-//            edgeCount++;
-//        }
-//    }
-}
