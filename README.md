@@ -1,13 +1,16 @@
-# SDiZO II
+# PEA
 
 Polecenie znajduje się w folderze `docs`.
 
-Implementacja algorytmów daleka od ideału (np. sprawdzanie czy element znajduje się w stosie znacznie zwiększa złożoność obliczeniową).
+## Etapy
 
-## Zaimplementowane algorytmy
+ - [ ] brute force, dynamic programming, branch and bound
+ - [ ] tabu search, simulated annealing
+ - [ ] ant colony optimization algorithm or genetic algorithm
 
-- [x] Prim
-- [x] Kruskal
-- [x] Dijkstra
-- [x] Ford-Bellman
-- [ ] Ford Fulkerson
+## Dev steps
+
+ - [ ] wczytanie danych z pliku
+ - [ ] wygenerowanie danych losowych
+ - [ ] wyświetlenie ostatnio wczytanych lub wygenerowanych danych
+ - [ ] uruchomienie danego algorytmu dla ostatnio wczytanych lub wygenerowanych danych i  wyświetlenie wyników (należy wyświetlić długość ścieżki, ciąg wierzchołków oraz czas wykonania  algorytmu)
