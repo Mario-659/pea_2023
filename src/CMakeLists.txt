@@ -21,7 +21,10 @@ set(SOURCES
         algorithms/BellmanFord.h
         algorithms/BellmanFord.cpp
         algorithms/BruteForce.cpp
-        algorithms/BruteForce.h)
+        algorithms/BruteForce.h
+        algorithms/BranchAndBound.cpp
+        algorithms/BranchAndBound.h
+        )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
 

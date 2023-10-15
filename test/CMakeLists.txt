@@ -22,7 +22,8 @@ set(TEST_SOURCES
         DijkstraTest.cpp
         BellmanFordTest.cpp
         GraphTest.cpp
-        BruteForceTest.cpp)
+        BruteForceTest.cpp
+        BranchAndBoundTest.cpp)
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})
 

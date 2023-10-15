@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 
-#define NO_EDGE INT_MAX
+#define NO_EDGE 1222
 
 /**
  * Undirected graph representation as matrix
