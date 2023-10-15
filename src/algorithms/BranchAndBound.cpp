@@ -1,7 +1,7 @@
 #include "BranchAndBound.h"
 
 
-int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, BaBNode u) {
+int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, Node u) {
     int bound = 0;
     std::vector<bool> visited(size, false);
 
@@ -27,9 +27,9 @@ int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, BaBNode u) {
 }
 
 void BranchAndBound::findPath(AdjacencyMatrix &graph) {
-    std::vector<BaBNode> nodes;
+    std::vector<Node> nodes;
 
-    BaBNode start;
+    Node start;
     start.level = 0;
     start.path.push_back(0);
     start.bound = TSPBound(graph, start);
@@ -40,13 +40,13 @@ void BranchAndBound::findPath(AdjacencyMatrix &graph) {
         // Sort the nodes based on the bound, so we always process the most promising node first
         std::sort(nodes.begin(), nodes.end());
 
-        BaBNode curr = nodes.back();
+        Node curr = nodes.back();
         nodes.pop_back();
 
         if (curr.bound < minCost) {
             for (int i = 1; i < size; i++) {
                 if (std::find(curr.path.begin(), curr.path.end(), i) == curr.path.end()) {
-                    BaBNode child = curr;
+                    Node child = curr;
                     child.path.push_back(i);
                     child.level = curr.level + 1;
                     if (child.level == size - 1) {
@@ -77,10 +77,11 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
 }
 
 std::string BranchAndBound::toString() {
-    std::string path = "0 -> ";
-    for (int i : bestPath) {
-        path += std::to_string(i) + " -> ";
+    std::string path = "";
+    for (int i = 0; i < bestPath.size() - 1; i++) {
+        path += std::to_string(bestPath[i]) + " -> ";
     }
-    path += "0";
-    return path;
+
+    return path += std::to_string(bestPath.back());
 }
+

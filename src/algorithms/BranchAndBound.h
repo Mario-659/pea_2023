@@ -10,11 +10,11 @@
 #include <algorithm>
 #include <sstream>
 
-struct BaBNode {
+struct Node {
     std::vector<int> path;
     int level;
     int bound;
-    bool operator<(const BaBNode& other) const {
+    bool operator<(const Node& other) const {
         return bound < other.bound;
     }
 };
@@ -26,7 +26,7 @@ private:
     int size;
     std::vector<int> bestPath;
 
-    int TSPBound(AdjacencyMatrix &matrix, BaBNode u);
+    int TSPBound(AdjacencyMatrix &matrix, Node u);
     void findPath(AdjacencyMatrix &graph);
 
 public:
