@@ -16,11 +16,6 @@ set(TEST_SOURCES
         main.cpp
         UtilsTest.cpp
         HeapTest.cpp
-        PrimTest.cpp
-        KruskalTest.cpp
-        MergeSortTest.cpp
-        DijkstraTest.cpp
-        BellmanFordTest.cpp
         GraphTest.cpp
         BruteForceTest.cpp
         BranchAndBoundTest.cpp)

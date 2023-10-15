@@ -10,7 +10,6 @@
 #include <random>
 #include <set>
 
-#include "../graphs/AdjacencyList.h"
 #include "../graphs/AdjacencyMatrix.h"
 
 namespace utils{
@@ -30,9 +29,9 @@ namespace utils{
      */
     std::vector<int> getRandVect(int size, int min, int max);
 
-    void generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList*& list, int size, int density);
+    void generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int density);
 
-    void generateRandomUndirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList*& list, int size, int density);
+    void generateRandomUndirectedGraphs(AdjacencyMatrix*& matrix, int size, int density);
 }
 
 

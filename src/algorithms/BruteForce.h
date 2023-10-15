@@ -1,7 +1,6 @@
 #ifndef PEA_BRUTEFORCE_H
 #define PEA_BRUTEFORCE_H
 
-#include "../graphs/AdjacencyList.h"
 #include "../graphs/AdjacencyMatrix.h"
 
 #include <algorithm>

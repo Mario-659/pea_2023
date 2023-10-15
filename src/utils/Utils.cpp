@@ -55,9 +55,8 @@ vector<int> utils::getRandVect(int size, int min, int max) {
     return values;
 }
 
-void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, AdjacencyList *&list, int size, int density) {
+void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, int size, int density) {
     matrix = new AdjacencyMatrix(size);
-    list = new AdjacencyList(size);
 
     // https://www.baeldung.com/cs/graphs-max-number-of-edges
     int maxEdges = size * (size-1) / 2;
@@ -86,7 +85,6 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, AdjacencyLi
                     continue;
                 }
                 matrix->addUndEdge(i, j, weights[counter]);
-                list->addUndEdge(i, j, weights[counter]);
                 counter++;
             }
         }
@@ -96,7 +94,6 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, AdjacencyLi
     // create tree (weight from 1 to 100)
     for (int i=0; i<size-1; i++) {
         int weight = (rand() % 100) + 1;
-        list->addUndEdge(i, i + 1, weight);
         matrix->addUndEdge(i, i + 1, weight);
     }
 
@@ -110,15 +107,13 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, AdjacencyLi
 
         if(matrix->getEdge(start, end) == NO_EDGE) {
             matrix->addUndEdge(start, end, weight);
-            list->addUndEdge(start, end, weight);
             edgesToAdd--;
         }
     }
 }
 
-void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList*& list, int size, int density) {
+void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int density) {
     matrix = new AdjacencyMatrix(size);
-    list = new AdjacencyList(size);
 
     // https://www.baeldung.com/cs/graphs-max-number-of-edges
     int maxEdges = size * (size-1);
@@ -149,7 +144,6 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList
                     continue;
                 }
                 matrix->addEdge(i, j, weights[counter]);
-                list->addEdge(i, j, weights[counter]);
                 counter++;
             }
         }
@@ -159,7 +153,6 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList
     // create tree (weight from 1 to 100)
     for (int i=0; i<size-1; i++) {
         int weight = (rand() % 100) + 1;
-        list->addEdge(i, i + 1, weight);
         matrix->addEdge(i, i + 1, weight);
     }
 
@@ -173,7 +166,6 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, AdjacencyList
 
         if(matrix->getEdge(start, end) == NO_EDGE) {
             matrix->addEdge(start, end, weight);
-            list->addEdge(start, end, weight);
             edgesToAdd--;
         }
     }

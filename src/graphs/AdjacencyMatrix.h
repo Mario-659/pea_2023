@@ -1,5 +1,5 @@
-#ifndef SDIZO_2_ADJACENCYMATRIX_H
-#define SDIZO_2_ADJACENCYMATRIX_H
+#ifndef PEA_ADJACENCYMATRIX_H
+#define PEA_ADJACENCYMATRIX_H
 
 #include <iomanip>
 #include <string>
@@ -44,4 +44,4 @@ private:
     bool validateEdge(int start, int end);
 };
 
-#endif //SDIZO_2_ADJACENCYMATRIX_H
+#endif //PEA_ADJACENCYMATRIX_H
