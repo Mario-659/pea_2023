@@ -29,3 +29,9 @@ add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})
 add_test(NAME ${CMAKE_PROJECT_NAME}_tst COMMAND ${CMAKE_PROJECT_NAME}_tst)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}_tst PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest)
+
+# Copy the test/resources directory to the location of the test executable
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME}_tst POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/test/resources $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}_tst>/resources)
+
