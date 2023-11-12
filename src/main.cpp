@@ -2,13 +2,12 @@
 
 #include "graphs/AdjacencyMatrix.h"
 #include "utils/Utils.h"
+#include "stdexcept"
 
 using namespace std;
 
-// reads data from file as undirected graph
-void loadFromFileUnd(string filename);
-// reads data from file as directed graph
-void loadFromFileDir(string filename);
+// reads data from file as graph
+void loadFromFileDir(string filename, bool directed=true);
 
 AdjacencyMatrix* matrixGraph = nullptr;
 
@@ -29,10 +28,15 @@ void startSPMenu() {
         int option = stoi(input);
         switch (option) {
             case 1:
-                cout << "Podaj nazwe pliku";
+                cout << "Podaj nazwe pliku: ";
                 cin >> input;
-                loadFromFileDir(input);
-                displayGraphs();
+                try {
+                    loadFromFileDir(input);
+                    std::cout << "\n";
+                    displayGraphs();
+                } catch (std::invalid_argument &e) {
+                    cout << "Nie znaleziono pliku\n";
+                }
                 break;
             case 2:
                 int numV, dens;
@@ -71,25 +75,20 @@ int main(){
     return 0;
 }
 
-void loadFromFileUnd(string filename) {
+void loadFromFileDir(string filename, bool directed) {
     vector<vector<int>> nums = utils::readFromFile(filename);
-    vector<int> firsLine = nums[0];
-    int validLines = firsLine[0];
-    int size = firsLine[1];
+    if (nums.size() < 2) throw std::invalid_argument("invalid path");
+    vector<int> firstLine = nums[0];
+    int size = firstLine[0];
+    nums.erase(nums.begin()); // remove line where the size is defined
     matrixGraph = new AdjacencyMatrix(size);
-    for (int i=1; i<=validLines; i++) {
-        matrixGraph->addUndEdge(nums[i][0], nums[i][1], nums[i][2]);
-    }
-}
-
-void loadFromFileDir(string filename) {
-    vector<vector<int>> nums = utils::readFromFile(filename);
-    vector<int> firsLine = nums[0];
-    int validLines = firsLine[0];
-    int size = firsLine[1];
-    matrixGraph = new AdjacencyMatrix(size);
-    for (int i=1; i<=validLines; i++) {
-        matrixGraph->addEdge(nums[i][0], nums[i][1], nums[i][2]);
+    for (int i=0; i<nums.size(); i++) {
+        for (int j=0; j<nums.size(); j++) {
+            if (directed)
+                matrixGraph->addEdge(i, j, nums[i][j]);
+            else
+                matrixGraph->addUndEdge(i, j, nums[i][j]);
+        }
     }
 }
 

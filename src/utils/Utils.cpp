@@ -37,6 +37,7 @@ vector<vector<int>> utils::readFromFile(string filename) {
 
     string line;
     while (getline(input, line)) {
+        if (line.empty()) break;
         auto params = split(line, " ");
         auto nums = extractInt(params);
         lines.push_back(nums);
