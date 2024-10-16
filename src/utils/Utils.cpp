@@ -30,19 +30,20 @@ vector<int> extractInt(vector<string> params){
 }
 
 vector<vector<int>> utils::readFromFile(string filename) {
-    vector<vector<int>> lines;
-
     ifstream input(filename, fstream::in);
-    if(!input.good()) return lines;
+    if(!input.good())
+        throw std::invalid_argument("An error occurred while trying to open file with filename: " + filename);
 
+    vector<vector<int>> numbers;
     string line;
     while (getline(input, line)) {
         if (line.empty()) break;
         auto params = split(line, " ");
         auto nums = extractInt(params);
-        lines.push_back(nums);
+        numbers.push_back(nums);
     }
-    return lines;
+
+    return numbers;
 }
 
 vector<int> utils::getRandVect(int size, int min, int max) {
