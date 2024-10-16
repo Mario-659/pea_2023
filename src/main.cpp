@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// reads data from file as graph
+// reads data from file as graph, assumes first line in file stands for graph size
 void loadFromFileDir(string filename, bool directed=true);
 
 AdjacencyMatrix* matrixGraph = nullptr;
@@ -97,13 +97,18 @@ int main(){
 
 void loadFromFileDir(string filename, bool directed) {
     vector<vector<int>> nums = utils::readFromFile(filename);
-    if (nums.size() < 2) throw std::invalid_argument("invalid path");
-    vector<int> firstLine = nums[0];
-    int size = firstLine[0];
-    nums.erase(nums.begin()); // remove line where the size is defined
+
+    if (nums.size() < 2)
+        throw std::invalid_argument("invalid path");
+
+    int size = nums[0][0];
+
+    // remove line where the size is defined
+    nums.erase(nums.begin());
+
     matrixGraph = new AdjacencyMatrix(size);
-    for (int i=0; i<nums.size(); i++) {
-        for (int j=0; j<nums.size(); j++) {
+    for (int i = 0; i < nums.size(); i++) {
+        for (int j = 0; j < nums.size(); j++) {
             if (directed)
                 matrixGraph->addEdge(i, j, nums[i][j]);
             else
