@@ -17,6 +17,9 @@ struct Node {
     bool operator<(const Node& other) const {
         return bound < other.bound;
     }
+    bool operator>(const Node& other) const {
+        return bound > other.bound;
+    }
 };
 
 class BranchAndBound {

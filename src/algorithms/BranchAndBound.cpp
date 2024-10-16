@@ -1,4 +1,5 @@
 #include "BranchAndBound.h"
+#include "Heap.h"
 
 
 int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, Node &u) {
@@ -33,7 +34,7 @@ int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, Node &u) {
 }
 
 void BranchAndBound::findPath(AdjacencyMatrix &graph) {
-    std::priority_queue<Node> nodes;
+    Heap<Node> nodes(size * size);
 
     Node start;
     start.level = 0;
@@ -42,20 +43,18 @@ void BranchAndBound::findPath(AdjacencyMatrix &graph) {
 
     nodes.push(start);
 
-    while (!nodes.empty()) {
-        Node curr = nodes.top();
-        nodes.pop();
+    while (nodes.getSize() > 0) {
+        Node curr = nodes.extractMin();
 
-        // If the current node's bound is less than the minCost
         if (curr.bound < minCost) {
             for (int i = 1; i < size; i++) {
                 if (std::find(curr.path.begin(), curr.path.end(), i) == curr.path.end()) {
-                    Node child = curr; // Copy current node to create a child
+                    Node child = curr;
                     child.path.push_back(i);
                     child.level = curr.level + 1;
 
                     if (child.level == size - 1) {
-                        child.path.push_back(0); // Complete the cycle
+                        child.path.push_back(0);
                         int currCost = 0;
                         for (size_t j = 0; j < child.path.size() - 1; j++) {
                             currCost += graph.getEdge(child.path[j], child.path[j + 1]);
@@ -67,7 +66,7 @@ void BranchAndBound::findPath(AdjacencyMatrix &graph) {
                     } else {
                         child.bound = TSPBound(graph, child);
                         if (child.bound < minCost) {
-                            nodes.push(child); // Add child to the priority queue
+                            nodes.push(child);
                         }
                     }
                 }
