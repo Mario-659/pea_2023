@@ -1,5 +1,5 @@
-#ifndef SDIZO_2_UTILS_H
-#define SDIZO_2_UTILS_H
+#ifndef PEA_UTILS_H
+#define PEA_UTILS_H
 
 #include <string>
 #include <vector>
@@ -39,4 +39,4 @@ namespace utils{
 
 
 
-#endif //SDIZO_2_UTILS_H
+#endif //PEA_UTILS_H

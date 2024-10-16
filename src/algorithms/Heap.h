@@ -1,5 +1,5 @@
-#ifndef SDIZO_2_HEAP_H
-#define SDIZO_2_HEAP_H
+#ifndef PEA_HEAP_H
+#define PEA_HEAP_H
 
 #include <utility>
 
@@ -124,4 +124,4 @@ void Heap<T>::update(T prev, T newVal) {
     }
 }
 
-#endif // SDIZO_2_HEAP_H
+#endif // PEA_HEAP_H
