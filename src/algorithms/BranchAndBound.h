@@ -26,7 +26,7 @@ private:
     int size;
     std::vector<int> bestPath;
 
-    int TSPBound(AdjacencyMatrix &matrix, Node u);
+    int TSPBound(AdjacencyMatrix &matrix, Node &u);
     void findPath(AdjacencyMatrix &graph);
 
 public:
