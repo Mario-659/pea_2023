@@ -16,7 +16,9 @@ namespace utils{
     /**
      * Read int values from file
      *
-     * If couldn't read file returns empty vector
+     * Throws std::invalid_argument when encounters
+     * error while opening file
+     *
      * @param filename name of the file
      * @return vector of lines of values in filename
      */
