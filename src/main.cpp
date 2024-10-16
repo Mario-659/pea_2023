@@ -3,6 +3,8 @@
 #include "graphs/AdjacencyMatrix.h"
 #include "utils/Utils.h"
 #include "stdexcept"
+#include "algorithms/BruteForce.h"
+#include "algorithms/BranchAndBound.h"
 
 using namespace std;
 
@@ -22,7 +24,9 @@ void startSPMenu() {
                    1. Wczytaj z pliku
                    2. Losowy graf
                    5. Wyswietl
-                   6. Wroc)";
+                   6. Brute force
+                   7. Branch and Bound
+                   8. Wroc)";
         cout << "\nInput: ";
         cin >> input;
         int option = stoi(input);
@@ -52,6 +56,22 @@ void startSPMenu() {
                 displayGraphs();
                 break;
             case 6:
+            {
+                BruteForce bruteForceTsp;
+                bruteForceTsp.findShortestPath(*matrixGraph);
+                std::cout << "\nShortest path: " << bruteForceTsp.toString() << "\n" <<
+                               "Koszt sciezki: " << bruteForceTsp.getShortestPathLength() << std::endl;
+            }
+            break;
+            case 7:
+            {
+                BranchAndBound branchAndBoundTsp;
+                branchAndBoundTsp.solve(*matrixGraph);
+                std::cout << "\nNajkrotsza sciezka: " << branchAndBoundTsp.toString() << "\n" <<
+                               "Koszt sciezki: " << branchAndBoundTsp.getMinCost() << std::endl;
+            }
+            break;
+            case 8:
                 // return to prev menu options
                 return;
             default:

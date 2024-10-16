@@ -18,7 +18,7 @@ set(TEST_SOURCES
         HeapTest.cpp
         GraphTest.cpp
         BruteForceTest.cpp
-        BranchAndBoundTest.cpp)
+        BranchAndBoundTest.cpp DynamicTest.cpp)
 
 add_executable(${CMAKE_PROJECT_NAME}_tst ${TEST_SOURCES})
 
