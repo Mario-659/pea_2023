@@ -12,7 +12,7 @@ TEST(DynamicTSPTest, shouldFindShortestPathFromMatrixCaseOne) {
     graph.addEdge(5, 0, 2);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(19, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0", tsp.toString());
@@ -28,7 +28,7 @@ TEST(DynamicTSPTest, shouldFindShortestPathFromUndMatrixCaseOne) {
     graph.addUndEdge(5, 0, 2);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(17, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0", tsp.toString());
@@ -73,7 +73,7 @@ TEST(DynamicTSPTest, tsp_6_1) {
     graph.addEdge(5, 4, 38);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(132, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 0", tsp.toString());
@@ -119,7 +119,7 @@ TEST(DynamicTSPTest, tsp_6_2) {
     graph.addEdge(5, 4, 38);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(80, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 5 -> 1 -> 2 -> 3 -> 4 -> 0", tsp.toString());
@@ -228,7 +228,7 @@ TEST(DynamicTSPTest, tsp_10_1) {
     graph.addEdge(9, 8, 68);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(212, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 3 -> 4 -> 2 -> 8 -> 7 -> 6 -> 9 -> 1 -> 5 -> 0", tsp.toString());
@@ -381,7 +381,7 @@ TEST(DynamicTSPTest, tsp_12_1) {
     graph.addEdge(11, 10, 65);
 
     Dynamic tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(264, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 8 -> 4 -> 6 -> 2 -> 11 -> 9 -> 7 -> 5 -> 3 -> 10 -> 0", tsp.toString());

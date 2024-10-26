@@ -18,23 +18,24 @@ private:
     std::vector<std::vector<int>> parent;
 
     // Recursive function to calculate the minimum weight of the TSP
-    int tsp(int pos, int visited) {
-        // Base case: all vertices are visited
+    int findMinConst(int pos, int visited) {
+
+        // return cost to starting point if all nodes are visited
         if (visited == ((1 << size) - 1)) {
             return graph->getEdge(pos, 0);  // Return to starting point
         }
 
-        // Return if the path is already computed
+        // return if the path is already computed
         if (memo[pos][visited] != -1) {
             return memo[pos][visited];
         }
 
-        int answer = INT_MAX;
+        int answer = std::numeric_limits<int>::max();
 
-        // Try to go to an unvisited vertex
+        // try to go to an unvisited vertex
         for (int city = 0; city < size; city++) {
             if (!(visited & (1 << city))) {
-                int newAnswer = graph->getEdge(pos, city) + tsp(city, visited | (1 << city));
+                int newAnswer = graph->getEdge(pos, city) + findMinConst(city, visited | (1 << city));
                 if (newAnswer < answer) {
                     answer = newAnswer;
                     parent[pos][visited] = city;  // Store the path
@@ -45,32 +46,40 @@ private:
         return memo[pos][visited] = answer;
     }
 
-    // Build the path from the computed parent information
     void buildPath() {
-        int visited = 1;  // Start with city 0 visited
-        int current = 0;  // Start from city 0
-        bestPath.clear();  // Clear any existing path
-        bestPath.push_back(current);  // Start from city 0
+        bestPath.clear();
+
+        // start from city 0
+        int visited = 1;
+        int current = 0;
+        bestPath.push_back(current);
 
         while (visited != (1 << size) - 1) {
-            current = parent[current][visited];  // Move to the next city
-            visited |= (1 << current);  // Mark the city as visited
+            current = parent[current][visited];  // move to the next city
+            visited |= (1 << current);  // mark the city as visited
             bestPath.push_back(current);
         }
-        bestPath.push_back(0);  // Return to starting point
+
+        // add return to starting node
+        bestPath.push_back(0);
     }
 
 public:
-    Dynamic() : shortestPathLength(INT_MAX), size(0) {}
+    Dynamic() : shortestPathLength(std::numeric_limits<int>::max()), size(0) {}
 
-    // Function to find the shortest path using dynamic programming
-    void findShortestPath(AdjacencyMatrix &graph) {
+    void solve(AdjacencyMatrix &graph) {
         this->graph = &graph;
         this->size = graph.getSize();
+
+        // init memo table
         memo.assign(size, std::vector<int>(1 << size, -1));
+
         parent.assign(size, std::vector<int>(1 << size, -1));
 
-        shortestPathLength = tsp(0, 1);  // Start from city 0
+        // find minimal cost starting from node 0
+        shortestPathLength = findMinConst(0, 1);
+
+        // find the best path based on min cost and memo
         buildPath();
     }
 

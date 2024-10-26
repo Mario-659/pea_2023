@@ -6,7 +6,7 @@
 //using namespace std;
 //
 //
-//void Dynamic::findShortestPath(AdjacencyMatrix& graph) {
+//void Dynamic::solve(AdjacencyMatrix& graph) {
 //    this->size = graph.getSize();
 //    this->routes.resize(this->size, vector<int>(this->size, 0));
 //
