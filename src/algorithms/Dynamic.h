@@ -17,6 +17,7 @@ private:
     std::vector<std::vector<int>> memo;
     std::vector<std::vector<int>> parent;
 
+    // Recursive function to calculate the minimum weight of the TSP
     int tsp(int pos, int visited) {
         // Base case: all vertices are visited
         if (visited == ((1 << size) - 1)) {
@@ -36,7 +37,7 @@ private:
                 int newAnswer = graph->getEdge(pos, city) + tsp(city, visited | (1 << city));
                 if (newAnswer < answer) {
                     answer = newAnswer;
-                    parent[pos][visited] = city;
+                    parent[pos][visited] = city;  // Store the path
                 }
             }
         }
@@ -44,21 +45,25 @@ private:
         return memo[pos][visited] = answer;
     }
 
+    // Build the path from the computed parent information
     void buildPath() {
-        int visited = 0;
-        int current = 0;
-        bestPath.push_back(0);
+        int visited = 1;  // Start with city 0 visited
+        int current = 0;  // Start from city 0
+        bestPath.clear();  // Clear any existing path
+        bestPath.push_back(current);  // Start from city 0
 
         while (visited != (1 << size) - 1) {
-            visited |= (1 << current);
-            current = parent[current][visited];
+            current = parent[current][visited];  // Move to the next city
+            visited |= (1 << current);  // Mark the city as visited
             bestPath.push_back(current);
         }
+        bestPath.push_back(0);  // Return to starting point
     }
 
 public:
     Dynamic() : shortestPathLength(INT_MAX), size(0) {}
 
+    // Function to find the shortest path using dynamic programming
     void findShortestPath(AdjacencyMatrix &graph) {
         this->graph = &graph;
         this->size = graph.getSize();
@@ -72,14 +77,15 @@ public:
     int getShortestPathLength() const { return shortestPathLength; }
 
     std::string toString() {
-        std::string path = "0 -> ";
-        for (int i : bestPath) {
-            path += std::to_string(i) + " -> ";
+        std::string path;
+        for (size_t i = 0; i < bestPath.size(); ++i) {
+            path += std::to_string(bestPath[i]);
+            if (i < bestPath.size() - 1) {
+                path += " -> ";
+            }
         }
-        path += "0";
         return path;
     }
-
 };
 
 
