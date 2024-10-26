@@ -9,7 +9,7 @@
 #define NO_EDGE 1222
 
 /**
- * Undirected graph representation as matrix
+ * Graph representation as matrix
  */
 class AdjacencyMatrix {
 public:
