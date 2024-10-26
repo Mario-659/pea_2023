@@ -230,6 +230,6 @@ TEST(BranchAndBoundTSPTest, tsp_10_1) {
     BranchAndBound tsp;
     tsp.solve(graph);
 
-//    ASSERT_EQ(212, tsp.getMinCost());
+    ASSERT_EQ(212, tsp.getMinCost());
     ASSERT_EQ("0 -> 3 -> 4 -> 2 -> 8 -> 7 -> 6 -> 9 -> 1 -> 5 -> 0", tsp.toString());
 }
