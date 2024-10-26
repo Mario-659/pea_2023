@@ -1,37 +1,64 @@
 #include "BranchAndBound.h"
 #include "Heap.h"
 
-
+/**
+ * Calculate the lower bound for TSP using the current path and remaining nodes.
+ */
 int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, Node &u) {
-    int bound = 0;
-    std::vector<bool> visited(size, false);
+    int currentPathCost = 0;
 
-    for (int i : u.path) {
-        visited[i] = true;
+    // add the cost of edges in the current path
+    for (int i = 0; i < u.path.size() - 1; i++) {
+        currentPathCost += matrix.getEdge(u.path[i], u.path[i + 1]);
     }
 
-    for (int i = 0; i < size; i++) {
-        if (visited[i]) continue;
-        int min1 = std::numeric_limits<int>::max();
-        int min2 = std::numeric_limits<int>::max();
-        for (int j = 0; j < size; j++) {
-            if (i != j && !visited[j]) {
-                int edgeCost = matrix.getEdge(i, j);
-                if (edgeCost < min1) {
-                    min2 = min1;
-                    min1 = edgeCost;
-                } else if (edgeCost < min2) {
-                    min2 = edgeCost;
+    std::vector<bool> visited(matrix.getSize(), false);
+    // mark visited nodes
+    for (int node : u.path) {
+        visited[node] = true;
+    }
+
+    // Add minimum edge costs for unvisited nodes
+    int minEdge = 0;
+    for (int i = 0; i < matrix.getSize(); i++) {
+        if (!visited[i]) {
+            // Find the minimum edge connected to the unvisited node
+            int minCost = std::numeric_limits<int>::max();
+            for (int j = 0; j < matrix.getSize(); j++) {
+                if (i != j && !visited[j]) {
+                    int edgeWeight = matrix.getEdge(i, j);
+                    if (edgeWeight < minCost) {
+                        minCost = edgeWeight;
+                    }
                 }
             }
-        }
-        if (min1 != std::numeric_limits<int>::max()) {
-            bound += min1 + min2;
+            // If we found a valid edge, add it to the bound
+            if (minCost != std::numeric_limits<int>::max()) {
+                minEdge += minCost;
+            }
         }
     }
 
-    return (bound / 2);
+    // To complete the bound, add the minimum edge for the return path
+    int returnMin = std::numeric_limits<int>::max();
+    for (int i = 0; i < matrix.getSize(); i++) {
+        if (i != u.path[0] && !visited[i]) { // Return to the starting node
+            int edgeWeight = matrix.getEdge(u.path.back(), i);
+            if (edgeWeight < returnMin) {
+                returnMin = edgeWeight;
+            }
+        }
+    }
+
+    // If we found a valid return path, add it
+    if (returnMin != std::numeric_limits<int>::max()) {
+        minEdge += returnMin;
+    }
+
+    // The total bound is the currentPathCost of the current path plus the minimum edge costs
+    return currentPathCost + minEdge;
 }
+
 
 void BranchAndBound::findPath(AdjacencyMatrix &graph) {
     Heap<Node> nodes(size * size);
