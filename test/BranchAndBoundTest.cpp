@@ -31,7 +31,8 @@ TEST(BranchAndBoundTSPTest, shouldFindShortestPathFromUndMatrixCaseOne) {
     tsp.solve(graph);
 
     ASSERT_EQ(17, tsp.getMinCost());
-    ASSERT_EQ("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0", tsp.toString());
+    EXPECT_TRUE("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0" == tsp.toString() ||
+                "0 -> 5 -> 3 -> 4 -> 2 -> 1 -> 0" == tsp.toString() );
 }
 
 TEST(BranchAndBoundTSPTest, tsp_6_1) {
