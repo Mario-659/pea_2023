@@ -1,6 +1,6 @@
 #include "BruteForce.h"
 
-void BruteForce::findShortestPath(AdjacencyMatrix &graph) {
+void BruteForce::solve(AdjacencyMatrix &graph) {
     shortestPathLength = std::numeric_limits<int>::max();
 
     size = graph.getSize();

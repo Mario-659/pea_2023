@@ -12,7 +12,7 @@ TEST(BruteForceTSPTest, shouldFindShortestPathFromMatrixCaseOne) {
     graph.setEdge(5, 0, 2);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(19, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0", tsp.toString());
@@ -39,7 +39,7 @@ TEST(BruteForceTSPTest, shouldFindShortestPathFromUndMatrixCaseOne) {
     graph.setEdge(0, 5, 2);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(17, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0", tsp.toString());
@@ -61,7 +61,7 @@ TEST(BruteForceTSPTest, shouldFindShortestPathFromUndirectedMatrixRandomCaseOne)
     graph.setEdge(3, 2, 87);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(58, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 3 -> 0", tsp.toString());
@@ -106,7 +106,7 @@ TEST(BruteForceTSPTest, tsp_6_1) {
     graph.setEdge(5, 4, 38);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(132, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 0", tsp.toString());
@@ -152,7 +152,7 @@ TEST(BruteForceTSPTest, tsp_6_2) {
     graph.setEdge(5, 4, 38);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(80, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 5 -> 1 -> 2 -> 3 -> 4 -> 0", tsp.toString());
@@ -261,7 +261,7 @@ TEST(BruteForceTSPTest, tsp_10_1) {
     graph.setEdge(9, 8, 68);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(212, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 3 -> 4 -> 2 -> 8 -> 7 -> 6 -> 9 -> 1 -> 5 -> 0", tsp.toString());
@@ -414,7 +414,7 @@ TEST(BruteForceTSPTest, tsp_12_1) {
     graph.setEdge(11, 10, 65);
 
     BruteForce tsp;
-    tsp.findShortestPath(graph);
+    tsp.solve(graph);
 
     ASSERT_EQ(264, tsp.getShortestPathLength());
     ASSERT_EQ("0 -> 1 -> 8 -> 4 -> 6 -> 2 -> 11 -> 9 -> 7 -> 5 -> 3 -> 10 -> 0", tsp.toString());

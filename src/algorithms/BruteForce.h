@@ -2,28 +2,25 @@
 #define PEA_BRUTEFORCE_H
 
 #include "../graphs/AdjacencyMatrix.h"
+#include "TSPSolver.h"
 
 #include <algorithm>
 #include <climits>
 #include <vector>
 #include <string>
 
-class BruteForce {
+class BruteForce : public TSPSolver {
 private:
-    int shortestPathLength;
     int size;
     std::vector<int> bestPath;
 
 public:
 
-    BruteForce() : shortestPathLength(INT_MAX), size(0) {}
+    BruteForce() : TSPSolver(), size(0) {}
 
-    void findShortestPath(AdjacencyMatrix &graph);
+    void solve(AdjacencyMatrix &graph) override;
 
-    int getShortestPathLength() const { return shortestPathLength; }
-
-    std::string toString();
-
+    std::string toString() override;
 };
 
 #endif //PEA_BRUTEFORCE_H

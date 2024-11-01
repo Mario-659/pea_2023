@@ -58,7 +58,7 @@ void startSPMenu() {
             case 6:
             {
                 BruteForce bruteForceTsp;
-                bruteForceTsp.findShortestPath(*matrixGraph);
+                bruteForceTsp.solve(*matrixGraph);
                 std::cout << "\nShortest path: " << bruteForceTsp.toString() << "\n" <<
                                "Koszt sciezki: " << bruteForceTsp.getShortestPathLength() << std::endl;
             }
