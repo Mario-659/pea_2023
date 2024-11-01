@@ -1,62 +1,39 @@
 #include "BranchAndBound.h"
 #include "Heap.h"
 
-/**
- * Calculate the lower bound for TSP using the current path and remaining nodes.
- */
 int BranchAndBound::TSPBound(AdjacencyMatrix &matrix, Node &u) {
     int currentPathCost = 0;
 
-    // add the cost of edges in the current path
+    // Calculate the current path cost based on the partial path in 'u'
     for (int i = 0; i < u.path.size() - 1; i++) {
         currentPathCost += matrix.getEdge(u.path[i], u.path[i + 1]);
     }
 
     std::vector<bool> visited(matrix.getSize(), false);
-    // mark visited nodes
+    // Mark visited nodes
     for (int node : u.path) {
         visited[node] = true;
     }
 
-    // Add minimum edge costs for unvisited nodes
-    int minEdge = 0;
+    // Sum the minimum outbound edge cost for each node to estimate the lower bound
+    int estimatedRemainingCost = 0;
     for (int i = 0; i < matrix.getSize(); i++) {
-        if (!visited[i]) {
-            // Find the minimum edge connected to the unvisited node
-            int minCost = std::numeric_limits<int>::max();
+        if (!visited[i] || i == u.path.back()) { // Only consider nodes that are unvisited or the last node in the path
+            int minEdgeCost = std::numeric_limits<int>::max();
             for (int j = 0; j < matrix.getSize(); j++) {
-                if (i != j && !visited[j]) {
-                    int edgeWeight = matrix.getEdge(i, j);
-                    if (edgeWeight < minCost) {
-                        minCost = edgeWeight;
-                    }
+                if (i != j && matrix.getEdge(i, j) != -1) { // Ensure no self-loops and no missing edges
+                    minEdgeCost = std::min(minEdgeCost, matrix.getEdge(i, j));
                 }
             }
-            // If we found a valid edge, add it to the bound
-            if (minCost != std::numeric_limits<int>::max()) {
-                minEdge += minCost;
+            // Add the minimum edge cost for node 'i' to the remaining estimated cost
+            if (minEdgeCost != std::numeric_limits<int>::max()) {
+                estimatedRemainingCost += minEdgeCost;
             }
         }
     }
 
-    // To complete the bound, add the minimum edge for the return path
-    int returnMin = std::numeric_limits<int>::max();
-    for (int i = 0; i < matrix.getSize(); i++) {
-        if (i != u.path[0] && !visited[i]) { // Return to the starting node
-            int edgeWeight = matrix.getEdge(u.path.back(), i);
-            if (edgeWeight < returnMin) {
-                returnMin = edgeWeight;
-            }
-        }
-    }
-
-    // If we found a valid return path, add it
-    if (returnMin != std::numeric_limits<int>::max()) {
-        minEdge += returnMin;
-    }
-
-    // The total bound is the currentPathCost of the current path plus the minimum edge costs
-    return currentPathCost + minEdge;
+    // Total bound = current path cost + estimated remaining minimum cost
+    return currentPathCost + estimatedRemainingCost;
 }
 
 
