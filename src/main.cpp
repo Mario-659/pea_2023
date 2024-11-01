@@ -43,12 +43,12 @@ void startSPMenu() {
                 }
                 break;
             case 2:
-                int numV, dens;
+                int numV;
                 cout << "Podaj liczbe wierzcholkow: ";
                 cin >> numV;
-                cout << "Podaj gestosc: ";
-                cin >> dens;
-                utils::generateRandomDirectedGraphs(matrixGraph, numV, dens);
+
+                matrixGraph = new AdjacencyMatrix(numV);
+                matrixGraph->generateRandomMatrix(0, 100);
                 displayGraphs();
                 break;
 

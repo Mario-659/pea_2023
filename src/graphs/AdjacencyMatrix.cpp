@@ -28,6 +28,7 @@ int AdjacencyMatrix::getSize() const {
     return size;
 }
 
+// TODO look at https://www.baeldung.com/cs/graphs-max-number-of-edges and adjust
 void AdjacencyMatrix::generateRandomMatrix(int minWeight, int maxWeight) {
     std::random_device rd;
     std::mt19937 gen(rd());

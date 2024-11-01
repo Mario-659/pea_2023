@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-
-#include "utils/Utils.h"
+//#include "gtest/gtest.h"
+//
+//#include "utils/Utils.h"
 
 /* TODO test is not passing, probably should mock file reader as path of test file depends on execution path
 TEST(fileReader, shouldReadFromFileInExpectedOrder) {
@@ -30,21 +30,3 @@ TEST(fileReader, shouldReadFromFileInExpectedOrder) {
     }
 }
 */
-
-TEST(randomVector, shouldReturnRandomVectorWithGivenSize) {
-    int SIZE = 57;
-    std::vector<int> actual = utils::getRandVect(SIZE, 0, 100);
-    ASSERT_EQ(SIZE, actual.size());
-}
-
-TEST(randomVector, shouldReturnRandomVectorInGivenRange) {
-    int MIN = -10;
-    int MAX = 10;
-    int SIZE = 100;
-    std::vector<int> actual = utils::getRandVect(SIZE, MIN, MAX);
-
-    for (int i=0; i<SIZE; i++) {
-        ASSERT_TRUE(actual[i] >= MIN);
-        ASSERT_TRUE(actual[i] <= MAX);
-    }
-}

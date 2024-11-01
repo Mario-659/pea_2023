@@ -12,7 +12,7 @@
 
 #include "../graphs/AdjacencyMatrix.h"
 
-namespace utils{
+namespace utils {
     /**
      * Read int values from file
      *
@@ -23,20 +23,6 @@ namespace utils{
      * @return vector of lines of values in filename
      */
     std::vector<std::vector<int>> readFromFile(std::string filename);
-
-    /**
-     * Create vector with random int values in range <min, max>
-     *
-     * @return Vector with random values
-     */
-    std::vector<int> getRandVect(int size, int min, int max);
-
-    void generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int density);
-
-    void generateRandomUndirectedGraphs(AdjacencyMatrix*& matrix, int size, int density);
 }
-
-
-
 
 #endif //PEA_UTILS_H
