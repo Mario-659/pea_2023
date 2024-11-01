@@ -35,6 +35,29 @@ TEST(BranchAndBoundTSPTest, shouldFindShortestPathFromUndMatrixCaseOne) {
                 "0 -> 5 -> 3 -> 4 -> 2 -> 1 -> 0" == tsp.toString() );
 }
 
+
+TEST(BranchAndBoundTSPTest, shouldFindShortestPathFromDirectedMatrixRandomCaseOne) {
+    AdjacencyMatrix graph(4);
+    graph.addEdge(0, 1, 11);
+    graph.addEdge(0, 2, 71);
+    graph.addEdge(0, 3, 93);
+    graph.addEdge(1, 0, 9);
+    graph.addEdge(1, 2, 29);
+    graph.addEdge(1, 3, 30);
+    graph.addEdge(2, 0, 66);
+    graph.addEdge(2, 1, 77);
+    graph.addEdge(2, 3, 16);
+    graph.addEdge(3, 0, 2);
+    graph.addEdge(3, 1, 14);
+    graph.addEdge(3, 2, 87);
+
+    BranchAndBound tsp;
+    tsp.solve(graph);
+
+    ASSERT_EQ(58, tsp.getMinCost());
+    ASSERT_EQ("0 -> 1 -> 2 -> 3 -> 0", tsp.toString());
+}
+
 TEST(BranchAndBoundTSPTest, tsp_6_1) {
     AdjacencyMatrix graph(6);
     graph.addEdge(0, 1, 20);
