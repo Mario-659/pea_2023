@@ -14,6 +14,6 @@ set(SOURCES
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
 
-add_library(${CMAKE_PROJECT_NAME}_lib STATIC ${SOURCES} algorithms/Dynamic.cpp algorithms/Dynamic.h algorithms/TSPSolver.h)
+add_library(${CMAKE_PROJECT_NAME}_lib STATIC ${SOURCES} algorithms/Dynamic.cpp algorithms/Dynamic.h algorithms/TSPSolver.h algorithms/BranchAndBound.cpp algorithms/BranchAndBound.h)
 
 

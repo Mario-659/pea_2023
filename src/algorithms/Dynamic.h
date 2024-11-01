@@ -1,13 +1,13 @@
 #ifndef PEA_DYNAMIC_H
 #define PEA_DYNAMIC_H
 
-#include "../graphs/AdjacencyMatrix.h"
-#include "TSPSolver.h"
-
 #include <vector>
 #include <climits>
 #include <string>
 #include <algorithm>
+
+#include "TSPSolver.h"
+#include "../graphs/AdjacencyMatrix.h"
 
 class Dynamic : public TSPSolver {
 private:

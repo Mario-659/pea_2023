@@ -6,6 +6,8 @@
 #include <limits>
 #include <climits>
 
+#include "../graphs/AdjacencyMatrix.h"
+
 
 class TSPSolver {
 protected:
