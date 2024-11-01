@@ -1,71 +1,80 @@
-//#include "Dynamic.h"
-//
-//#include <iostream>
-//#include <cmath>
-//
-//using namespace std;
-//
-//
-//void Dynamic::solve(AdjacencyMatrix& graph) {
-//    this->size = graph.getSize();
-//    this->routes.resize(this->size, vector<int>(this->size, 0));
-//
-//    vector<vector<int>> pathCostMemory(this->size, vector<int>((1<<this->size)-1, -1));
-//    this->shortestPathLength = getMinWeight(pathCostMemory, 1, 0);
-//    this->bestPath = findOptimalPath(pathCostMemory, {});
-//}
-//
-//int Dynamic::getMinWeight(vector<vector<int>> &pathCostMemory, int mask, int startCity) {
-//    if(mask == (1<<this->size)-1) return routes[startCity][0];
-//    if(pathCostMemory[startCity][mask]!=-1) return pathCostMemory[startCity][mask];
-//    int cost = INT_MAX;
-//
-//    for(int i = 0; i < this->size; i++){
-//        if((mask & (1 << i)) == 0 && routes[startCity][i] != INT_MAX){
-//            int newCostForGivenMask = routes[startCity][i] + getMinWeight(pathCostMemory, (mask ^ (1 << i)), i);
-//            if(cost > newCostForGivenMask){
-//                cost = newCostForGivenMask;
-//            }
-//        }
-//    }
-//
-//    pathCostMemory[startCity][mask] = cost;
-//    return cost;
-//}
-//
-//vector<int> Dynamic::findOptimalPath(vector<vector<int>> pathCostMemory, vector<int> path){
-//    int startNode = 0;
-//    int mask = 1;
-//    int startCity = startNode;
-//    int totalCost = 0;
-//    path.push_back(startCity);
-//    for(int j=0; j<this->size-1; j++){
-//        int newCity = 0;
-//        int cost=INT_MAX;
-//        for(int i=0; i<this->size; i++){
-//            if(i!=startNode && (mask&(1<<i))==0){
-//                if(routes[startCity][i]+pathCostMemory[i][mask|(1<<i)]<=cost){
-//                    newCity=i;
-//                    cost = routes[startCity][i]+pathCostMemory[i][mask|(1<<i)];
-//                }
-//            }
-//        }
-//        totalCost += routes[startCity][newCity];
-//        path.push_back(newCity);
-//        mask = mask^(1<<newCity);
-//        startCity = newCity;
-//    }
-//    totalCost += routes[startCity][startNode];
-//    cout<<"Minimal weight (path finder): "<<totalCost<<endl;
-//    path.push_back(startNode);
-//    return path;
-//}
-//
-//std::string Dynamic::toString() {
-//    std::string path = "";
-//    for (int i = 0; i < bestPath.size() - 1; i++) {
-//        path += std::to_string(bestPath[i]) + " -> ";
-//    }
-//
-//    return path += std::to_string(bestPath.back());
-//}
+#include "Dynamic.h"
+
+Dynamic::Dynamic() : TSPSolver(), graph(nullptr) {}
+
+void Dynamic::initializeTables() {
+    int size = graph->getSize();
+    memo.assign(size, std::vector<int>(1 << size, -1));
+    parent.assign(size, std::vector<int>(1 << size, -1));
+}
+
+int Dynamic::findMinConst(int pos, int visited) {
+    int size = graph->getSize();
+
+    // Return cost to starting point if all nodes are visited
+    if (visited == ((1 << size) - 1)) {
+        return graph->getEdgeWeight(pos, 0);  // Return to starting point
+    }
+
+    // Return if the path is already computed
+    if (memo[pos][visited] != -1) {
+        return memo[pos][visited];
+    }
+
+    int answer = std::numeric_limits<int>::max();
+
+    // Try to go to an unvisited vertex
+    for (int city = 0; city < size; city++) {
+        if (!(visited & (1 << city))) {
+            int newAnswer = graph->getEdgeWeight(pos, city) + findMinConst(city, visited | (1 << city));
+            if (newAnswer < answer) {
+                answer = newAnswer;
+                parent[pos][visited] = city;  // Store the path
+            }
+        }
+    }
+
+    return memo[pos][visited] = answer;
+}
+
+void Dynamic::buildPath() {
+    bestPath.clear();
+
+    int size = graph->getSize();
+    int visited = 1;
+    int current = 0;
+    bestPath.push_back(current);
+
+    while (visited != (1 << size) - 1) {
+        current = parent[current][visited];  // Move to the next city
+        visited |= (1 << current);  // Mark the city as visited
+        bestPath.push_back(current);
+    }
+
+    // return to starting node
+    bestPath.push_back(0);
+}
+
+void Dynamic::solve(AdjacencyMatrix &graph) {
+    this->graph = &graph;
+    this->size = graph.getSize();
+
+    initializeTables();
+
+    // Find minimal cost starting from node 0
+    shortestPathLength = findMinConst(0, 1);
+
+    // Build the best path based on min cost and memo
+    buildPath();
+}
+
+std::string Dynamic::toString() {
+    std::string path;
+    for (size_t i = 0; i < bestPath.size(); ++i) {
+        path += std::to_string(bestPath[i]);
+        if (i < bestPath.size() - 1) {
+            path += " -> ";
+        }
+    }
+    return path;
+}
