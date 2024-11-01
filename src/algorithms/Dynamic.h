@@ -22,7 +22,7 @@ private:
 
         // return cost to starting point if all nodes are visited
         if (visited == ((1 << size) - 1)) {
-            return graph->getEdge(pos, 0);  // Return to starting point
+            return graph->getEdgeWeight(pos, 0);  // Return to starting point
         }
 
         // return if the path is already computed
@@ -35,7 +35,7 @@ private:
         // try to go to an unvisited vertex
         for (int city = 0; city < size; city++) {
             if (!(visited & (1 << city))) {
-                int newAnswer = graph->getEdge(pos, city) + findMinConst(city, visited | (1 << city));
+                int newAnswer = graph->getEdgeWeight(pos, city) + findMinConst(city, visited | (1 << city));
                 if (newAnswer < answer) {
                     answer = newAnswer;
                     parent[pos][visited] = city;  // Store the path

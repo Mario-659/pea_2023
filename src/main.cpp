@@ -4,12 +4,12 @@
 #include "utils/Utils.h"
 #include "stdexcept"
 #include "algorithms/BruteForce.h"
-#include "algorithms/BranchAndBound.h"
+//#include "algorithms/BranchAndBound.h"
 
 using namespace std;
 
 // reads data from file as graph, assumes first line in file stands for graph size
-void loadFromFileDir(string filename, bool directed=true);
+void loadFromFileDir(string filename);
 
 AdjacencyMatrix* matrixGraph = nullptr;
 
@@ -65,10 +65,10 @@ void startSPMenu() {
             break;
             case 7:
             {
-                BranchAndBound branchAndBoundTsp;
-                branchAndBoundTsp.solve(*matrixGraph);
-                std::cout << "\nNajkrotsza sciezka: " << branchAndBoundTsp.toString() << "\n" <<
-                               "Koszt sciezki: " << branchAndBoundTsp.getMinCost() << std::endl;
+//                BranchAndBound branchAndBoundTsp;
+//                branchAndBoundTsp.solve(*matrixGraph);
+//                std::cout << "\nNajkrotsza sciezka: " << branchAndBoundTsp.toString() << "\n" <<
+//                               "Koszt sciezki: " << branchAndBoundTsp.getMinCost() << std::endl;
             }
             break;
             case 8:
@@ -95,7 +95,7 @@ int main(){
     return 0;
 }
 
-void loadFromFileDir(string filename, bool directed) {
+void loadFromFileDir(string filename) {
     vector<vector<int>> nums = utils::readFromFile(filename);
 
     if (nums.size() < 2)
@@ -109,10 +109,7 @@ void loadFromFileDir(string filename, bool directed) {
     matrixGraph = new AdjacencyMatrix(size);
     for (int i = 0; i < nums.size(); i++) {
         for (int j = 0; j < nums.size(); j++) {
-            if (directed)
-                matrixGraph->addEdge(i, j, nums[i][j]);
-            else
-                matrixGraph->addUndEdge(i, j, nums[i][j]);
+                matrixGraph->setEdge(i, j, nums[i][j]);
         }
     }
 }

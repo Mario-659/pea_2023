@@ -2,9 +2,10 @@
 
 AdjacencyMatrix::AdjacencyMatrix(int size) {
     this->size = size;
+    int numberOfNodes = size * size;
 
-    matrix = new int[size*size];
-    for (int i=0; i<size*size; i++) {
+    matrix = new int[numberOfNodes];
+    for (int i = 0; i < numberOfNodes; i++) {
         matrix[i] = NO_EDGE;
     }
 }
@@ -13,26 +14,13 @@ AdjacencyMatrix::~AdjacencyMatrix() {
     delete[] matrix;
 }
 
-void AdjacencyMatrix::addUndEdge(int start, int end, int weight) {
-    if (!validateEdge(start, end)) return;
-
-    matrix[start*size + end] = weight;
-    matrix[end*size + start] = weight;
-}
-
-void AdjacencyMatrix::addEdge(int start, int end, int weight) {
-    if (!validateEdge(start, end)) return;
+void AdjacencyMatrix::setEdge(int start, int end, int weight) {
+    validateEdge(start, end);
 
     matrix[start*size + end] = weight;
 }
 
-void AdjacencyMatrix::removeEdge(int start, int end) {
-    if (!validateEdge(start, end)) return;
-
-    matrix[start*size + end] = NO_EDGE;
-}
-
-int AdjacencyMatrix::getEdge(int start, int end) const {
+int AdjacencyMatrix::getEdgeWeight(int start, int end) const {
     return matrix[start*size + end];
 }
 
@@ -48,9 +36,9 @@ void AdjacencyMatrix::generateRandomMatrix(int minWeight, int maxWeight) {
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
             if (i != j) {
-                addEdge(i, j, weightDist(gen));
+                setEdge(i, j, weightDist(gen));
             } else {
-                addEdge(i, j, NO_EDGE);
+                setEdge(i, j, NO_EDGE);
             }
         }
     }
@@ -86,21 +74,21 @@ std::string AdjacencyMatrix::toString() {
     return output;
 }
 
-bool AdjacencyMatrix::validateEdge(int start, int end) {
+void AdjacencyMatrix::validateEdge(int start, int end) {
     if (start < 0 || start >= size || end < 0 || end >= size) {
         std::cout << "Invalid edge operation."
                      " Given params: start:" << start << " end:" << end <<
                      " matrix size:" << size << std::endl;
-        return false;
+
+        exit(-1);
     }
-    return true;
 }
 
 AdjacencyMatrix *AdjacencyMatrix::copy() {
     auto copy = new AdjacencyMatrix(size);
     for (int i=0; i<size; i++) {
         for (int j=0; j<size; j++) {
-            copy->addEdge(i, j, matrix[i*size + j]);
+            copy->setEdge(i, j, matrix[i*size + j]);
         }
     }
     return copy;

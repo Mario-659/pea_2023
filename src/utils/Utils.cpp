@@ -86,7 +86,7 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, int size, i
                     counter++;
                     continue;
                 }
-                matrix->addUndEdge(i, j, weights[counter]);
+                matrix->setEdge(i, j, weights[counter]);
                 counter++;
             }
         }
@@ -96,7 +96,7 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, int size, i
     // create tree (weight from 1 to 100)
     for (int i=0; i<size-1; i++) {
         int weight = (rand() % 100) + 1;
-        matrix->addUndEdge(i, i + 1, weight);
+        matrix->setEdge(i, i + 1, weight);
     }
 
     int edgesToAdd = int(0.01 * density * maxEdges);
@@ -107,8 +107,8 @@ void utils::generateRandomUndirectedGraphs(AdjacencyMatrix *&matrix, int size, i
         int start = rand() % size;
         int end = rand() % size;
 
-        if(matrix->getEdge(start, end) == NO_EDGE) {
-            matrix->addUndEdge(start, end, weight);
+        if(matrix->getEdgeWeight(start, end) == NO_EDGE) {
+            matrix->setEdge(start, end, weight);
             edgesToAdd--;
         }
     }
@@ -145,7 +145,7 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int
                     counter++;
                     continue;
                 }
-                matrix->addEdge(i, j, weights[counter]);
+                matrix->setEdge(i, j, weights[counter]);
                 counter++;
             }
         }
@@ -155,7 +155,7 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int
     // create tree (weight from 1 to 100)
     for (int i=0; i<size-1; i++) {
         int weight = (rand() % 100) + 1;
-        matrix->addEdge(i, i + 1, weight);
+        matrix->setEdge(i, i + 1, weight);
     }
 
     int edgesToAdd = int(0.01 * density * maxEdges);
@@ -166,8 +166,8 @@ void utils::generateRandomDirectedGraphs(AdjacencyMatrix*& matrix, int size, int
         int start = rand() % size;
         int end = rand() % size;
 
-        if(matrix->getEdge(start, end) == NO_EDGE) {
-            matrix->addEdge(start, end, weight);
+        if(matrix->getEdgeWeight(start, end) == NO_EDGE) {
+            matrix->setEdge(start, end, weight);
             edgesToAdd--;
         }
     }

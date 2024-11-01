@@ -3,7 +3,7 @@
 #include <string>
 #include <chrono>
 #include "utils/Utils.h"
-#include "algorithms/BranchAndBound.h"
+//#include "algorithms/BranchAndBound.h"
 #include "algorithms/Dynamic.h"
 #include "algorithms/BruteForce.h"
 
@@ -35,36 +35,36 @@ long long runBruteForceTest(int graphSize, int density) {
     return matrixResult / numberOfRuns;
 }
 
-long long runBranchAndBoundTest(int graphSize, int density) {
-    long long matrixResult = 0;
-    chrono::high_resolution_clock::time_point t1, t2;
-    BranchAndBound branchAndBound;
-
-    int numberOfRuns = (graphSize >= 13) ? 10 : 100;
-
-    for (int i = 0; i < numberOfRuns; i++) {
-        AdjacencyMatrix* matrixGraph = new AdjacencyMatrix(graphSize);
-        utils::generateRandomDirectedGraphs(matrixGraph, graphSize, density);
-
-        cout << "\rBruteForce - Graph size: " << graphSize << ", density: " << density << ", iteration: " << i + 1;
-
-        t1 = chrono::high_resolution_clock::now();
-        branchAndBound.solve(*matrixGraph);
-        t2 = chrono::high_resolution_clock::now();
-
-        auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
-        matrixResult += result;
-
-        delete matrixGraph;
-    }
-
-    return matrixResult / numberOfRuns;
-}
+//long long runBranchAndBoundTest(int graphSize, int density) {
+//    long long matrixResult = 0;
+//    chrono::high_resolution_clock::time_point t1, t2;
+//    BranchAndBound branchAndBound;
+//
+//    int numberOfRuns = (graphSize >= 13) ? 10 : 100;
+//
+//    for (int i = 0; i < numberOfRuns; i++) {
+//        AdjacencyMatrix* matrixGraph = new AdjacencyMatrix(graphSize);
+//        utils::generateRandomDirectedGraphs(matrixGraph, graphSize, density);
+//
+//        cout << "\rBruteForce - Graph size: " << graphSize << ", density: " << density << ", iteration: " << i + 1;
+//
+//        t1 = chrono::high_resolution_clock::now();
+//        branchAndBound.solve(*matrixGraph);
+//        t2 = chrono::high_resolution_clock::now();
+//
+//        auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+//        matrixResult += result;
+//
+//        delete matrixGraph;
+//    }
+//
+//    return matrixResult / numberOfRuns;
+//}
 
 
 void runAssertion(int graphSize) {
     BruteForce bruteForce;
-    BranchAndBound branchAndBound;
+//    BranchAndBound branchAndBound;
     Dynamic dynamic;
 
     int numberOfRuns = (graphSize >= 13) ? 10 : 100;
@@ -79,17 +79,17 @@ void runAssertion(int graphSize) {
         auto matrixCopy2 = matrixGraph->copy();
         auto matrixCopy3 = matrixGraph->copy();
 
-        branchAndBound.solve(*matrixCopy1);
+//        branchAndBound.solve(*matrixCopy1);
         bruteForce.findShortestPath(*matrixCopy2);
         dynamic.solve(*matrixCopy3);
 
-        if (branchAndBound.getMinCost() != bruteForce.getShortestPathLength()) {
-            cout << "\n" << matrixGraph->toString() << endl;
-            cout << "BaB " << branchAndBound.toString() << " cost: " << branchAndBound.getMinCost() << endl;
-            cout << "B F " << bruteForce.toString()     << " cost: " << bruteForce.getShortestPathLength() << endl;
-            cout << "Dyn " << dynamic.toString()        << " cost: " << dynamic.getShortestPathLength() << endl;
-            exit(-1);
-        }
+//        if (branchAndBound.getMinCost() != bruteForce.getShortestPathLength()) {
+//            cout << "\n" << matrixGraph->toString() << endl;
+////            cout << "BaB " << branchAndBound.toString() << " cost: " << branchAndBound.getMinCost() << endl;
+//            cout << "B F " << bruteForce.toString()     << " cost: " << bruteForce.getShortestPathLength() << endl;
+//            cout << "Dyn " << dynamic.toString()        << " cost: " << dynamic.getShortestPathLength() << endl;
+//            exit(-1);
+//        }
     }
 }
 

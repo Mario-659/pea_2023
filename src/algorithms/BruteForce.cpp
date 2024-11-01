@@ -17,7 +17,7 @@ void BruteForce::findShortestPath(AdjacencyMatrix &graph) {
 
         // calculate the current path weight
         for (int vertex : vertices) {
-            int edgeWeight = graph.getEdge(lastVertex, vertex);
+            int edgeWeight = graph.getEdgeWeight(lastVertex, vertex);
 
             if (edgeWeight == NO_EDGE) {
                 routeDoesNotExist = true;
@@ -33,7 +33,7 @@ void BruteForce::findShortestPath(AdjacencyMatrix &graph) {
         }
 
         // add weight of returning to the starting vertex
-        int returnEdgeWeight = graph.getEdge(lastVertex, 0);
+        int returnEdgeWeight = graph.getEdgeWeight(lastVertex, 0);
         if (returnEdgeWeight == NO_EDGE) {
             continue;
         }
