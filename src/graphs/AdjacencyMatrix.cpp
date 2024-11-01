@@ -10,7 +10,7 @@ AdjacencyMatrix::AdjacencyMatrix(int size) {
 }
 
 AdjacencyMatrix::~AdjacencyMatrix() {
-//    delete matrix;
+    delete[] matrix;
 }
 
 void AdjacencyMatrix::addUndEdge(int start, int end, int weight) {
@@ -32,12 +32,28 @@ void AdjacencyMatrix::removeEdge(int start, int end) {
     matrix[start*size + end] = NO_EDGE;
 }
 
-int AdjacencyMatrix::getEdge(int start, int end) {
+int AdjacencyMatrix::getEdge(int start, int end) const {
     return matrix[start*size + end];
 }
 
-int AdjacencyMatrix::getSize() {
+int AdjacencyMatrix::getSize() const {
     return size;
+}
+
+void AdjacencyMatrix::generateRandomMatrix(int minWeight, int maxWeight) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> weightDist(minWeight, maxWeight);
+
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            if (i != j) {
+                addEdge(i, j, weightDist(gen));
+            } else {
+                addEdge(i, j, NO_EDGE);
+            }
+        }
+    }
 }
 
 std::string AdjacencyMatrix::toString() {

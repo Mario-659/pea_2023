@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <random>
 
 #define NO_EDGE 1222
 
@@ -26,7 +27,7 @@ public:
     void removeEdge(int start, int end);
 
     // Returns size
-    int getSize();
+    int getSize() const;
 
     AdjacencyMatrix* copy();
 
@@ -34,7 +35,9 @@ public:
     std::string toString();
 
     // Returns weight of given edge
-    int getEdge(int start, int end);
+    int getEdge(int start, int end) const;
+
+    void generateRandomMatrix(int minWeight, int maxWeight);
 
     ~AdjacencyMatrix();
 private:
