@@ -2,15 +2,15 @@
 #define PEA_DYNAMIC_H
 
 #include "../graphs/AdjacencyMatrix.h"
+#include "TSPSolver.h"
 
 #include <vector>
 #include <climits>
 #include <string>
 #include <algorithm>
 
-class Dynamic {
+class Dynamic : public TSPSolver {
 private:
-    int shortestPathLength;
     int size;
     std::vector<int> bestPath;
     AdjacencyMatrix* graph;
@@ -65,9 +65,9 @@ private:
     }
 
 public:
-    Dynamic() : shortestPathLength(std::numeric_limits<int>::max()), size(0) {}
+    Dynamic() : TSPSolver(), size(0) {}
 
-    void solve(AdjacencyMatrix &graph) {
+    void solve(AdjacencyMatrix &graph) override {
         this->graph = &graph;
         this->size = graph.getSize();
 
@@ -83,9 +83,7 @@ public:
         buildPath();
     }
 
-    int getShortestPathLength() const { return shortestPathLength; }
-
-    std::string toString() {
+    std::string toString() override {
         std::string path;
         for (size_t i = 0; i < bestPath.size(); ++i) {
             path += std::to_string(bestPath[i]);
