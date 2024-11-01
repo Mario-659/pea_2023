@@ -62,7 +62,7 @@ long long runBranchAndBoundTest(int graphSize, int density) {
 }
 
 
-void runAssertion(int graphSize, int density) {
+void runAssertion(int graphSize) {
     BruteForce bruteForce;
     BranchAndBound branchAndBound;
     Dynamic dynamic;
@@ -71,7 +71,7 @@ void runAssertion(int graphSize, int density) {
 
     for (int i = 0; i < numberOfRuns; i++) {
         AdjacencyMatrix* matrixGraph = new AdjacencyMatrix(graphSize);
-        utils::generateRandomDirectedGraphs(matrixGraph, graphSize, density);
+        matrixGraph->generateRandomMatrix(0, 100);
 
         cout << "graphSize: " << graphSize << endl;
 
@@ -80,11 +80,16 @@ void runAssertion(int graphSize, int density) {
         auto matrixCopy3 = matrixGraph->copy();
 
         branchAndBound.solve(*matrixCopy1);
-        cout << "BaB " << branchAndBound.toString() << " cost: " << branchAndBound.getMinCost() << endl;
         bruteForce.findShortestPath(*matrixCopy2);
-        cout << "B F " << bruteForce.toString() << " cost: " << bruteForce.getShortestPathLength() << endl;
         dynamic.solve(*matrixCopy3);
-        cout << "Dyn " << dynamic.toString() << " cost: " << dynamic.getShortestPathLength() << endl;
+
+        if (branchAndBound.getMinCost() != bruteForce.getShortestPathLength()) {
+            cout << "\n" << matrixGraph->toString() << endl;
+            cout << "BaB " << branchAndBound.toString() << " cost: " << branchAndBound.getMinCost() << endl;
+            cout << "B F " << bruteForce.toString()     << " cost: " << bruteForce.getShortestPathLength() << endl;
+            cout << "Dyn " << dynamic.toString()        << " cost: " << dynamic.getShortestPathLength() << endl;
+            exit(-1);
+        }
     }
 }
 
@@ -123,19 +128,19 @@ void runSample(vector<int> sampleSizes) {
 
     int dens = 100;
     for (auto sample : sampleSizes) {
-//        runAssertion(sample, dens);
+        runAssertion(sample);
 
-        long long bruteForceResult = runBruteForceTest(sample, dens);
-        long long branchAndBoundResult = runBranchAndBoundTest(sample, dens);
-        long long dynamicResult = runDynamicProgrammingTest(sample, dens);
-
-        cout                 << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
-        cout                 << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
-        cout                 << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
-
-        output_file << fixed << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
-        output_file << fixed << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
-        output_file << fixed << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
+//        long long bruteForceResult = runBruteForceTest(sample, dens);
+//        long long branchAndBoundResult = runBranchAndBoundTest(sample, dens);
+//        long long dynamicResult = runDynamicProgrammingTest(sample, dens);
+//
+//        cout                 << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
+//        cout                 << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
+//        cout                 << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
+//
+//        output_file << fixed << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
+//        output_file << fixed << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
+//        output_file << fixed << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
     }
 
     output_file.close();
