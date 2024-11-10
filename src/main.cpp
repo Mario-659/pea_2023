@@ -4,7 +4,8 @@
 #include "utils/Utils.h"
 #include "stdexcept"
 #include "algorithms/BruteForce.h"
-//#include "algorithms/BranchAndBound.h"
+#include "algorithms/BranchAndBound.h"
+#include "algorithms/Dynamic.h"
 
 using namespace std;
 
@@ -26,7 +27,8 @@ void startSPMenu() {
                    5. Wyswietl
                    6. Brute force
                    7. Branch and Bound
-                   8. Wroc)";
+                   8. Dynamic
+                   9. Zakoncz)";
         cout << "\nInput: ";
         cin >> input;
         int option = stoi(input);
@@ -57,22 +59,29 @@ void startSPMenu() {
                 break;
             case 6:
             {
-                BruteForce bruteForceTsp;
-                bruteForceTsp.solve(*matrixGraph);
-                std::cout << "\nShortest path: " << bruteForceTsp.toString() << "\n" <<
-                               "Koszt sciezki: " << bruteForceTsp.getShortestPathLength() << std::endl;
+                BruteForce bruteForce;
+                bruteForce.solve(*matrixGraph);
+                std::cout << "\nShortest path: " << bruteForce.toString() << "\n" <<
+                          "Koszt sciezki: " << bruteForce.getShortestPathLength() << std::endl;
             }
             break;
             case 7:
             {
-//                BranchAndBound branchAndBoundTsp;
-//                branchAndBoundTsp.solve(*matrixGraph);
-//                std::cout << "\nNajkrotsza sciezka: " << branchAndBoundTsp.toString() << "\n" <<
-//                               "Koszt sciezki: " << branchAndBoundTsp.getMinCost() << std::endl;
+                BranchAndBound branchAndBound;
+                branchAndBound.solve(*matrixGraph);
+                std::cout << "\nShortest path: " << branchAndBound.toString() << "\n" <<
+                          "Koszt sciezki: " << branchAndBound.getShortestPathLength() << std::endl;
             }
             break;
             case 8:
-                // return to prev menu options
+            {
+                Dynamic dynamic;
+                dynamic.solve(*matrixGraph);
+                std::cout << "\nShortest path: " << dynamic.toString() << "\n" <<
+                          "Koszt sciezki: " << dynamic.getShortestPathLength() << std::endl;
+            }
+            break;
+            case 9:
                 return;
             default:
                 cout << "Nieprawidlowy numer" << endl;
@@ -81,17 +90,7 @@ void startSPMenu() {
 }
 
 int main(){
-    string input;
-    do{
-        cout << R"(Wybierz problem:
-                  1. Najkrotsza droga w grafie
-                  2. Wyjdz)";
-        cout << "\nInput: ";
-        cin >> input;
-        if(input == "1") {
-            startSPMenu();
-        }
-    } while(input != "2");
+    startSPMenu();
     return 0;
 }
 

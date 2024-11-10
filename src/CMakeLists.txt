@@ -8,8 +8,10 @@ set(SOURCES
         graphs/AdjacencyMatrix.cpp
         algorithms/BruteForce.cpp
         algorithms/BruteForce.h
-#        algorithms/BranchAndBound.cpp
-#        algorithms/BranchAndBound.h
+        algorithms/BranchAndBound.cpp
+        algorithms/BranchAndBound.h
+        algorithms/Dynamic.cpp
+        algorithms/Dynamic.h
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
