@@ -40,7 +40,7 @@ vector<vector<int>> utils::readFromFile(string filename) {
         if (line.empty()) break;
         auto params = split(line, " ");
         auto nums = extractInt(params);
-        numbers.push_back(nums);
+        if (!nums.empty()) numbers.push_back(nums);
     }
 
     return numbers;
