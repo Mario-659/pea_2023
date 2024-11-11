@@ -13,21 +13,20 @@ int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &nod
 
     // Add minimum outgoing edge costs for unvisited nodes
     for (int i = 0; i < size; i++) {
-        if (!node.visited[i] && i != lastVisited) {
-            int minEdge = INT_MAX;
-            for (int j = 0; j < size; j++) {
-                if (i != j) {
-                    minEdge = std::min(minEdge, graph.getEdgeWeight(i, j));
-                }
+        if (node.visited[i] || i == lastVisited) continue;
+
+        int minEdge = INT_MAX;
+        for (int j = 0; j < size; j++) {
+            if (i != j) {
+                minEdge = std::min(minEdge, graph.getEdgeWeight(i, j));
             }
-            bound += (minEdge == INT_MAX) ? 0 : minEdge;
         }
+        bound += (minEdge == INT_MAX) ? 0 : minEdge;
     }
 
     return bound;
 }
 
-// Main function to solve the ATSP using branch-and-bound
 void BranchAndBound::solveATSP(const AdjacencyMatrix &graph) {
     int size = graph.getSize();
     std::priority_queue<Node> pq;
