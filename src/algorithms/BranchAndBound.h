@@ -21,7 +21,7 @@ struct Node {
     Node() = default;
 
     bool operator<(const Node& other) const {
-        return bound > other.bound; // Higher priority for lower bound
+        return bound > other.bound;
     }
     bool operator>(const Node& other) const {
         return bound < other.bound;

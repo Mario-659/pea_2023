@@ -4,13 +4,13 @@
 
 BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 
-// Calculate the lower bound of a path starting at the given node
+// calculate lower bound of a path starting at the given node
 int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &node) {
     int bound = node.pathCost;
     int size = graph.getSize();
     int lastVisited = node.path.back();
 
-    // Add minimum outgoing edge costs for unvisited nodes
+    // for each unvisited node add minimum outgoing edge costs
     for (int i = 0; i < size; i++) {
         if (node.visited[i] || i == lastVisited) continue;
 
@@ -33,15 +33,16 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
     int size = graph.getSize();
     Heap<Node> pq(size * size);
 
-    // Start node: city 0
-    Node root(0, 0, calculateBound(graph, Node(0, 0, 0, {0}, size)), {0}, size);
+    // start from node 0
+    int initialBound = calculateBound(graph, Node(0, 0, 0, {0}, size));
+    Node root(0, 0, initialBound, {0}, size);
     root.visited[0] = true;
     pq.push(root);
 
     while (pq.getSize() != 0) {
         Node current = pq.extractMin();
 
-        // If reached the last level, complete the tour by returning to the start
+        // if reached the last level, return to initial node 0
         if (current.level == size - 1) {
             int lastToFirst = graph.getEdgeWeight(current.path.back(), 0);
             if (lastToFirst != INT_MAX) {
@@ -49,29 +50,29 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
                 if (totalCost < minCost) {
                     minCost = totalCost;
                     bestPath = current.path;
-                    bestPath.push_back(0);  // Complete the cycle
+                    bestPath.push_back(0);
                 }
             }
             continue;
         }
 
-        // Generate children nodes for the current node
+        // for each unvisited children node of current node
         for (int i = 0; i < size; i++) {
-            if (!current.visited[i]) {
-                std::vector<int> newPath = current.path;
-                newPath.push_back(i);
+            if (current.visited[i]) continue;
 
-                Node child(current.level + 1,
-                           current.pathCost + graph.getEdgeWeight(current.path.back(), i),
-                           0, newPath, size);
-                child.visited = current.visited;
-                child.visited[i] = true;
+            std::vector<int> newPath = current.path;
+            newPath.push_back(i);
 
-                // Calculate bound and prune if bound exceeds current minimum cost
-                child.bound = calculateBound(graph, child);
-                if (child.bound < minCost) {
-                    pq.push(child);
-                }
+            Node child(current.level + 1,
+                       current.pathCost + graph.getEdgeWeight(current.path.back(), i),
+                       0, newPath, size);
+            child.visited = current.visited;
+            child.visited[i] = true;
+
+            child.bound = calculateBound(graph, child);
+            // disregard path if bound is greater or equal to current minimal cost
+            if (child.bound < minCost) {
+                pq.push(child);
             }
         }
     }
