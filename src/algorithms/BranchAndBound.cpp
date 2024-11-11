@@ -9,13 +9,14 @@ BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &node) {
     int bound = node.pathCost;
     int size = graph.getSize();
+    int lastVisited = node.path.back();
 
     // Add minimum outgoing edge costs for unvisited nodes
     for (int i = 0; i < size; i++) {
-        if (!node.visited[i]) {
+        if (!node.visited[i] && i != lastVisited) {
             int minEdge = INT_MAX;
             for (int j = 0; j < size; j++) {
-                if (i != j && !node.visited[j]) {
+                if (i != j) {
                     minEdge = std::min(minEdge, graph.getEdgeWeight(i, j));
                 }
             }
