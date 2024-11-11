@@ -9,7 +9,7 @@
 #include "../graphs/AdjacencyMatrix.h"
 
 struct Node {
-    int& level;                // current depth in the search tree
+    int level;                 // current depth in the search tree
     int pathCost;              // total cost of reaching this node
     int bound;                 // lower bound of the path from this node
     std::vector<int> path;     // path taken to reach this node
