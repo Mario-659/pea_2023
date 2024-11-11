@@ -1,8 +1,6 @@
 #include "BranchAndBound.h"
 #include "Heap.h"
-
 #include <climits>
-#include <algorithm>
 
 BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 
@@ -28,7 +26,10 @@ int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &nod
     return bound;
 }
 
-void BranchAndBound::solveATSP(const AdjacencyMatrix &graph) {
+void BranchAndBound::solve(AdjacencyMatrix &graph) {
+    minCost = INT_MAX;
+    bestPath.clear();
+
     int size = graph.getSize();
     Heap<Node> pq(size * size);
 
@@ -74,17 +75,10 @@ void BranchAndBound::solveATSP(const AdjacencyMatrix &graph) {
             }
         }
     }
-}
 
-// Public solve method
-void BranchAndBound::solve(AdjacencyMatrix &graph) {
-    minCost = INT_MAX;
-    bestPath.clear();
-    solveATSP(graph);
     shortestPathLength = minCost;
 }
 
-// Generates a string representation of the path
 std::string BranchAndBound::toString() {
     std::string path;
     for (size_t i = 0; i < bestPath.size(); ++i) {

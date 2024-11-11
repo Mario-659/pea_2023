@@ -9,11 +9,11 @@
 #include "../graphs/AdjacencyMatrix.h"
 
 struct Node {
-    int level;              // Current depth in the search tree
-    int pathCost;           // Total cost of reaching this node
-    int bound;              // Lower bound of the path from this node
-    std::vector<int> path;  // Stores the path taken to reach this node
-    std::vector<bool> visited; // Keeps track of visited nodes
+    int& level;                // current depth in the search tree
+    int pathCost;              // total cost of reaching this node
+    int bound;                 // lower bound of the path from this node
+    std::vector<int> path;     // path taken to reach this node
+    std::vector<bool> visited; // already visited nodes
 
     Node(int level, int pathCost, int bound, const std::vector<int>& path, int size)
             : level(level), pathCost(pathCost), bound(bound), path(path), visited(size, false) {}
@@ -32,18 +32,10 @@ class BranchAndBound : public TSPSolver {
 private:
     std::vector<int> bestPath;
     int minCost;
-
-    // Calculate the bound for the given node
     int calculateBound(const AdjacencyMatrix &graph, const Node &node);
-
-    // Main branch-and-bound solver function
-    void solveATSP(const AdjacencyMatrix &graph);
-
 public:
     BranchAndBound();
-
     void solve(AdjacencyMatrix &graph) override;
-
     std::string toString() override;
 };
 
