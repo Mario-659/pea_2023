@@ -1,4 +1,5 @@
 #include "BranchAndBound.h"
+#include "Heap.h"
 
 #include <climits>
 #include <algorithm>
@@ -29,16 +30,15 @@ int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &nod
 
 void BranchAndBound::solveATSP(const AdjacencyMatrix &graph) {
     int size = graph.getSize();
-    std::priority_queue<Node> pq;
+    Heap<Node> pq(size * size);
 
     // Start node: city 0
     Node root(0, 0, calculateBound(graph, Node(0, 0, 0, {0}, size)), {0}, size);
     root.visited[0] = true;
     pq.push(root);
 
-    while (!pq.empty()) {
-        Node current = pq.top();
-        pq.pop();
+    while (pq.getSize() != 0) {
+        Node current = pq.extractMin();
 
         // If reached the last level, complete the tour by returning to the start
         if (current.level == size - 1) {

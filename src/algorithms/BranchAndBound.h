@@ -18,9 +18,13 @@ struct Node {
     Node(int level, int pathCost, int bound, const std::vector<int>& path, int size)
             : level(level), pathCost(pathCost), bound(bound), path(path), visited(size, false) {}
 
-    // Overload the < operator to prioritize nodes with lower bounds
+    Node() = default;
+
     bool operator<(const Node& other) const {
         return bound > other.bound; // Higher priority for lower bound
+    }
+    bool operator>(const Node& other) const {
+        return bound < other.bound;
     }
 };
 

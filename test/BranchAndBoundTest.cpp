@@ -299,7 +299,8 @@ TEST(BranchAndBoundTSPTest, tsp_10_1) {
     tsp.solve(graph);
 
     ASSERT_EQ(212, tsp.getShortestPathLength());
-    ASSERT_EQ("0 -> 3 -> 4 -> 2 -> 8 -> 7 -> 6 -> 9 -> 1 -> 5 -> 0", tsp.toString());
+    ASSERT_TRUE("0 -> 3 -> 4 -> 2 -> 8 -> 7 -> 6 -> 9 -> 1 -> 5 -> 0" == tsp.toString() ||
+                "0 -> 5 -> 1 -> 9 -> 6 -> 7 -> 8 -> 2 -> 4 -> 3 -> 0" == tsp.toString());
 }
 
 TEST(BranchAndBoundTSPTest, tsp_12_1) {
