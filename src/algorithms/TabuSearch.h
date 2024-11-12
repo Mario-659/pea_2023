@@ -1,28 +1,29 @@
 #ifndef PEA_TABUSEARCH_H
 #define PEA_TABUSEARCH_H
 
+#include "TSPSolver.h"
+#include "../graphs/AdjacencyMatrix.h"
 #include <iostream>
 #include <vector>
-#include <fstream>
-#include <algorithm>
-#include <random>
-#include <typeinfo>
 #include <chrono>
+#include <random>
+#include <numeric>
 
-using namespace std;
-
-class TabuSearch {
+class TabuSearch : public TSPSolver {
 public:
-    int verticesNumber = 48;
-    int timeLimit = 5;
-    vector<vector<int>> routes;
-    vector<int> path;
+    TabuSearch(int timeLimit = 5);
+    void solve(AdjacencyMatrix& graph) override;
+    std::string toString() override;
 
-    void readDataFromFile(string fileName);
-    int getPathCost(vector<int> pathInstance);
-    vector<int> getDefaultTabuPath();
-    vector<int> generateRandomPath();
-    void solveTSPUsingTabuSearch();
+private:
+    int verticesNumber;
+    int timeLimit;
+    std::vector<int> path;
+    std::vector<std::vector<int>> routes;
+
+    int getPathCost(const std::vector<int>& pathInstance);
+    std::vector<int> getDefaultTabuPath();
+    std::vector<int> generateRandomPath();
 };
 
-#endif //PEA_TABUSEARCH_H
+#endif // PEA_TABUSEARCH_H
