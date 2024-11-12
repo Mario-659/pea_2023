@@ -19,7 +19,6 @@ private:
     int verticesNumber;
     int timeLimit;
     std::vector<int> path;
-    std::vector<std::vector<int>> routes;
 
     int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
     std::vector<int> getDefaultTabuPath();

@@ -82,7 +82,7 @@ std::vector<int> TabuSearch::generateRandomPath() {
 
 std::string TabuSearch::toString() {
     std::string result;
-    for (const int& city : path) {
+    for (int city : path) {
         result += std::to_string(city) + " -> ";
     }
     result += "0";
