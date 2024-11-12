@@ -1,8 +1,6 @@
 #include "TabuSearch.h"
 
 
-using namespace std;
-
 void TabuSearch::readDataFromFile(string fileName) {
     ifstream input_file(fileName);
     if(!input_file.is_open()){
