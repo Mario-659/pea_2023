@@ -83,13 +83,10 @@ void runAssertion(int graphSize) {
         bruteForce.solve(*matrixCopy2);
         dynamic.solve(*matrixCopy3);
 
-//        if (branchAndBound.getMinCost() != bruteForce.getShortestPathLength()) {
-//            cout << "\n" << matrixGraph->toString() << endl;
-////            cout << "BaB " << branchAndBound.toString() << " cost: " << branchAndBound.getMinCost() << endl;
-//            cout << "B F " << bruteForce.toString()     << " cost: " << bruteForce.getShortestPathLength() << endl;
-//            cout << "Dyn " << dynamic.toString()        << " cost: " << dynamic.getShortestPathLength() << endl;
-//            exit(-1);
-//        }
+        cout << "\n" << endl;
+        cout << "BaB " <<  " cost: " << branchAndBound.getShortestPathLength() << endl;
+        cout << "B F " <<  " cost: " << bruteForce.getShortestPathLength() << endl;
+        cout << "Dyn " <<  " cost: " << dynamic.getShortestPathLength() << endl;
     }
 }
 
@@ -151,6 +148,7 @@ int main() {
 
     cout.precision(30);
     runSample(sampleSizes);
+//    runAssertion(10);
 
     return 0;
 }
