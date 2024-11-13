@@ -69,7 +69,7 @@ void runAssertion(int graphSize) {
     BranchAndBound branchAndBound;
     Dynamic dynamic;
     TabuSearch tabuSearch;
-    SimulatedAnnealing simAnnealing;
+    SimulatedAnnealing simAnnealing(0.999999, 15);
 
     int numberOfRuns = (graphSize >= 13) ? 10 : 100;
 
