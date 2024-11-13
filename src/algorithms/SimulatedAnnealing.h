@@ -23,8 +23,8 @@ private:
     std::vector<int> path;
     std::vector<std::vector<int>> routes;
 
-    int getPathCost(const std::vector<int>& pathInstance);
-    double getInitialTemperature();
+    int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
+    double getInitialTemperature(AdjacencyMatrix& graph);
     std::vector<int> getDefaultPath();
     std::vector<int> swapElementsInPath(const std::vector<int>& oldPath);
 };
