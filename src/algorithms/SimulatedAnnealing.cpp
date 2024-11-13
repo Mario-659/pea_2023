@@ -14,16 +14,38 @@ void SimulatedAnnealing::solve(AdjacencyMatrix& graph) {
     int optimalCost = getPathCost(path, graph);
     auto start = std::chrono::high_resolution_clock::now();
 
-    while (std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count() < timeLimit) {
-        std::vector<int> newPath = swapElementsInPath(path);
-        int newCost = getPathCost(newPath, graph);
 
-        if (newCost < optimalCost || exp(-(newCost - optimalCost) / temperature) > std::generate_canonical<double, 10>(std::mt19937{std::random_device{}()})) {
+    auto const seed = 123456789;
+    std::mt19937 urbg {seed};
+
+    std::vector<int> measureTimes;
+    while(true){
+        std::vector<int>newPath = swapElementsInPath(verticesNumber, path);
+        int newCost = getPathCost(newPath, graph);
+        if(newCost<optimalCost){
             path = newPath;
             optimalCost = newCost;
-        }
+            auto bestTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = bestTime - start;
 
+        } else {
+            double probability = exp(-abs(optimalCost-newCost)/temperature);
+            double uniformDistributionRandomValue = std::uniform_real_distribution<double>(0, 1)(urbg);
+            if(probability > uniformDistributionRandomValue){
+                path = newPath;
+                optimalCost = newCost;
+            }
+        }
         temperature *= coolingRatio;
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = finish - start;
+        int timeNow = int(elapsed.count());
+        if(std::find(measureTimes.begin(), measureTimes.end(), timeNow) == measureTimes.end() && timeNow%20==0){
+            measureTimes.push_back(timeNow);
+        }
+        if(elapsed.count() > timeLimit){
+            break;
+        }
     }
 
     shortestPathLength = optimalCost;
@@ -41,14 +63,16 @@ int SimulatedAnnealing::getPathCost(const std::vector<int>& pathInstance, const 
 }
 
 double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix& graph) {
-    double avgCostChange = 0;
-    std::vector<int> path = getDefaultPath();
-    for (int i = 0; i < 10000; ++i) {
-        std::vector<int> newPath = swapElementsInPath(path);
-        avgCostChange += std::abs(getPathCost(newPath, graph) - getPathCost(path, graph));
-        path = std::move(newPath);
+    int iterations = 10000;
+    std::vector<int> samplePath = getDefaultPath();
+    std::vector<int> oldPath;
+    double averageCost = 0;
+    for(int i=0;i<iterations; i++){
+        oldPath = samplePath;
+        samplePath = swapElementsInPath(verticesNumber, samplePath);
+        averageCost += abs(getPathCost(samplePath, graph)- getPathCost(oldPath, graph));
     }
-    return avgCostChange / 10000 / log(0.99);
+    return abs((averageCost/iterations)/log(0.99));
 }
 
 std::vector<int> SimulatedAnnealing::getDefaultPath() {
@@ -57,9 +81,14 @@ std::vector<int> SimulatedAnnealing::getDefaultPath() {
     return defaultPath;
 }
 
-std::vector<int> SimulatedAnnealing::swapElementsInPath(const std::vector<int>& oldPath) {
-    std::vector<int> newPath = oldPath;
-    std::swap(newPath[rand() % verticesNumber], newPath[rand() % verticesNumber]);
+std::vector<int> SimulatedAnnealing::swapElementsInPath(int range, std::vector<int> oldPath){
+    std::vector<int> newPath = std::move(oldPath);
+    int firstCityToSwap = rand()%range;
+    int secondCityToSwap =rand()%range;
+    while(firstCityToSwap==secondCityToSwap){
+        secondCityToSwap = rand()%range;
+    }
+    iter_swap(newPath.begin() + firstCityToSwap, newPath.begin() + secondCityToSwap);
     return newPath;
 }
 

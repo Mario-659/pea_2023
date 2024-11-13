@@ -26,7 +26,7 @@ private:
     int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
     double getInitialTemperature(AdjacencyMatrix& graph);
     std::vector<int> getDefaultPath();
-    std::vector<int> swapElementsInPath(const std::vector<int>& oldPath);
+    std::vector<int> swapElementsInPath(int range, std::vector<int> oldPath);
 };
 
 #endif //PEA_SIMULATEDANNEALING_H
