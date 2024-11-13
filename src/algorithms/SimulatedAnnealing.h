@@ -1,31 +1,32 @@
-#ifndef PEA_SIMMULATEDANNEALING_H
-#define PEA_SIMMULATEDANNEALING_H
+#ifndef PEA_SIMULATEDANNEALING_H
+#define PEA_SIMULATEDANNEALING_H
 
-#include <iostream>
+#include "TSPSolver.h"
+#include "../graphs/AdjacencyMatrix.h"
 #include <vector>
 #include <chrono>
-#include <cmath>
 #include <random>
-#include <fstream>
-#include <utility>
+#include <numeric>
 
-using namespace std;
 
-class SimulatedAnnealing {
+class SimulatedAnnealing : public TSPSolver {
 public:
-    int verticesNumber = 48;
-    vector<vector<int>> routes;
-    vector<int> path;
-    double temperature;
-    double coolingRatio = 0.9999999;
-    int timeLimit = 10;
+    SimulatedAnnealing(double initialCoolingRatio = 0.9999999, int timeLimit = 10);
+    void solve(AdjacencyMatrix& graph) override;
+    std::string toString() override;
 
-    void readDataFromFile(string fileName);
-    int getPathCost(vector<int> pathInstance);
-    void solveTSPUsingSimulatedAnnealing();
+private:
+    int verticesNumber;
+    double temperature;
+    double coolingRatio;
+    int timeLimit;
+    std::vector<int> path;
+    std::vector<std::vector<int>> routes;
+
+    int getPathCost(const std::vector<int>& pathInstance);
     double getInitialTemperature();
-    vector<int> getDefaultPath(int range);
-    vector<int> swapElementsInPath(int range, vector<int> oldPath);
+    std::vector<int> getDefaultPath();
+    std::vector<int> swapElementsInPath(const std::vector<int>& oldPath);
 };
 
-#endif //PEA_SIMMULATEDANNEALING_H
+#endif //PEA_SIMULATEDANNEALING_H
