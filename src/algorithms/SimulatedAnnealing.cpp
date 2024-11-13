@@ -2,25 +2,23 @@
 #include <cmath>
 #include <algorithm>
 #include <chrono>
+#include <random>
 
-SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit)
-        : coolingRatio(initialCoolingRatio), timeLimit(timeLimit) {}
+SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit, unsigned int seed)
+        : coolingRatio(initialCoolingRatio), timeLimit(timeLimit), seed(seed) {}
 
 void SimulatedAnnealing::solve(AdjacencyMatrix& graph) {
-    verticesNumber = graph.getSize();
-    temperature = getInitialTemperature(graph);
-    path = getDefaultPath();
-
-    int optimalCost = getPathCost(path, graph);
-    auto start = std::chrono::high_resolution_clock::now();
-
-
-    auto const seed = 123456789;
     std::mt19937 urbg {seed};
+    verticesNumber = graph.getSize();
+    temperature = getInitialTemperature(graph, urbg);
+    path = getDefaultPath();
+    int optimalCost = getPathCost(path, graph);
 
+
+    auto start = std::chrono::high_resolution_clock::now();
     std::vector<int> measureTimes;
     while(true){
-        std::vector<int>newPath = swapElementsInPath(verticesNumber, path);
+        std::vector<int>newPath = swapElementsInPath(verticesNumber, path, urbg);
         int newCost = getPathCost(newPath, graph);
         if(newCost<optimalCost){
             path = newPath;
@@ -62,14 +60,14 @@ int SimulatedAnnealing::getPathCost(const std::vector<int>& pathInstance, const 
     return cost;
 }
 
-double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix& graph) {
+double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix& graph, std::mt19937& urbg) {
     int iterations = 10000;
     std::vector<int> samplePath = getDefaultPath();
     std::vector<int> oldPath;
     double averageCost = 0;
     for(int i=0;i<iterations; i++){
         oldPath = samplePath;
-        samplePath = swapElementsInPath(verticesNumber, samplePath);
+        samplePath = swapElementsInPath(verticesNumber, samplePath, urbg);
         averageCost += abs(getPathCost(samplePath, graph)- getPathCost(oldPath, graph));
     }
     return abs((averageCost/iterations)/log(0.99));
@@ -81,16 +79,22 @@ std::vector<int> SimulatedAnnealing::getDefaultPath() {
     return defaultPath;
 }
 
-std::vector<int> SimulatedAnnealing::swapElementsInPath(int range, std::vector<int> oldPath){
+std::vector<int> SimulatedAnnealing::swapElementsInPath(int range, std::vector<int> oldPath, std::mt19937& urbg) {
     std::vector<int> newPath = std::move(oldPath);
-    int firstCityToSwap = rand()%range;
-    int secondCityToSwap =rand()%range;
-    while(firstCityToSwap==secondCityToSwap){
-        secondCityToSwap = rand()%range;
+    if (newPath.size() < 2) return newPath;
+
+    std::uniform_int_distribution<int> dist(0, range - 1);
+
+    int firstCityToSwap = dist(urbg);
+    int secondCityToSwap = dist(urbg);
+    while (firstCityToSwap == secondCityToSwap) {
+        secondCityToSwap = dist(urbg);
     }
-    iter_swap(newPath.begin() + firstCityToSwap, newPath.begin() + secondCityToSwap);
+
+    std::iter_swap(newPath.begin() + firstCityToSwap, newPath.begin() + secondCityToSwap);
     return newPath;
 }
+
 
 std::string SimulatedAnnealing::toString() {
     std::string result;
