@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <queue>
 
 #include "TSPSolver.h"
 #include "../graphs/AdjacencyMatrix.h"

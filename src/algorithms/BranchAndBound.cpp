@@ -1,6 +1,5 @@
 #include "BranchAndBound.h"
 #include "Heap.h"
-#include <climits>
 
 BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 

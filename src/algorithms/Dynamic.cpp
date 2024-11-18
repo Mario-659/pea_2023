@@ -4,32 +4,34 @@ Dynamic::Dynamic() : TSPSolver(), graph(nullptr) {}
 
 void Dynamic::initializeTables() {
     int size = graph->getSize();
+    // init array for storing minimal costs
     memo.assign(size, std::vector<int>(1 << size, -1));
+    // init array for storing optimal path
     parent.assign(size, std::vector<int>(1 << size, -1));
 }
 
 int Dynamic::findMinConst(int pos, int visited) {
     int size = graph->getSize();
 
-    // Return cost to starting point if all nodes are visited
+    // return cost to starting point if all nodes are visited
     if (visited == ((1 << size) - 1)) {
-        return graph->getEdgeWeight(pos, 0);  // Return to starting point
+        return graph->getEdgeWeight(pos, 0);
     }
 
-    // Return if the path is already computed
+    // return if the path is already computed
     if (memo[pos][visited] != -1) {
         return memo[pos][visited];
     }
 
-    int answer = std::numeric_limits<int>::max();
+    int answer = INT_MAX;
 
-    // Try to go to an unvisited vertex
+    // try to go to an unvisited vertex
     for (int city = 0; city < size; city++) {
-        if (!(visited & (1 << city))) {
+        if (!(visited & (1 << city))) {       // check if node has been visited
             int newAnswer = graph->getEdgeWeight(pos, city) + findMinConst(city, visited | (1 << city));
             if (newAnswer < answer) {
                 answer = newAnswer;
-                parent[pos][visited] = city;  // Store the path
+                parent[pos][visited] = city;  // store the path
             }
         }
     }
@@ -45,9 +47,9 @@ void Dynamic::buildPath() {
     int current = 0;
     bestPath.push_back(current);
 
-    while (visited != (1 << size) - 1) {
-        current = parent[current][visited];  // Move to the next city
-        visited |= (1 << current);  // Mark the city as visited
+    while (visited != (1 << size) - 1) {     // check if every city is visited
+        current = parent[current][visited];  // move to the next city
+        visited |= (1 << current);           // mark the city as visited
         bestPath.push_back(current);
     }
 
@@ -61,10 +63,10 @@ void Dynamic::solve(AdjacencyMatrix &graph) {
 
     initializeTables();
 
-    // Find minimal cost starting from node 0
+    // find minimal cost starting from node 0
     shortestPathLength = findMinConst(0, 1);
 
-    // Build the best path based on min cost and memo
+    // build the best path based on min cost and memo
     buildPath();
 }
 
