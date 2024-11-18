@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include "graphs/AdjacencyMatrix.h"
 #include "utils/Utils.h"
@@ -20,6 +21,8 @@ void startSPMenu() {
     matrixGraph = nullptr;
 
     string input;
+
+    chrono::high_resolution_clock::time_point t1, t2;
     while(true){
         cout << R"(Wybierz opcje:
                    1. Wczytaj z pliku
@@ -60,25 +63,37 @@ void startSPMenu() {
             case 6:
             {
                 BruteForce bruteForce;
+                t1 = chrono::high_resolution_clock::now();
                 bruteForce.solve(*matrixGraph);
+                t2 = chrono::high_resolution_clock::now();
+                auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                 std::cout << "\nShortest path: " << bruteForce.toString() << "\n" <<
-                          "Koszt sciezki: " << bruteForce.getShortestPathLength() << std::endl;
+                          "Koszt sciezki: " << bruteForce.getShortestPathLength() << "\n" <<
+                "Czas wykonania w nanosekundach: " << result << std::endl;
             }
             break;
             case 7:
             {
                 BranchAndBound branchAndBound;
+                t1 = chrono::high_resolution_clock::now();
                 branchAndBound.solve(*matrixGraph);
+                t2 = chrono::high_resolution_clock::now();
+                auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                 std::cout << "\nShortest path: " << branchAndBound.toString() << "\n" <<
-                          "Koszt sciezki: " << branchAndBound.getShortestPathLength() << std::endl;
+                          "Koszt sciezki: " << branchAndBound.getShortestPathLength() << "\n" <<
+                "Czas wykonania w nanosekundach: " << result << std::endl;
             }
             break;
             case 8:
             {
                 Dynamic dynamic;
+                t1 = chrono::high_resolution_clock::now();
                 dynamic.solve(*matrixGraph);
+                t2 = chrono::high_resolution_clock::now();
+                auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                 std::cout << "\nShortest path: " << dynamic.toString() << "\n" <<
-                          "Koszt sciezki: " << dynamic.getShortestPathLength() << std::endl;
+                          "Koszt sciezki: " << dynamic.getShortestPathLength() << "\n" <<
+                "Czas wykonania w nanosekundach: " << result << std::endl;
             }
             break;
             case 9:
