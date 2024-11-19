@@ -3,19 +3,19 @@
 
 #include <vector>
 #include <string>
-
+#include <bitset>
 #include "TSPSolver.h"
 #include "../graphs/AdjacencyMatrix.h"
 
 struct Node {
-    int level;                 // current depth in the search tree
-    int pathCost;              // total cost of reaching this node
-    int bound;                 // lower bound of the path from this node
-    std::vector<int> path;     // path taken to reach this node
-    std::vector<bool> visited; // already visited nodes
+    int level;
+    int pathCost;
+    int bound;
+    std::vector<int> path;
+    std::bitset<32> visited; // Replace with appropriate size based on max nodes
 
     Node(int level, int pathCost, int bound, const std::vector<int>& path, int size)
-            : level(level), pathCost(pathCost), bound(bound), path(path), visited(size, false) {}
+            : level(level), pathCost(pathCost), bound(bound), path(path), visited() {}
 
     Node() = default;
 
@@ -31,7 +31,10 @@ class BranchAndBound : public TSPSolver {
 private:
     std::vector<int> bestPath;
     int minCost;
+    std::vector<int> minOutgoingEdges;
+
     int calculateBound(const AdjacencyMatrix &graph, const Node &node);
+    void precomputeMinEdges(const AdjacencyMatrix &graph);
 public:
     BranchAndBound();
     void solve(AdjacencyMatrix &graph) override;
@@ -39,3 +42,4 @@ public:
 };
 
 #endif //PEA_BRANCHANDBOUND_H
+
