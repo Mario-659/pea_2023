@@ -52,6 +52,9 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
     while (pq.getSize() != 0) {
         Node current = pq.extractMin();
 
+        // Prune nodes with bounds greater than current minimal cost
+        if (current.bound >= minCost) continue;
+
         // If reached the last level, close the cycle and update the best path
         if (current.level == size - 1) {
             int lastToFirst = graph.getEdgeWeight(current.path.back(), 0);
@@ -61,7 +64,6 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
                     minCost = totalCost;
                     bestPath = current.path;
                     bestPath.push_back(0);
-                    std::cout << "calculated new min cost: " << minCost << std::endl;
                 }
             }
             continue;
@@ -71,13 +73,22 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
         for (int i = 0; i < size; ++i) {
             if (current.visited[i]) continue;
 
+            int edgeWeight = graph.getEdgeWeight(current.path.back(), i);
+            if (edgeWeight == INT_MAX) continue;
+
+            int newCost = current.pathCost + edgeWeight;
+
+            // Skip this path if its cost already exceeds the current minimum
+            if (newCost >= minCost) continue;
+
             Node child = current;
             child.level++;
-            child.pathCost += graph.getEdgeWeight(current.path.back(), i);
+            child.pathCost = newCost;
             child.path.push_back(i);
             child.visited[i] = true;
             child.bound = calculateBound(graph, child);
 
+            // Push child only if its bound is promising
             if (child.bound < minCost) {
                 pq.push(child);
             }
