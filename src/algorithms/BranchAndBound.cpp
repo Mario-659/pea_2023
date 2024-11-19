@@ -115,7 +115,9 @@ int BranchAndBound::preSolve(AdjacencyMatrix &graph) {
 }
 
 void BranchAndBound::solve(AdjacencyMatrix &graph) {
-    minCost = preSolve(graph); // Use heuristic to initialize minCost
+    // Use heuristic to initialize an upper bound, but do not directly assign it to minCost
+    int heuristicCost = preSolve(graph);
+    minCost = INT_MAX; // Reset minCost to allow proper updates during traversal
     bestPath.clear();
 
     int size = graph.getSize();
@@ -133,7 +135,7 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
     while (pq.getSize() != 0) {
         Node current = pq.extractMin();
 
-        // Prune nodes with bounds greater than current minimal cost
+        // Prune nodes with bounds greater than the current minimal cost
         if (current.bound >= minCost) continue;
 
         // If reached the last level, close the cycle and update the best path
@@ -143,8 +145,8 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
                 int totalCost = current.pathCost + lastToFirst;
                 if (totalCost < minCost) {
                     minCost = totalCost;
-                    bestPath = current.path;
-                    bestPath.push_back(0);
+                    bestPath = current.path;  // Update best path
+                    bestPath.push_back(0);    // Close the cycle
                 }
             }
             continue;
