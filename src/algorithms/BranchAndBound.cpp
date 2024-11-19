@@ -19,22 +19,103 @@ void BranchAndBound::precomputeMinEdges(const AdjacencyMatrix &graph) {
     }
 }
 
+int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visited) {
+    int size = graph.getSize();
+    std::vector<int> key(size, INT_MAX); // Min edge weight to include node
+    std::vector<bool> inMST(size, false);
+
+    // Start MST from any unvisited node
+    int startNode = 0;
+    while (startNode < size && visited[startNode]) {
+        startNode++;
+    }
+
+    if (startNode == size) return 0; // All nodes are visited
+
+    key[startNode] = 0;
+    int mstCost = 0;
+
+    for (int count = 0; count < size; count++) {
+        int u = -1;
+
+        // Find the unvisited node with the smallest key value
+        for (int i = 0; i < size; i++) {
+            if (!inMST[i] && (u == -1 || key[i] < key[u])) {
+                u = i;
+            }
+        }
+
+        if (u == -1 || key[u] == INT_MAX) break; // No more nodes to include in MST
+
+        inMST[u] = true;
+        mstCost += key[u];
+
+        // Update the key values of adjacent nodes
+        for (int v = 0; v < size; v++) {
+            if (!inMST[v] && !visited[v] && graph.getEdgeWeight(u, v) < key[v]) {
+                key[v] = graph.getEdgeWeight(u, v);
+            }
+        }
+    }
+
+    return mstCost;
+}
+
 // Calculate the lower bound of a path starting at the given node
 int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &node) {
     int bound = node.pathCost;
     int size = graph.getSize();
+    int lastVisited = node.path.back();
 
-    for (int i = 0; i < size; ++i) {
-        if (!node.visited[i]) {
-            bound += minOutgoingEdges[i];
+    // Add MST cost for remaining unvisited nodes
+    bound += calculateMSTCost(graph, node.visited);
+
+    // Add minimum outgoing edge from the last visited node
+    int minOutgoing = INT_MAX;
+    for (int j = 0; j < size; j++) {
+        if (!node.visited[j] && graph.getEdgeWeight(lastVisited, j) < minOutgoing) {
+            minOutgoing = graph.getEdgeWeight(lastVisited, j);
         }
     }
+    bound += (minOutgoing == INT_MAX) ? 0 : minOutgoing;
 
     return bound;
 }
 
+
+int BranchAndBound::preSolve(AdjacencyMatrix &graph) {
+    int size = graph.getSize();
+    std::vector<bool> visited(size, false);
+    int cost = 0;
+    int current = 0;
+
+    visited[current] = true;
+
+    for (int i = 1; i < size; i++) {
+        int next = -1;
+        int minEdge = INT_MAX;
+
+        for (int j = 0; j < size; j++) {
+            if (!visited[j] && graph.getEdgeWeight(current, j) < minEdge) {
+                minEdge = graph.getEdgeWeight(current, j);
+                next = j;
+            }
+        }
+
+        if (next != -1) {
+            cost += minEdge;
+            visited[next] = true;
+            current = next;
+        }
+    }
+
+    // Add the cost to return to the starting node
+    cost += graph.getEdgeWeight(current, 0);
+    return cost;
+}
+
 void BranchAndBound::solve(AdjacencyMatrix &graph) {
-    minCost = INT_MAX;
+    minCost = preSolve(graph); // Use heuristic to initialize minCost
     bestPath.clear();
 
     int size = graph.getSize();
@@ -88,7 +169,6 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
             child.visited[i] = true;
             child.bound = calculateBound(graph, child);
 
-            // Push child only if its bound is promising
             if (child.bound < minCost) {
                 pq.push(child);
             }

@@ -12,10 +12,10 @@ struct Node {
     int pathCost;
     int bound;
     std::vector<int> path;
-    std::bitset<32> visited; // Replace with appropriate size based on max nodes
+    std::vector<bool> visited; // Replace with appropriate size based on max nodes
 
     Node(int level, int pathCost, int bound, const std::vector<int>& path, int size)
-            : level(level), pathCost(pathCost), bound(bound), path(path), visited() {}
+            : level(level), pathCost(pathCost), bound(bound), path(path), visited(size, false) {}
 
     Node() = default;
 
@@ -39,6 +39,8 @@ public:
     BranchAndBound();
     void solve(AdjacencyMatrix &graph) override;
     std::string toString() override;
+
+    int preSolve(AdjacencyMatrix &graph);
 };
 
 #endif //PEA_BRANCHANDBOUND_H
