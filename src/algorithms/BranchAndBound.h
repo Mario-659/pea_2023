@@ -31,10 +31,8 @@ class BranchAndBound : public TSPSolver {
 private:
     std::vector<int> bestPath;
     int minCost;
-    std::vector<int> minOutgoingEdges;
 
     int calculateBound(const AdjacencyMatrix &graph, const Node &node);
-    void precomputeMinEdges(const AdjacencyMatrix &graph);
 public:
     BranchAndBound();
     void solve(AdjacencyMatrix &graph) override;

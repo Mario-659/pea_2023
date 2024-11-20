@@ -4,20 +4,6 @@
 
 BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 
-// Precompute the minimum outgoing edge cost for each node
-void BranchAndBound::precomputeMinEdges(const AdjacencyMatrix &graph) {
-    int size = graph.getSize();
-    minOutgoingEdges.resize(size, INT_MAX);
-
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            if (i != j) {
-                minOutgoingEdges[i] = std::min(minOutgoingEdges[i], graph.getEdgeWeight(i, j));
-            }
-        }
-    }
-}
-
 int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visited) {
     int size = graph.getSize();
     std::vector<int> key(size, INT_MAX); // Min edge weight to include node
@@ -74,12 +60,9 @@ int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &nod
 
 
 void BranchAndBound::solve(AdjacencyMatrix &graph) {
-    minCost = INT_MAX; // Reset minCost to allow proper updates during traversal
+    minCost = INT_MAX;
     bestPath.clear();
-
     int size = graph.getSize();
-    precomputeMinEdges(graph);
-
     Heap<Node> pq(size * size);
 
     // Start from node 0
