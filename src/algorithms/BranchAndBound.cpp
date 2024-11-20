@@ -1,7 +1,6 @@
 #include "BranchAndBound.h"
 #include "Heap.h"
 #include <climits>
-#include <algorithm>
 
 BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 
@@ -64,23 +63,14 @@ int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visi
 // Calculate the lower bound of a path starting at the given node
 int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &node) {
     int bound = node.pathCost;
-    int size = graph.getSize();
-    int lastVisited = node.path.back();
 
     // Add MST cost for remaining unvisited nodes
-    bound += calculateMSTCost(graph, node.visited);
-
-    // Add minimum outgoing edge from the last visited node
-    int minOutgoing = INT_MAX;
-    for (int j = 0; j < size; j++) {
-        if (!node.visited[j] && graph.getEdgeWeight(lastVisited, j) < minOutgoing) {
-            minOutgoing = graph.getEdgeWeight(lastVisited, j);
-        }
-    }
-    bound += (minOutgoing == INT_MAX) ? 0 : minOutgoing;
+    int mstCost = calculateMSTCost(graph, node.visited);
+    bound += mstCost;
 
     return bound;
 }
+
 
 
 int BranchAndBound::preSolve(AdjacencyMatrix &graph) {
