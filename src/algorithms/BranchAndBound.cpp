@@ -73,40 +73,7 @@ int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &nod
 
 
 
-int BranchAndBound::preSolve(AdjacencyMatrix &graph) {
-    int size = graph.getSize();
-    std::vector<bool> visited(size, false);
-    int cost = 0;
-    int current = 0;
-
-    visited[current] = true;
-
-    for (int i = 1; i < size; i++) {
-        int next = -1;
-        int minEdge = INT_MAX;
-
-        for (int j = 0; j < size; j++) {
-            if (!visited[j] && graph.getEdgeWeight(current, j) < minEdge) {
-                minEdge = graph.getEdgeWeight(current, j);
-                next = j;
-            }
-        }
-
-        if (next != -1) {
-            cost += minEdge;
-            visited[next] = true;
-            current = next;
-        }
-    }
-
-    // Add the cost to return to the starting node
-    cost += graph.getEdgeWeight(current, 0);
-    return cost;
-}
-
 void BranchAndBound::solve(AdjacencyMatrix &graph) {
-    // Use heuristic to initialize an upper bound, but do not directly assign it to minCost
-    int heuristicCost = preSolve(graph);
     minCost = INT_MAX; // Reset minCost to allow proper updates during traversal
     bestPath.clear();
 

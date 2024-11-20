@@ -39,8 +39,6 @@ public:
     BranchAndBound();
     void solve(AdjacencyMatrix &graph) override;
     std::string toString() override;
-
-    int preSolve(AdjacencyMatrix &graph);
 };
 
 #endif //PEA_BRANCHANDBOUND_H
