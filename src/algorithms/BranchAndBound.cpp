@@ -9,13 +9,11 @@ int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visi
     std::vector<int> minEdgeWeights(size, INT_MAX); // min edge weight to include node
     std::vector<bool> visitedInMST(size, false);
 
-    std::cout << "starting calculateMSTCost" << std::endl;
     // start MST from any unvisited node
     int startNode = 0;
     while (startNode < size && visited[startNode]) {
         startNode++;
     }
-    std::cout << "starting node: " << startNode << std::endl;
 
     // all nodes are visited
     if (startNode == size) return 0;
@@ -38,7 +36,6 @@ int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visi
 
         visitedInMST[current] = true;
 
-        std::cout << "adding to mstCost: " << minEdgeWeights[current] << std::endl;
         mstCost += minEdgeWeights[current];
 
         // update minimal path costs of adjacent nodes
@@ -49,7 +46,6 @@ int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visi
         }
     }
 
-    std::cout << "calculated mst cost: " << mstCost << std::endl;
     return mstCost;
 }
 
@@ -118,7 +114,6 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
             child.bound = calculateBound(graph, child);
 
             if (child.bound < minCost) {
-                std::cout << "node with bound: " << child.bound << std::endl;
                 pq.push(child);
             }
         }
