@@ -127,15 +127,15 @@ void runSample(vector<int> sampleSizes) {
     for (auto sample : sampleSizes) {
 //        runAssertion(sample);
 
-        long long bruteForceResult = runBruteForceTest(sample, dens);
+//        long long bruteForceResult = runBruteForceTest(sample, dens);
         long long branchAndBoundResult = runBranchAndBoundTest(sample, dens);
         long long dynamicResult = runDynamicProgrammingTest(sample, dens);
 
-        cout                 << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
+//        cout                 << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
         cout                 << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
         cout                 << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
 
-        output_file << fixed << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
+//        output_file << fixed << sample << "," << dens << ",BruteForce," << bruteForceResult << "\n";
         output_file << fixed << sample << "," << dens << ",BranchAndBound," << branchAndBoundResult << "\n";
         output_file << fixed << sample << "," << dens << ",Dynamic," << dynamicResult << "\n";
     }
@@ -144,7 +144,8 @@ void runSample(vector<int> sampleSizes) {
 }
 
 int main() {
-    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
+//    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
+    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
 
     cout.precision(30);
     runSample(sampleSizes);
