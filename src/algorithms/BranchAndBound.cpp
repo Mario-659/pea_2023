@@ -49,11 +49,11 @@ int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visi
     return mstCost;
 }
 
-// Calculate the lower bound of a path starting at the given node
+// calculate the lower bound of a path starting at the given node
 int BranchAndBound::calculateBound(const AdjacencyMatrix &graph, const Node &node) {
     int bound = node.pathCost;
 
-    // Add MST cost for remaining unvisited nodes
+    // add MST cost for remaining unvisited nodes
     int mstCost = calculateMSTCost(graph, node.visited);
     bound += mstCost;
 
@@ -77,10 +77,10 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
     while (pq.getSize() != 0) {
         Node current = pq.extractMin();
 
-        // Prune nodes with bounds greater than the current minimal cost
+        // prune nodes with bounds greater than the current minimal cost
         if (current.bound >= minCost) continue;
 
-        // If reached the last level, close the cycle and update the best path
+        // if reached the last level, close the cycle and update the best path
         if (current.level == size - 1) {
             int lastToFirst = graph.getEdgeWeight(current.path.back(), 0);
             if (lastToFirst != INT_MAX) {
@@ -94,7 +94,7 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
             continue;
         }
 
-        // Expand the current node
+        // expand the current node
         for (int i = 0; i < size; ++i) {
             if (current.visited[i]) continue;
 
@@ -103,7 +103,7 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
 
             int newCost = current.pathCost + edgeWeight;
 
-            // Skip this path if its cost already exceeds the current minimum
+            // skip this path if its cost already exceeds the current minimum
             if (newCost >= minCost) continue;
 
             Node child = current;
