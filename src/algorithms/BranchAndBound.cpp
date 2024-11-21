@@ -6,43 +6,50 @@ BranchAndBound::BranchAndBound() : TSPSolver(), minCost(INT_MAX) {}
 
 int calculateMSTCost(const AdjacencyMatrix &graph, const std::vector<bool> &visited) {
     int size = graph.getSize();
-    std::vector<int> key(size, INT_MAX); // Min edge weight to include node
-    std::vector<bool> inMST(size, false);
+    std::vector<int> minEdgeWeights(size, INT_MAX); // min edge weight to include node
+    std::vector<bool> visitedInMST(size, false);
 
-    // Start MST from any unvisited node
+    std::cout << "starting calculateMSTCost" << std::endl;
+    // start MST from any unvisited node
     int startNode = 0;
     while (startNode < size && visited[startNode]) {
         startNode++;
     }
+    std::cout << "starting node: " << startNode << std::endl;
 
-    if (startNode == size) return 0; // All nodes are visited
+    // all nodes are visited
+    if (startNode == size) return 0;
 
-    key[startNode] = 0;
+    minEdgeWeights[startNode] = 0;
     int mstCost = 0;
 
     for (int count = 0; count < size; count++) {
-        int u = -1;
+        int current = -1;
 
-        // Find the unvisited node with the smallest key value
+        // find the unvisited node with the path cost
         for (int i = 0; i < size; i++) {
-            if (!inMST[i] && (u == -1 || key[i] < key[u])) {
-                u = i;
+            if (!visitedInMST[i] && (current == -1 || minEdgeWeights[i] < minEdgeWeights[current])) {
+                current = i;
             }
         }
 
-        if (u == -1 || key[u] == INT_MAX) break; // No more nodes to include in MST
+        // if no more nodes to include in MST end
+        if (current == -1 || minEdgeWeights[current] == INT_MAX) break;
 
-        inMST[u] = true;
-        mstCost += key[u];
+        visitedInMST[current] = true;
 
-        // Update the key values of adjacent nodes
+        std::cout << "adding to mstCost: " << minEdgeWeights[current] << std::endl;
+        mstCost += minEdgeWeights[current];
+
+        // update minimal path costs of adjacent nodes
         for (int v = 0; v < size; v++) {
-            if (!inMST[v] && !visited[v] && graph.getEdgeWeight(u, v) < key[v]) {
-                key[v] = graph.getEdgeWeight(u, v);
+            if (!visitedInMST[v] && !visited[v] && graph.getEdgeWeight(current, v) < minEdgeWeights[v]) {
+                minEdgeWeights[v] = graph.getEdgeWeight(current, v);
             }
         }
     }
 
+    std::cout << "calculated mst cost: " << mstCost << std::endl;
     return mstCost;
 }
 
@@ -68,7 +75,6 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
     // Start from node 0
     Node root(0, 0, 0, {0}, size);
     root.visited[0] = true;
-    root.bound = calculateBound(graph, root);
 
     pq.push(root);
 
@@ -112,6 +118,7 @@ void BranchAndBound::solve(AdjacencyMatrix &graph) {
             child.bound = calculateBound(graph, child);
 
             if (child.bound < minCost) {
+                std::cout << "node with bound: " << child.bound << std::endl;
                 pq.push(child);
             }
         }
