@@ -12,6 +12,10 @@ set(SOURCES
         algorithms/BranchAndBound.h
         algorithms/Dynamic.cpp
         algorithms/Dynamic.h
+        algorithms/SimulatedAnnealing.cpp
+        algorithms/SimulatedAnnealing.h
+        algorithms/TabuSearch.cpp
+        algorithms/TabuSearch.h
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})

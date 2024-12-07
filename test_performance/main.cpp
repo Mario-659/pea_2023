@@ -6,6 +6,8 @@
 #include "algorithms/Dynamic.h"
 #include "algorithms/BruteForce.h"
 #include "algorithms/BranchAndBound.h"
+#include "algorithms/TabuSearch.h"
+#include "algorithms/SimulatedAnnealing.h"
 
 using namespace std;
 
@@ -66,6 +68,8 @@ void runAssertion(int graphSize) {
     BruteForce bruteForce;
     BranchAndBound branchAndBound;
     Dynamic dynamic;
+    TabuSearch tabuSearch;
+    SimulatedAnnealing simAnnealing(0.999999, 15);
 
     int numberOfRuns = (graphSize >= 13) ? 10 : 100;
 
@@ -78,15 +82,25 @@ void runAssertion(int graphSize) {
         auto matrixCopy1 = matrixGraph->copy();
         auto matrixCopy2 = matrixGraph->copy();
         auto matrixCopy3 = matrixGraph->copy();
-
-        branchAndBound.solve(*matrixCopy1);
-        bruteForce.solve(*matrixCopy2);
-        dynamic.solve(*matrixCopy3);
+        auto matrixCopy4 = matrixGraph->copy();
+        auto matrixCopy5 = matrixGraph->copy();
 
         cout << "\n" << endl;
+
+        branchAndBound.solve(*matrixCopy1);
         cout << "BaB " <<  " cost: " << branchAndBound.getShortestPathLength() << endl;
-        cout << "B F " <<  " cost: " << bruteForce.getShortestPathLength() << endl;
-        cout << "Dyn " <<  " cost: " << dynamic.getShortestPathLength() << endl;
+
+        bruteForce    .solve(*matrixCopy2);
+        cout << "B F " <<  " cost: " << bruteForce.getShortestPathLength()     << endl;
+
+        dynamic       .solve(*matrixCopy3);
+        cout << "Dyn " <<  " cost: " << dynamic.getShortestPathLength()        << endl;
+
+        tabuSearch    .solve(*matrixCopy4);
+        cout << "Tab " <<  " cost: " << tabuSearch.getShortestPathLength()     << endl;
+
+        simAnnealing  .solve( *matrixCopy5);
+        cout << "Sim " <<  " cost: " << simAnnealing.getShortestPathLength()   << endl;
     }
 }
 
@@ -148,8 +162,8 @@ int main() {
     vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
 
     cout.precision(30);
-    runSample(sampleSizes);
-//    runAssertion(10);
+//    runSample(sampleSizes);
+    runAssertion(11);
 
     return 0;
 }
