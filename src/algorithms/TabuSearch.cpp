@@ -13,6 +13,7 @@ void TabuSearch::solve(AdjacencyMatrix& graph) {
     int currentCost = getPathCost(currentPath, graph);
     int bestCost = currentCost;
     std::vector<int> bestPath = currentPath;
+    int punishment = 10 * verticesNumber;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -36,6 +37,9 @@ void TabuSearch::solve(AdjacencyMatrix& graph) {
                     std::swap(currentPath[k], currentPath[l]);
                 }
             }
+
+            std::swap(currentPath[bestK], currentPath[bestL]);
+            tabuTable[bestK][bestL] = punishment;
 
             if (bestK != -1 && bestL != -1) {
                 std::swap(currentPath[bestK], currentPath[bestL]);
