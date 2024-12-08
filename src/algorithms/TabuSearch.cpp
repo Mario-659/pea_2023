@@ -3,7 +3,7 @@
 #include <limits>
 
 TabuSearch::TabuSearch(int timeLimit)
-        : timeLimit(timeLimit) {}
+        : timeLimit(timeLimit), strategy(1) {}
 
 void TabuSearch::solve(AdjacencyMatrix &graph) {
     // Get the number of vertices in the graph.
@@ -40,7 +40,14 @@ void TabuSearch::solve(AdjacencyMatrix &graph) {
         for (int k = 0; k < verticesNumber - 1; ++k) {
             for (int l = k + 1; l < verticesNumber; ++l) {
                 // Perform the 2-opt swap.
-                std::vector<int> newPath = twoOptSwap(currentPath, k, l);
+                std::vector<int> newPath;
+                if (strategy == 1) {
+                    newPath = swapStrategy(currentPath, k, l);
+                } else if (strategy == 2) {
+                    newPath = inversionMutation(currentPath, k, l);
+                } else {
+                    newPath = twoOptSwap(currentPath, k, l);
+                }
 
                 // Calculate the new path cost.
                 int newCost = getPathCost(newPath, graph);
@@ -107,12 +114,6 @@ std::vector<int> TabuSearch::generateRandomPath() {
     return randomPath;
 }
 
-//procedure 2optSwap(route, v1, v2) {
-//1. take route[start] to route[v1] and add them in order to new_route
-//2. take route[v1+1] to route[v2] and add them in reverse order to new_route
-//3. take route[v2+1] to route[start] and add them in order to new_route
-//return new_route;
-//}
 std::vector<int> TabuSearch::twoOptSwap(const std::vector<int>& route, int v1, int v2) {
     std::vector<int> newRoute;
 
@@ -128,7 +129,18 @@ std::vector<int> TabuSearch::twoOptSwap(const std::vector<int>& route, int v1, i
     return newRoute;
 }
 
+std::vector<int> TabuSearch::swapStrategy(const std::vector<int>& route, int index1, int index2) {
+    std::vector<int> newRoute(route);
+    std::swap(newRoute[index1], newRoute[index2]);
+    return newRoute;
+}
 
+
+std::vector<int> TabuSearch::inversionMutation(const std::vector<int>& route, int startIdx, int endIdx) {
+    std::vector<int> newRoute(route);
+    std::reverse(newRoute.begin() + startIdx, newRoute.begin() + endIdx + 1);
+    return newRoute;
+}
 
 std::string TabuSearch::toString() {
     std::string result;
@@ -137,4 +149,8 @@ std::string TabuSearch::toString() {
     }
     result += "0";
     return result;
+}
+
+void TabuSearch::setStrategy(int s) {
+    strategy = s;
 }
