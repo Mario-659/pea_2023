@@ -16,6 +16,8 @@ set(SOURCES
         algorithms/SimulatedAnnealing.h
         algorithms/TabuSearch.cpp
         algorithms/TabuSearch.h
+        algorithms/Greedy.h
+        algorithms/Greedy.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
