@@ -7,6 +7,8 @@
 #include "algorithms/BruteForce.h"
 #include "algorithms/BranchAndBound.h"
 #include "algorithms/Dynamic.h"
+#include "algorithms/TabuSearch.h"
+#include "algorithms/Greedy.h"
 
 using namespace std;
 
@@ -17,11 +19,83 @@ AdjacencyMatrix* matrixGraph = nullptr;
 
 void displayGraphs();
 
+void startTSMenu() {
+    matrixGraph = nullptr;
+    chrono::high_resolution_clock::time_point t1, t2;
+    TabuSearch ts;
+    string input;
+    while(true){
+        cout << R"(Wybierz opcje:
+                   1. Wczytaj z pliku
+                   2. Wyswietl
+                   3. Podaj wartosc kryterium stopu
+                   4. Podaj definicje sasiedztwa
+                   5. Uruchom algorytm
+                   6. Oblicz metoda zachlanna
+                   7. Zakoncz)";
+        cout << "\nInput: ";
+        cin >> input;
+        int option = stoi(input);
+        switch (option) {
+            case 1:
+                cout << "Podaj nazwe pliku: ";
+                cin >> input;
+                try {
+                    loadFromFileDir(input);
+                    std::cout << "\n";
+                    displayGraphs();
+                } catch (std::invalid_argument &e) {
+                    cout << "Nie znaleziono pliku\n";
+                }
+                break;
+            case 2:
+                displayGraphs();
+                break;
+            case 3:
+                cout << "Podaj kryterium stopu w sekundach: ";
+                cin >> input;
+                ts.setStrategy(std::stoi(input));
+                break;
+            case 4:
+                cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - twoOptSwap): ";
+                cin >> input;
+                ts.setTimeLimit(std::stoi(input));
+                break;
+            case 5:
+                {
+                    t1 = chrono::high_resolution_clock::now();
+                    ts.solve(*matrixGraph);
+                    t2 = chrono::high_resolution_clock::now();
+                    auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+                    std::cout << "\nShortest path: " << ts.toString() << "\n" <<
+                              "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
+                              "Czas wykonania w nanosekundach: " << result << std::endl;
+                }
+                break;
+            case 6:
+                {
+                    Greedy greedy;
+                    t1 = chrono::high_resolution_clock::now();
+                    greedy.solve(*matrixGraph);
+                    t2 = chrono::high_resolution_clock::now();
+                    auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+                    std::cout << "\nShortest path: " << ts.toString() << "\n" <<
+                              "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
+                              "Czas wykonania w nanosekundach: " << result << std::endl;
+
+                }
+                break;
+            case 7:
+                return;
+            default:
+                cout << "Nieprawidlowy numer" << endl;
+        }
+    }
+}
+
 void startSPMenu() {
     matrixGraph = nullptr;
-
     string input;
-
     chrono::high_resolution_clock::time_point t1, t2;
     while(true){
         cout << R"(Wybierz opcje:
@@ -105,7 +179,8 @@ void startSPMenu() {
 }
 
 int main(){
-    startSPMenu();
+//    startSPMenu();
+    startTSMenu();
     return 0;
 }
 
