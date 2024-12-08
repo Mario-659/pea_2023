@@ -80,8 +80,8 @@ void startTSMenu() {
                     greedy.solve(*matrixGraph);
                     t2 = chrono::high_resolution_clock::now();
                     auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
-                    std::cout << "\nShortest path: " << ts.toString() << "\n" <<
-                              "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
+                    std::cout << "\nShortest path: " << greedy.toString() << "\n" <<
+                              "Koszt sciezki: " << greedy.getShortestPathLength() << "\n" <<
                               "Czas wykonania w nanosekundach: " << result << std::endl;
 
                 }
