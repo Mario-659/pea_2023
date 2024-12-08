@@ -122,7 +122,7 @@ std::vector<int> TabuSearch::getDefaultTabuPath() {
 
 std::vector<int> TabuSearch::generateRandomPath() {
     std::vector<int> randomPath = getDefaultTabuPath();
-    std::shuffle(randomPath.begin(), randomPath.end(), std::mt19937{std::random_device{}()});
+    std::shuffle(randomPath.begin() + 1, randomPath.end(), std::mt19937{std::random_device{}()});
     return randomPath;
 }
 
