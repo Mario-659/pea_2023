@@ -14,6 +14,7 @@ using namespace std;
 
 // reads data from file as graph, assumes first line in file stands for graph size
 void loadFromFileDir(string filename);
+void loadFromFileAtsp(string filename);
 
 AdjacencyMatrix* matrixGraph = nullptr;
 
@@ -41,7 +42,7 @@ void startTSMenu() {
                 cout << "Podaj nazwe pliku: ";
                 cin >> input;
                 try {
-                    loadFromFileDir(input);
+                    loadFromFileAtsp(input);
                     std::cout << "\n";
                     displayGraphs();
                 } catch (std::invalid_argument &e) {
@@ -54,12 +55,12 @@ void startTSMenu() {
             case 3:
                 cout << "Podaj kryterium stopu w sekundach: ";
                 cin >> input;
-                ts.setStrategy(std::stoi(input));
+                ts.setTimeLimit(std::stoi(input));
                 break;
             case 4:
                 cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - twoOptSwap): ";
                 cin >> input;
-                ts.setTimeLimit(std::stoi(input));
+                ts.setStrategy(std::stoi(input));
                 break;
             case 5:
                 {
@@ -201,6 +202,41 @@ void loadFromFileDir(string filename) {
                 matrixGraph->setEdge(i, j, nums[i][j]);
         }
     }
+}
+
+void loadFromFileAtsp(string filename) {
+    ifstream  myFile(filename);
+    if (myFile.fail()) {
+        cout << "Podano bledna sciezke do pliku!" << endl;
+        return;
+    }
+    string line;
+
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+
+    string temp;
+    myFile >> temp;
+    int tempInt;
+    myFile >> tempInt;
+    int numberOfCities = tempInt;
+
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+
+    matrixGraph = new AdjacencyMatrix(numberOfCities);
+    for (int i = 0; i < numberOfCities; i++) {
+        for (int j = 0; j < numberOfCities; j++) {
+            int value;
+            myFile >> value;
+            matrixGraph->setEdge(i, j, value);
+        }
+    }
+
+    myFile.close();
 }
 
 void displayGraphs() {
