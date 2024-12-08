@@ -23,6 +23,8 @@ private:
     int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
     std::vector<int> getDefaultTabuPath();
     std::vector<int> generateRandomPath();
+
+    std::vector<int> twoOptSwap(const std::vector<int> &route, int v1, int v2);
 };
 
 #endif // PEA_TABUSEARCH_H

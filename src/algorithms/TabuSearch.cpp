@@ -6,81 +6,82 @@ TabuSearch::TabuSearch(int timeLimit)
         : timeLimit(timeLimit) {}
 
 void TabuSearch::solve(AdjacencyMatrix &graph) {
-    // Pobierz liczbę wierzchołków w grafie.
+    // Get the number of vertices in the graph.
     verticesNumber = graph.getSize();
 
-    // Inicjalizacja Tablicy Tabu (dwuwymiarowa tablica) z zerowymi wartościami.
+    // Initialize Tabu Table with zeros.
     std::vector<std::vector<int>> tabuTable(verticesNumber, std::vector<int>(verticesNumber, 0));
 
-    // Ustawienie początkowej ścieżki jako domyślnej permutacji wierzchołków (0, 1, 2, ...).
+    // Set the initial path to the default permutation of vertices (0, 1, 2, ...).
     std::vector<int> currentPath = getDefaultTabuPath();
 
-    // Obliczenie kosztu początkowej ścieżki.
+    // Calculate the initial path cost.
     int currentCost = getPathCost(currentPath, graph);
 
-    // Zainicjowanie najlepszego kosztu i ścieżki jako początkowe rozwiązanie.
+    // Initialize the best cost and path as the initial solution.
     int bestCost = currentCost;
     std::vector<int> bestPath = currentPath;
 
-    // Wartość kary w Tablicy Tabu (określa czas trwania zakazu).
+    // Penalty value for the Tabu Table (determines the duration of prohibitions).
     int punishment = 10 * verticesNumber;
 
-    // Rozpoczęcie liczenia czasu algorytmu.
+    // Start the algorithm timer.
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Pętla główna: działa do momentu osiągnięcia limitu czasu.
+    // Main loop: runs until the time limit is reached.
     while (std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count() < timeLimit) {
-        // Generowanie losowej ścieżki jako punktu startowego dla tej iteracji.
+        // Generate a random path as the starting point for this iteration.
         currentPath = generateRandomPath();
 
-        // Przeszukiwanie sąsiedztwa: iteracja po wszystkich możliwych zamianach miast w ścieżce.
-        for (int i = 0; i < verticesNumber - 1; ++i) {
-            int bestNextCost = std::numeric_limits<int>::max(); // Najlepszy koszt sąsiedztwa.
-            int bestK = -1, bestL = -1; // Indeksy wierzchołków do zamiany.
+        // Neighborhood search: iterate over all possible 2-opt swaps.
+        int bestNextCost = std::numeric_limits<int>::max(); // Best cost in the neighborhood.
+        std::vector<int> bestNeighbor; // Store the best neighbor path.
 
-            // Dla każdej pary wierzchołków w bieżącej ścieżce.
-            for (int k = 0; k < verticesNumber - 1; ++k) {
-                for (int l = k + 1; l < verticesNumber; ++l) {
-                    // Zamiana dwóch wierzchołków w ścieżce.
-                    std::swap(currentPath[k], currentPath[l]);
+        for (int k = 0; k < verticesNumber - 1; ++k) {
+            for (int l = k + 1; l < verticesNumber; ++l) {
+                // Perform the 2-opt swap.
+                std::vector<int> newPath = twoOptSwap(currentPath, k, l);
 
-                    // Obliczenie nowego kosztu ścieżki po zamianie.
-                    int newCost = getPathCost(currentPath, graph);
+                // Calculate the new path cost.
+                int newCost = getPathCost(newPath, graph);
 
-                    // Sprawdzenie, czy nowy koszt jest lepszy i czy ruch nie jest zabroniony przez Tablicę Tabu.
-                    if (newCost < bestNextCost && tabuTable[k][l] == 0) {
-                        bestNextCost = newCost;
-                        bestK = k;
-                        bestL = l;
+                // Check if the new cost is better and if the move is not forbidden by the Tabu Table.
+                if (newCost < bestNextCost && tabuTable[k][l] == 0) {
+                    bestNextCost = newCost;
+                    bestNeighbor = newPath;
+                }
+            }
+        }
+
+        // Update the current path to the best neighbor found in the neighborhood.
+        currentPath = bestNeighbor;
+
+        // Add the move to the Tabu Table with the penalty value.
+        if (!bestNeighbor.empty()) {
+            for (int i = 0; i < verticesNumber - 1; ++i) {
+                for (int j = i + 1; j < verticesNumber; ++j) {
+                    if (currentPath[i] != bestNeighbor[i] || currentPath[j] != bestNeighbor[j]) {
+                        tabuTable[i][j] = punishment;
                     }
-
-                    // Cofnięcie zamiany (przywrócenie poprzedniej ścieżki).
-                    std::swap(currentPath[k], currentPath[l]);
                 }
             }
+        }
 
-            // Wykonanie najlepszej zamiany znalezionej w sąsiedztwie.
-            std::swap(currentPath[bestK], currentPath[bestL]);
+        // Update the best solution if a better cost is found.
+        if (bestNextCost < bestCost) {
+            bestCost = bestNextCost;
+            bestPath = currentPath;
+        }
 
-            // Dodanie zamiany do Tablicy Tabu z wartością kary.
-            tabuTable[bestK][bestL] = punishment;
-
-            // Aktualizacja najlepszego rozwiązania, jeśli znaleziono lepszy koszt.
-            if (bestNextCost < bestCost) {
-                bestCost = bestNextCost;
-                bestPath = currentPath;
-            }
-
-            // Aktualizacja czasu trwania zakazów w Tablicy Tabu.
-            for (auto &row: tabuTable) {
-                for (auto &element: row) {
-                    if (element > 0) --element; // Redukcja czasu trwania zakazów.
-                }
+        // Reduce the duration of prohibitions in the Tabu Table.
+        for (auto &row : tabuTable) {
+            for (auto &element : row) {
+                if (element > 0) --element;
             }
         }
     }
 
-    // Przypisanie najlepszego rozwiązania do atrybutów klasy.
+    // Assign the best solution to class attributes.
     shortestPathLength = bestCost;
     path = bestPath;
 }
@@ -105,6 +106,29 @@ std::vector<int> TabuSearch::generateRandomPath() {
     std::shuffle(randomPath.begin(), randomPath.end(), std::mt19937{std::random_device{}()});
     return randomPath;
 }
+
+//procedure 2optSwap(route, v1, v2) {
+//1. take route[start] to route[v1] and add them in order to new_route
+//2. take route[v1+1] to route[v2] and add them in reverse order to new_route
+//3. take route[v2+1] to route[start] and add them in order to new_route
+//return new_route;
+//}
+std::vector<int> TabuSearch::twoOptSwap(const std::vector<int>& route, int v1, int v2) {
+    std::vector<int> newRoute;
+
+    // 1. Take route[start] to route[v1] and add them in order to newRoute
+    newRoute.insert(newRoute.end(), route.begin(), route.begin() + v1 + 1);
+
+    // 2. Take route[v1+1] to route[v2] and add them in reverse order to newRoute
+    newRoute.insert(newRoute.end(), route.rbegin() + (route.size() - v2 - 1), route.rbegin() + (route.size() - v1 - 1));
+
+    // 3. Take route[v2+1] to route[start] and add them in order to newRoute
+    newRoute.insert(newRoute.end(), route.begin() + v2 + 1, route.end());
+
+    return newRoute;
+}
+
+
 
 std::string TabuSearch::toString() {
     std::string result;
