@@ -13,8 +13,8 @@ class Greedy {
 protected:
     int shortestPathLength;
     int size;
-    std::vector<int> path;
 public:
+    std::vector<int> path;
     Greedy() : shortestPathLength(INT_MAX), size(0) {}
 
     void solve(AdjacencyMatrix &graph, int startingVertex);

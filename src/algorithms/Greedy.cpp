@@ -104,7 +104,6 @@ std::string Greedy::toString() {
     for (int city : path) {
         result += std::to_string(city) + " -> ";
     }
-    result += std::to_string(path[0]);
     return result;
 }
 
