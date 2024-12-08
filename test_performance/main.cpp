@@ -88,19 +88,19 @@ void runAssertion(int graphSize) {
         cout << "\n" << endl;
 
         branchAndBound.solve(*matrixCopy1);
-        cout << "BaB " <<  " cost: " << branchAndBound.getShortestPathLength() << endl;
+        cout << "BaB " <<  " cost: " << branchAndBound.getShortestPathLength() << ", path: " << branchAndBound.toString() << endl;
 
         bruteForce    .solve(*matrixCopy2);
-        cout << "B F " <<  " cost: " << bruteForce.getShortestPathLength()     << endl;
+        cout << "B F " <<  " cost: " << bruteForce.getShortestPathLength()   << ", path: " << bruteForce.toString()  << endl;
 
         dynamic       .solve(*matrixCopy3);
-        cout << "Dyn " <<  " cost: " << dynamic.getShortestPathLength()        << endl;
+        cout << "Dyn " <<  " cost: " << dynamic.getShortestPathLength()     << ", path: " << dynamic.toString()   << endl;
 
         tabuSearch    .solve(*matrixCopy4);
-        cout << "Tab " <<  " cost: " << tabuSearch.getShortestPathLength()     << endl;
+        cout << "Tab " <<  " cost: " << tabuSearch.getShortestPathLength()   << ", path: " << tabuSearch.toString()  << endl;
 
         simAnnealing  .solve( *matrixCopy5);
-        cout << "Sim " <<  " cost: " << simAnnealing.getShortestPathLength()   << endl;
+        cout << "Sim " <<  " cost: " << simAnnealing.getShortestPathLength()  << ", path: " << simAnnealing.toString() << endl;
     }
 }
 
