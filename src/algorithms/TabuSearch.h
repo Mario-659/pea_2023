@@ -29,6 +29,8 @@ private:
     std::vector<int> twoOptSwap(const std::vector<int> &route, int v1, int v2);
     std::vector<int> inversionMutation(const std::vector<int> &route, int startIdx, int endIdx);
     std::vector<int> swapStrategy(const std::vector<int> &route, int index1, int index2);
+
+    std::vector<int> getNeighbor(const std::vector<int> &route, int v1, int v2);
 };
 
 #endif // PEA_TABUSEARCH_H

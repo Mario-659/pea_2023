@@ -22,13 +22,15 @@ void TabuSearch::solve(AdjacencyMatrix& graph) {
         // Neighborhood search with Tabu Table restrictions
         for (int i = 0; i < verticesNumber - 1; ++i) {
             int bestNextCost = std::numeric_limits<int>::max();
+            std::vector<int> bestNextPath;
             int bestK = -1, bestL = -1;
 
             for (int k = 0; k < verticesNumber - 1; ++k) {
                 for (int l = k + 1; l < verticesNumber; ++l) {
-                    std::vector<int> newPath = twoOptSwap(currentPath, k, l);
+                    std::vector<int> newPath = getNeighbor(currentPath, k, l);
                     int newCost = getPathCost(newPath, graph);
                     if (newCost < bestNextCost && tabuTable[k][l] == 0) {
+                        bestNextPath = newPath;
                         bestNextCost = newCost;
                         bestK = k;
                         bestL = l;
@@ -41,7 +43,7 @@ void TabuSearch::solve(AdjacencyMatrix& graph) {
 
                 if (bestNextCost < bestCost) {
                     bestCost = bestNextCost;
-                    bestPath = twoOptSwap(currentPath, bestK, bestL);
+                    bestPath = bestNextPath;
                 }
             }
 
@@ -77,7 +79,13 @@ std::vector<int> TabuSearch::generateRandomPath() {
     std::shuffle(randomPath.begin(), randomPath.end(), std::mt19937{std::random_device{}()});
     return randomPath;
 }
-
+std::vector<int> TabuSearch::getNeighbor(const std::vector<int>& route, int v1, int v2) {
+    if (strategy == 1) {
+        return swapStrategy(route, v1, v2);
+    } else if (strategy == 2) {
+        return inversionMutation(route, v1, v2);
+    } else return twoOptSwap(route, v1, v2);
+}
 
 std::vector<int> TabuSearch::twoOptSwap(const std::vector<int>& route, int v1, int v2) {
     std::vector<int> newRoute;
@@ -112,7 +120,7 @@ std::string TabuSearch::toString() {
     for (int city : path) {
         result += std::to_string(city) + " -> ";
     }
-    result += "0";
+    result += std::to_string(path[0]);
     return result;
 }
 
