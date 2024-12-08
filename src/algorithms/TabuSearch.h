@@ -16,6 +16,7 @@ public:
     std::string toString() override;
 //    1 - swap, 2 - inverse, 3 - twoOptSwap
     void setStrategy(int s);
+    void setTimeLimit(int time);
 private:
     int verticesNumber;
     int timeLimit;

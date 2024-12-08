@@ -127,3 +127,7 @@ std::string TabuSearch::toString() {
 void TabuSearch::setStrategy(int s) {
     strategy = s;
 }
+
+void TabuSearch::setTimeLimit(int time) {
+    timeLimit = time;
+}
