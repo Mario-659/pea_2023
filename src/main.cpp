@@ -55,12 +55,22 @@ void startTSMenu() {
             case 3:
                 cout << "Podaj kryterium stopu w sekundach: ";
                 cin >> input;
-                ts.setTimeLimit(std::stoi(input));
+                ts.setTimeLimit(std::chrono::seconds(std::stoi(input)));
                 break;
             case 4:
-                cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - twoOptSwap): ";
+                cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - insert): ";
                 cin >> input;
-                ts.setStrategy(std::stoi(input));
+                switch (stoi(input)) {
+                    case 1:
+                        ts.setStrategy(TabuSearch::SWAP);
+                        break;
+                    case 2:
+                        ts.setStrategy(TabuSearch::REVERSE);
+                        break;
+                    case 3:
+                        ts.setStrategy(TabuSearch::INSERT);
+                        break;
+                }
                 break;
             case 5:
                 {

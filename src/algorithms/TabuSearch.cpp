@@ -1,133 +1,190 @@
 #include "TabuSearch.h"
-#include <algorithm>
-#include <limits>
-
-TabuSearch::TabuSearch(int timeLimit)
-        : timeLimit(timeLimit), strategy(1) {}
-
-void TabuSearch::solve(AdjacencyMatrix& graph) {
-    verticesNumber = graph.getSize();
-
-    std::vector<std::vector<int>> tabuTable(verticesNumber, std::vector<int>(verticesNumber, 0));
-    std::vector<int> currentPath = getDefaultTabuPath();
-    int currentCost = getPathCost(currentPath, graph);
-    int bestCost = currentCost;
-    std::vector<int> bestPath = currentPath;
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    while (std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count() < timeLimit) {
-        currentPath = generateRandomPath();
-
-        // Neighborhood search with Tabu Table restrictions
-        for (int i = 0; i < verticesNumber - 1; ++i) {
-            int bestNextCost = std::numeric_limits<int>::max();
-            std::vector<int> bestNextPath;
-            int bestK = -1, bestL = -1;
-
-            for (int k = 0; k < verticesNumber - 1; ++k) {
-                for (int l = k + 1; l < verticesNumber; ++l) {
-                    std::vector<int> newPath = getNeighbor(currentPath, k, l);
-                    int newCost = getPathCost(newPath, graph);
-                    if (newCost < bestNextCost && tabuTable[k][l] == 0) {
-                        bestNextPath = newPath;
-                        bestNextCost = newCost;
-                        bestK = k;
-                        bestL = l;
-                    }
-                }
-            }
-
-            if (bestK != -1 && bestL != -1) {
-                tabuTable[bestK][bestL] = verticesNumber;
-
-                if (bestNextCost < bestCost) {
-                    bestCost = bestNextCost;
-                    bestPath = bestNextPath;
-                }
-            }
-
-            // Update Tabu Table durations
-            for (auto& row : tabuTable) {
-                for (auto& element : row) {
-                    if (element > 0) --element;
-                }
-            }
-        }
-    }
-    shortestPathLength = bestCost;
-    path = bestPath;
-}
-
-int TabuSearch::getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph) {
-    int cost = 0;
-    for (int i = 1; i < pathInstance.size(); ++i) {
-        cost += graph.getEdgeWeight(pathInstance[i - 1], pathInstance[i]);
-    }
-    cost += graph.getEdgeWeight(pathInstance.back(), pathInstance[0]);
-    return cost;
-}
-
-std::vector<int> TabuSearch::getDefaultTabuPath() {
-    std::vector<int> newPath(verticesNumber);
-    std::iota(newPath.begin(), newPath.end(), 0);
-    return newPath;
-}
-
-std::vector<int> TabuSearch::generateRandomPath() {
-    std::vector<int> randomPath = getDefaultTabuPath();
-    std::shuffle(randomPath.begin(), randomPath.end(), std::mt19937{std::random_device{}()});
-    return randomPath;
-}
-std::vector<int> TabuSearch::getNeighbor(const std::vector<int>& route, int v1, int v2) {
-    if (strategy == 1) {
-        return swapStrategy(route, v1, v2);
-    } else if (strategy == 2) {
-        return inversionMutation(route, v1, v2);
-    } else return twoOptSwap(route, v1, v2);
-}
-
-std::vector<int> TabuSearch::twoOptSwap(const std::vector<int>& route, int v1, int v2) {
-    std::vector<int> newRoute;
-
-    // 1. Take route[start] to route[v1] and add them in order to newRoute
-    newRoute.insert(newRoute.end(), route.begin(), route.begin() + v1 + 1);
-
-    // 2. Take route[v1+1] to route[v2] and add them in reverse order to newRoute
-    newRoute.insert(newRoute.end(), route.rbegin() + (route.size() - v2 - 1), route.rbegin() + (route.size() - v1 - 1));
-
-    // 3. Take route[v2+1] to route[start] and add them in order to newRoute
-    newRoute.insert(newRoute.end(), route.begin() + v2 + 1, route.end());
-
-    return newRoute;
-}
-
-std::vector<int> TabuSearch::swapStrategy(const std::vector<int>& route, int index1, int index2) {
-    std::vector<int> newRoute(route);
-    std::swap(newRoute[index1], newRoute[index2]);
-    return newRoute;
-}
-
-
-std::vector<int> TabuSearch::inversionMutation(const std::vector<int>& route, int startIdx, int endIdx) {
-    std::vector<int> newRoute(route);
-    std::reverse(newRoute.begin() + startIdx, newRoute.begin() + endIdx + 1);
-    return newRoute;
-}
-
-std::string TabuSearch::toString() {
-    std::string result;
-    for (int city : path) {
-        result += std::to_string(city) + " -> ";
-    }
-    result += std::to_string(path[0]);
-    return result;
-}
-
-void TabuSearch::setStrategy(int s) {
-    strategy = s;
-}
-
-void TabuSearch::setTimeLimit(int time) {
-    timeLimit = time;
-}
+//#include <algorithm>
+//#include <limits>
+//
+//#include <vector>
+//#include <queue>
+//#include <unordered_set>
+//#include <random>
+//#include <chrono>
+//#include <climits>
+//#include <algorithm>
+//#include <sstream>
+//#include <iostream>
+//
+//class TabuSearch : public TSPSolver {
+//private:
+//    std::vector<int> bestPath;
+//    int diversificationFactor; // Helps escape local optima
+//    std::chrono::milliseconds timeLimit;
+//    std::vector<std::vector<int>> tabuList;
+//    int maxTabuSize;
+//
+//    enum NeighborhoodStrategy { SWAP, REVERSE, INSERT };
+//    NeighborhoodStrategy strategy;
+//
+//    // Helper to generate a random number in range [low, high]
+//    int randomInt(int low, int high) {
+//        static std::random_device rd;
+//        static std::mt19937 gen(rd());
+//        std::uniform_int_distribution<> dis(low, high);
+//        return dis(gen);
+//    }
+//
+//    // Helper to calculate the cost of a given path
+//    int calculatePathCost(const std::vector<int>& path, AdjacencyMatrix& graph) {
+//        int cost = 0;
+//        for (size_t i = 0; i < path.size() - 1; ++i) {
+//            cost += graph.getEdgeWeight(path[i], path[i + 1]);
+//        }
+//        cost += graph.getEdgeWeight(path.back(), path.front());
+//        return cost;
+//    }
+//
+//    // Generate initial random path
+//    std::vector<int> generateInitialPath(int size) {
+//        std::vector<int> path(size);
+//        std::iota(path.begin(), path.end(), 0);
+//        std::shuffle(path.begin(), path.end(), std::mt19937{ std::random_device{}() });
+//        return path;
+//    }
+//
+//    // Generate neighborhoods
+//    std::vector<std::vector<int>> generateNeighborhood(const std::vector<int>& path) {
+//        std::vector<std::vector<int>> neighborhood;
+//
+//        switch (strategy) {
+//            case SWAP:
+//                for (size_t i = 0; i < path.size(); ++i) {
+//                    for (size_t j = i + 1; j < path.size(); ++j) {
+//                        std::vector<int> newPath = path;
+//                        std::swap(newPath[i], newPath[j]);
+//                        neighborhood.push_back(newPath);
+//                    }
+//                }
+//                break;
+//
+//            case REVERSE:
+//                for (size_t i = 0; i < path.size(); ++i) {
+//                    for (size_t j = i + 1; j < path.size(); ++j) {
+//                        std::vector<int> newPath = path;
+//                        std::reverse(newPath.begin() + i, newPath.begin() + j + 1);
+//                        neighborhood.push_back(newPath);
+//                    }
+//                }
+//                break;
+//
+//            case INSERT:
+//                for (size_t i = 0; i < path.size(); ++i) {
+//                    for (size_t j = 0; j < path.size(); ++j) {
+//                        if (i == j) continue;
+//                        std::vector<int> newPath = path;
+//                        int city = newPath[i];
+//                        newPath.erase(newPath.begin() + i);
+//                        newPath.insert(newPath.begin() + j, city);
+//                        neighborhood.push_back(newPath);
+//                    }
+//                }
+//                break;
+//        }
+//
+//        return neighborhood;
+//    }
+//
+//    // Check if path is tabu
+//    bool isTabu(const std::vector<int>& path) {
+//        for (const auto& tabuPath : tabuList) {
+//            if (tabuPath == path) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    // Add path to tabu list
+//    void addTabu(const std::vector<int>& path) {
+//        if (tabuList.size() >= maxTabuSize) {
+//            tabuList.erase(tabuList.begin());
+//        }
+//        tabuList.push_back(path);
+//    }
+//
+//public:
+//    TabuSearch(int diversificationFactor, int maxTabuSize, std::chrono::milliseconds timeLimit, NeighborhoodStrategy strategy)
+//            : diversificationFactor(diversificationFactor), maxTabuSize(maxTabuSize), timeLimit(timeLimit), strategy(strategy) {}
+//
+//    void solve(AdjacencyMatrix& graph) override {
+//        auto start = std::chrono::high_resolution_clock::now();
+//        size = graph.getSize();
+//        bestPath = generateInitialPath(size);
+//        shortestPathLength = calculatePathCost(bestPath, graph);
+//
+//        std::vector<int> currentPath = bestPath;
+//        int currentCost = shortestPathLength;
+//
+//        while (true) {
+//            auto now = std::chrono::high_resolution_clock::now();
+//            if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start) > timeLimit) {
+//                break;
+//            }
+//
+//            auto neighborhood = generateNeighborhood(currentPath);
+//            std::vector<int> bestNeighbor;
+//            int bestNeighborCost = INT_MAX;
+//
+//            for (const auto& neighbor : neighborhood) {
+//                if (isTabu(neighbor)) continue;
+//
+//                int cost = calculatePathCost(neighbor, graph);
+//                if (cost < bestNeighborCost) {
+//                    bestNeighbor = neighbor;
+//                    bestNeighborCost = cost;
+//                }
+//            }
+//
+//            if (!bestNeighbor.empty()) {
+//                currentPath = bestNeighbor;
+//                currentCost = bestNeighborCost;
+//
+//                if (currentCost < shortestPathLength) {
+//                    bestPath = currentPath;
+//                    shortestPathLength = currentCost;
+//                }
+//
+//                addTabu(currentPath);
+//            } else {
+//                // Diversify if no improvement
+//                currentPath = generateInitialPath(size);
+//                currentCost = calculatePathCost(currentPath, graph);
+//            }
+//        }
+//    }
+//
+//    std::string toString() override {
+//        std::ostringstream oss;
+//        oss << "Shortest Path Length: " << shortestPathLength << "\nPath: ";
+//        for (int node : bestPath) {
+//            oss << node << " -> ";
+//        }
+//        oss << bestPath[0]; // Close the cycle
+//        return oss.str();
+//    }
+//};
+//
+//
+//std::string TabuSearch::toString() {
+//    std::string result;
+//    for (int city : path) {
+//        result += std::to_string(city) + " -> ";
+//    }
+//    result += std::to_string(path[0]);
+//    return result;
+//}
+//
+//void TabuSearch::setStrategy(int s) {
+//    strategy = s;
+//}
+//
+//void TabuSearch::setTimeLimit(int time) {
+//    timeLimit = time;
+//}
