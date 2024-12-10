@@ -84,7 +84,7 @@ void Greedy::solve(AdjacencyMatrix &graph) {
 
         // Return to the starting vertex to complete the cycle
         currentCost += graph.getEdgeWeight(currentVertex, startingVertex);
-        currentPath.push_back(startingVertex);
+//        currentPath.push_back(startingVertex);
 
         // Check if the current path is the best so far
         if (currentCost < globalBestCost) {

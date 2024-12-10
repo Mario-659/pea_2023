@@ -40,12 +40,14 @@ private:
         return dis(gen);
     }
 
-    // Helper to calculate the cost of a given path
+    // Helper to calculate the cost of a given path, assumes path is already closed
     int calculatePathCost(const std::vector<int>& path, AdjacencyMatrix& graph) {
         int cost = 0;
         for (size_t i = 0; i < path.size() - 1; ++i) {
+//            std::cout << "adding cost " << graph.getEdgeWeight(path[i], path[i + 1]) << std::endl;
             cost += graph.getEdgeWeight(path[i], path[i + 1]);
         }
+//        std::cout << "adding return cost " << path.back() << "---helo---" << path.front() << std::endl;
         cost += graph.getEdgeWeight(path.back(), path.front());
         return cost;
     }
@@ -161,17 +163,17 @@ private:
         tabuList.push_back(path);
     }
 
-    void diversify(std::vector<int> path) {
-        std::mt19937 rng(std::random_device{}());
-        std::uniform_int_distribution<size_t> dist6(0, path.size() - 2);
-        size_t offsetBegin = dist6(rng);
+    void diversify(std::vector<int>& path, std::mt19937& rng) {
+        std::uniform_int_distribution<size_t> dist(0, path.size() - 1);
+        size_t start = dist(rng);
+        size_t end = dist(rng);
+//        std::cout << "start: " << start << ", end: " << end << std::endl;
+        if (start > end) {
+            std::swap(start, end);
+        }
+//        std::cout << "start: " << start << ", end: " << end << std::endl;
 
-        std::uniform_int_distribution<size_t> distEnt(offsetBegin + 1, path.size() - 1);
-        size_t offsetEnd = distEnt(rng);
-
-        // Shuffle within the valid range
-        std::shuffle(path.begin() + offsetBegin, path.begin() + offsetEnd + 1, rng);
-
+        std::shuffle(path.begin() + start, path.begin() + end + 1, rng);
     }
 
 public:
@@ -179,25 +181,28 @@ public:
             : diversificationFactor(diversificationFactor), maxTabuSize(maxTabuSize), timeLimit(timeLimit), strategy(strategy) {}
 
             TabuSearch()
-            : diversificationFactor(10), maxTabuSize(10), timeLimit(30), strategy(SWAP) {}
+            : diversificationFactor(10), maxTabuSize(10), timeLimit(30), strategy(SWAP) {
+    }
 
     void solve(AdjacencyMatrix& graph) override {
+        std::cout << "calculating for graph size: " << graph.getSize() << std::endl;
+
         size = graph.getSize();
         tabuList.clear();
         static std::random_device rd;
         std::mt19937 gen(rd());
 
-//        Greedy greedy;
-//        greedy.solve(graph);
-//        bestPath = greedy.path;
+//        initial path creation
+        Greedy greedy;
+        greedy.solve(graph);
+        bestPath = greedy.path;
 
-        bestPath = constructSolution(graph, 1, gen);
         shortestPathLength = calculatePathCost(bestPath, graph);
-
-        std::cout << "Initial path cost: " << shortestPathLength;
 
         std::vector<int> currentPath = bestPath;
         int currentCost = shortestPathLength;
+
+        int bestNeighborCost = INT_MAX;
 
         auto start = std::chrono::high_resolution_clock::now();
         while (true) {
@@ -208,7 +213,6 @@ public:
 
             auto neighborhood = generateNeighborhood(currentPath);
             std::vector<int> bestNeighbor;
-            int bestNeighborCost = INT_MAX;
 
             for (const auto& neighbor : neighborhood) {
                 if (std::find(tabuList.begin(), tabuList.end(), neighbor) == tabuList.end()){
@@ -224,7 +228,9 @@ public:
                 // No non-tabu neighbors found,
                 // terminate the search
 //                break;
-                std::cout << "would break" << std::endl;
+                diversify(currentPath, gen);
+                continue;
+//                std::cout << "would break" << std::endl;
             }
 
             currentPath = bestNeighbor;
@@ -238,8 +244,11 @@ public:
             }
 
             if (bestNeighborCost < shortestPathLength) {
+                std::cout<< " new best solution found with len: " << bestNeighborCost << std::endl;
                 bestPath = bestNeighbor;
                 shortestPathLength = bestNeighborCost;
+
+                bestNeighborCost = INT_MAX;
             }
         }
     }
