@@ -50,11 +50,54 @@ private:
         return cost;
     }
 
-    // Generate initial random path
-    std::vector<int> generateInitialPath(int size) {
-        std::vector<int> path(size);
-        std::iota(path.begin(), path.end(), 0);
-        std::shuffle(path.begin(), path.end(), std::mt19937{ std::random_device{}() });
+    // Generate initial path with GENERAL RANDOMIZED ADAPTIVE SEARCH PROCESS
+    std::vector<int> constructSolution(AdjacencyMatrix &graph, double alpha, std::mt19937 &gen) {
+        int verticesNumber = graph.getSize();
+        std::vector<bool> visited(verticesNumber, false);
+        std::vector<int> path;
+        int currentVertex = 0;  // Start from the first vertex
+        path.push_back(currentVertex);
+        visited[currentVertex] = true;
+
+        while (path.size() < verticesNumber) {
+            // Create a list of candidate neighbors with their weights
+            std::vector<std::pair<int, int>> candidates; // (neighbor, weight)
+            for (int i = 0; i < verticesNumber; ++i) {
+                if (!visited[i]) {
+                    candidates.emplace_back(i, graph.getEdgeWeight(currentVertex, i));
+                }
+            }
+
+            // Sort candidates by weight
+            std::sort(candidates.begin(), candidates.end(), [](const auto &a, const auto &b) {
+                return a.second < b.second;
+            });
+
+            // Determine the threshold for the RCL
+            int minWeight = candidates.front().second;
+            int maxWeight = candidates.back().second;
+            int threshold = minWeight + alpha * (maxWeight - minWeight);
+
+            // Build the restricted candidate list (RCL)
+            std::vector<int> rcl;
+            for (const auto &candidate : candidates) {
+                if (candidate.second <= threshold) {
+                    rcl.push_back(candidate.first);
+                }
+            }
+
+            // Select a random candidate from the RCL
+            std::uniform_int_distribution<int> dist(0, rcl.size() - 1);
+            int selected = rcl[dist(gen)];
+
+            // Add the selected vertex to the path and mark it as visited
+            path.push_back(selected);
+            visited[selected] = true;
+            currentVertex = selected;
+        }
+
+        // Return to the starting vertex to complete the cycle
+        path.push_back(path.front());
         return path;
     }
 
@@ -120,11 +163,15 @@ private:
 
     void diversify(std::vector<int> path) {
         std::mt19937 rng(std::random_device{}());
-        std::uniform_int_distribution<std::mt19937::result_type> dist6(0,path.size() - 2);
-        int offsetBegin = dist6(rng);
-        std::uniform_int_distribution<std::mt19937::result_type> distEnt(1,path.size() - 1);
-        int offsetEnd = distEnt(rng) % path.size() - offsetBegin - 1;
-        std::shuffle(path.begin() + offsetBegin, path.begin() + offsetEnd, std::mt19937{ std::random_device{}()});
+        std::uniform_int_distribution<size_t> dist6(0, path.size() - 2);
+        size_t offsetBegin = dist6(rng);
+
+        std::uniform_int_distribution<size_t> distEnt(offsetBegin + 1, path.size() - 1);
+        size_t offsetEnd = distEnt(rng);
+
+        // Shuffle within the valid range
+        std::shuffle(path.begin() + offsetBegin, path.begin() + offsetEnd + 1, rng);
+
     }
 
 public:
@@ -135,17 +182,24 @@ public:
             : diversificationFactor(10), maxTabuSize(10), timeLimit(30), strategy(SWAP) {}
 
     void solve(AdjacencyMatrix& graph) override {
-        auto start = std::chrono::high_resolution_clock::now();
         size = graph.getSize();
-        Greedy greedy;
-        greedy.solve(graph);
-        bestPath = greedy.path;
-//        bestPath = generateInitialPath(size);
+        tabuList.clear();
+        static std::random_device rd;
+        std::mt19937 gen(rd());
+
+//        Greedy greedy;
+//        greedy.solve(graph);
+//        bestPath = greedy.path;
+
+        bestPath = constructSolution(graph, 1, gen);
         shortestPathLength = calculatePathCost(bestPath, graph);
+
+        std::cout << "Initial path cost: " << shortestPathLength;
 
         std::vector<int> currentPath = bestPath;
         int currentCost = shortestPathLength;
 
+        auto start = std::chrono::high_resolution_clock::now();
         while (true) {
             auto now = std::chrono::high_resolution_clock::now();
             if (std::chrono::duration_cast<std::chrono::seconds>(now - start) > timeLimit) {
@@ -157,32 +211,35 @@ public:
             int bestNeighborCost = INT_MAX;
 
             for (const auto& neighbor : neighborhood) {
-                if (isTabu(neighbor)) continue;
-
-                int cost = calculatePathCost(neighbor, graph);
-                if (cost < bestNeighborCost) {
-                    bestNeighbor = neighbor;
-//                    std::cout << "New best cost: " << cost << std::endl;
-                    bestNeighborCost = cost;
+                if (std::find(tabuList.begin(), tabuList.end(), neighbor) == tabuList.end()){
+                    int neighborCost = calculatePathCost(neighbor, graph);
+                    if (neighborCost < bestNeighborCost) {
+                        bestNeighbor = neighbor;
+                        bestNeighborCost = neighborCost;
+                    }
                 }
             }
 
-            if (!bestNeighbor.empty()) {
-                currentPath = bestNeighbor;
-                currentCost = bestNeighborCost;
+            if (bestNeighbor.empty()) {
+                // No non-tabu neighbors found,
+                // terminate the search
+//                break;
+                std::cout << "would break" << std::endl;
+            }
 
-                if (currentCost < shortestPathLength) {
-                    bestPath = currentPath;
-                    shortestPathLength = currentCost;
-                }
+            currentPath = bestNeighbor;
+            currentCost = bestNeighborCost;
+            tabuList.push_back(bestNeighbor);
 
-                addTabu(currentPath);
-            } else {
-                // Diversify if no improvement
-//                currentPath = generateInitialPath(size);
-                diversify(currentPath);
-                currentCost = calculatePathCost(currentPath, graph);
-                std::cout << "new cost after diversification: " << currentCost << std::endl;
+            if (tabuList.size() > 20) {
+                // Remove the oldest entry from the
+                // tabu list if it exceeds the size
+                tabuList.erase(tabuList.begin());
+            }
+
+            if (bestNeighborCost < shortestPathLength) {
+                bestPath = bestNeighbor;
+                shortestPathLength = bestNeighborCost;
             }
         }
     }
