@@ -22,7 +22,9 @@
 
 class TabuSearch : public TSPSolver {
 public:
-    enum NeighborhoodStrategy { SWAP, REVERSE, INSERT };
+    enum NeighborhoodStrategy {
+        SWAP, REVERSE, INSERT
+    };
 private:
     std::vector<int> bestPath;
     int diversificationFactor; // Helps escape local optima
@@ -41,7 +43,7 @@ private:
     }
 
     // Helper to calculate the cost of a given path, assumes path is already closed
-    int calculatePathCost(const std::vector<int>& path, AdjacencyMatrix& graph) {
+    int calculatePathCost(const std::vector<int> &path, AdjacencyMatrix &graph) {
         int cost = 0;
         for (size_t i = 0; i < path.size() - 1; ++i) {
 //            std::cout << "adding cost " << graph.getEdgeWeight(path[i], path[i + 1]) << std::endl;
@@ -82,7 +84,7 @@ private:
 
             // Build the restricted candidate list (RCL)
             std::vector<int> rcl;
-            for (const auto &candidate : candidates) {
+            for (const auto &candidate: candidates) {
                 if (candidate.second <= threshold) {
                     rcl.push_back(candidate.first);
                 }
@@ -104,7 +106,7 @@ private:
     }
 
     // Generate neighborhoods
-    std::vector<std::vector<int>> generateNeighborhood(const std::vector<int>& path) {
+    std::vector<std::vector<int>> generateNeighborhood(const std::vector<int> &path) {
         std::vector<std::vector<int>> neighborhood;
 
         switch (strategy) {
@@ -146,8 +148,8 @@ private:
     }
 
     // Check if path is tabu
-    bool isTabu(const std::vector<int>& path) {
-        for (const auto& tabuPath : tabuList) {
+    bool isTabu(const std::vector<int> &path) {
+        for (const auto &tabuPath: tabuList) {
             if (tabuPath == path) {
                 return true;
             }
@@ -156,14 +158,14 @@ private:
     }
 
     // Add path to tabu list
-    void addTabu(const std::vector<int>& path) {
+    void addTabu(const std::vector<int> &path) {
         if (tabuList.size() >= maxTabuSize) {
             tabuList.erase(tabuList.begin());
         }
         tabuList.push_back(path);
     }
 
-    void diversify(std::vector<int>& path, std::mt19937& rng) {
+    void diversify(std::vector<int> &path, std::mt19937 &rng) {
         std::uniform_int_distribution<size_t> dist(0, path.size() - 1);
         size_t start = dist(rng);
         size_t end = dist(rng);
@@ -176,33 +178,119 @@ private:
         std::shuffle(path.begin() + start, path.begin() + end + 1, rng);
     }
 
-public:
-    TabuSearch(int diversificationFactor, int maxTabuSize, std::chrono::seconds timeLimit, NeighborhoodStrategy strategy)
-            : diversificationFactor(diversificationFactor), maxTabuSize(maxTabuSize), timeLimit(timeLimit), strategy(strategy) {}
+    std::vector<int> generateSemiRandomSolution(AdjacencyMatrix &graph) {
+        // ALGORYTM hybrydowy losowo-zachlanny
+        // Losowa czesc wierzcholkow jest losowana, reszta zachlannie
+        // Implementacja: Jan Potocki 2019
+        std::vector<int> route;
 
-            TabuSearch()
+        std::random_device randomSrc;
+        std::default_random_engine randomGen(randomSrc());
+        std::uniform_int_distribution<> vertexNumberDist(1, graph.getSize());
+        std::uniform_int_distribution<> vertexDist(0, graph.getSize() - 1);
+
+        // Liczba losowanych wierzcholkow
+        unsigned randomVertexNumber = vertexNumberDist(randomGen);
+
+        // Czesc losowa
+        for (int i = 0; i < randomVertexNumber; i++) {
+            unsigned randomVertex;
+            bool vertexUsed;
+
+            do {
+                randomVertex = vertexDist(randomGen);
+                vertexUsed = false;
+
+                for (int j = 0; j < route.size(); j++) {
+                    if (route.at(j) == randomVertex) {
+                        vertexUsed = true;
+                        break;
+                    }
+                }
+            } while (vertexUsed == true);
+
+            route.push_back(randomVertex);
+        }
+
+        // Czesc zachlanna
+        for (int i = 0; i < graph.getSize() - randomVertexNumber; i++) {
+            int minEdge = -1;
+            unsigned nextVertex;
+            for (int j = 0; j < graph.getSize(); j++) {
+                // Odrzucenie samego siebie lub wierzcholka startowego
+                // (zeby bylo szybciej)
+                if (route.back() == j || route.front() == j)
+                    continue;
+
+                // Odrzucenie krawedzi do wierzcholka umieszczonego juz na trasie
+                bool vertexUsed = false;
+                for (int k = 0; k < route.size(); k++) {
+                    if (j == route.at(k)) {
+                        vertexUsed = true;
+                        break;
+                    }
+                }
+                if (vertexUsed)
+                    continue;
+
+                // Znalezienie najkrotszej mozliwej jeszcze do uzycia krawedzi
+                unsigned consideredLength = graph.getEdgeWeight(route.back(), j);
+
+                // PEA 2 Plus
+                // Jan Potocki 2019
+                if (minEdge == -1) {
+                    minEdge = consideredLength;
+                    nextVertex = j;
+                } else if (minEdge > consideredLength) {
+                    minEdge = consideredLength;
+                    nextVertex = j;
+                }
+            }
+            route.push_back(nextVertex);
+        }
+
+        route.push_back(route.front());
+        return route;
+    }
+
+public:
+    TabuSearch(int diversificationFactor, int maxTabuSize, std::chrono::seconds timeLimit,
+               NeighborhoodStrategy strategy)
+            : diversificationFactor(diversificationFactor), maxTabuSize(maxTabuSize), timeLimit(timeLimit),
+              strategy(strategy) {}
+
+    TabuSearch()
             : diversificationFactor(10), maxTabuSize(10), timeLimit(30), strategy(SWAP) {
     }
 
-    void solve(AdjacencyMatrix& graph) override {
-        std::cout << "calculating for graph size: " << graph.getSize() << std::endl;
+    void solve(AdjacencyMatrix &graph) override {
+        // ALGORYTM oparty na metaheurystyce tabu search z dywersyfikacja i sasiedztwem typu swap
+        // Rdzen przeznaczony do uruchamiania jako jeden watek
+        // (refactoring 2019)
+//        Stopwatch onboardClock;
 
-        size = graph.getSize();
-        tabuList.clear();
-        static std::random_device rd;
-        std::mt19937 gen(rd());
+        std::vector<int> optimalRoute;     // Tu bedziemy zapisywac optymalne (w danej chwili) rozwiazanie
+        int optimalRouteLength = -1;            // -1 - bedziemy odtad uznawac, ze to jest nieskonczonosc ;-)
+        std::vector<int> currentRoute;     // Rozpatrywane rozwiazanie
 
-//        initial path creation
+        // Wyznaczenie poczatkowego rozwiazania algorytmem zachlannym
         Greedy greedy;
         greedy.solve(graph);
-        bestPath = greedy.path;
+        currentRoute = greedy.path;
 
-        shortestPathLength = calculatePathCost(bestPath, graph);
+        int tabuSteps = 20;
 
-        std::vector<int> currentPath = bestPath;
-        int currentCost = shortestPathLength;
+        // Inicjalizacja glownej petli...
+        std::vector<std::vector<unsigned> > tabuArray;
+        unsigned currentTabuSteps = tabuSteps;
+        int stopCounter = 0;
+        bool timeNotExceeded = true;
 
-        int bestNeighborCost = INT_MAX;
+        int diversification = true;
+//        onboardClock.start();
+
+        int iterationsToRestart = size;
+        // Rdzen algorytmu
 
         auto start = std::chrono::high_resolution_clock::now();
         while (true) {
@@ -211,46 +299,140 @@ public:
                 break;
             }
 
-            auto neighborhood = generateNeighborhood(currentPath);
-            std::vector<int> bestNeighbor;
+            bool cheeseSupplied = true;
+            bool intensification = false;
 
-            for (const auto& neighbor : neighborhood) {
-                if (std::find(tabuList.begin(), tabuList.end(), neighbor) == tabuList.end()){
-                    int neighborCost = calculatePathCost(neighbor, graph);
-                    if (neighborCost < bestNeighborCost) {
-                        bestNeighbor = neighbor;
-                        bestNeighborCost = neighborCost;
+            while (cheeseSupplied) {
+                std::vector<int> nextRoute;
+                int nextRouteLength = -1;
+
+                std::vector<unsigned> nextTabu(3, 0);
+                nextTabu.at(0) = currentTabuSteps;
+
+                // Generowanie sasiedztwa typu swap przez zamiane wierzcholkow
+                // (wierzcholka startowego i zarazem ostatniego nie ruszamy,
+                // pomijamy tez od razu aktualny wierzcholek)
+                for (int i = 1; i < graph.getSize() - 1; i++) {
+                    for (int j = i + 1; j < graph.getSize(); j++) {
+                        std::vector<int> neighbourRoute = currentRoute;
+
+                        // Zamiana
+                        unsigned buffer = neighbourRoute.at(j);
+                        neighbourRoute.at(j) = neighbourRoute.at(i);
+                        neighbourRoute.at(i) = buffer;
+
+                        unsigned neighbourRouteLength = 0;
+                        for (int i = 1; i < neighbourRoute.size(); i++)
+                            neighbourRouteLength += graph.getEdgeWeight(neighbourRoute.at(i - 1),
+                                                                        neighbourRoute.at(i));
+
+                        // Sprawdzenie, czy dany ruch nie jest na liscie tabu
+                        // (dwa wierzcholki)
+                        bool tabu = false;
+                        for (int k = 0; k < tabuArray.size(); k++) {
+                            if (tabuArray.at(k).at(1) == i && tabuArray.at(k).at(2) == j) {
+                                tabu = true;
+                                break;
+                            }
+
+                            if (tabuArray.at(k).at(1) == j && tabuArray.at(k).at(2) == i) {
+                                tabu = true;
+                                break;
+                            }
+                        }
+
+                        // Kryterium aspiracji...
+                        if (tabu == true && neighbourRouteLength >= optimalRouteLength)
+                            // ...jezeli niespelnione - pomijamy ruch
+                            continue;
+
+                        if (nextRouteLength == -1) {
+                            nextRouteLength = neighbourRouteLength;
+                            nextRoute = neighbourRoute;
+                            nextTabu.at(1) = i;
+                            nextTabu.at(2) = j;
+                        } else if (nextRouteLength > neighbourRouteLength) {
+                            nextRouteLength = neighbourRouteLength;
+                            nextRoute = neighbourRoute;
+                            nextTabu.at(1) = i;
+                            nextTabu.at(2) = j;
+                        }
                     }
+                }
+
+                currentRoute = nextRoute;
+
+                if (optimalRouteLength == -1) {
+                    optimalRouteLength = nextRouteLength;
+                    optimalRoute = nextRoute;
+
+                    // Reset licznika
+                    stopCounter = 0;
+                } else if (optimalRouteLength > nextRouteLength) {
+                    optimalRouteLength = nextRouteLength;
+                    optimalRoute = nextRoute;
+
+                    // Zaplanowanie intensyfikacji przy znalezieniu nowego optimum
+                    intensification = true;
+
+                    // Reset licznika
+                    stopCounter = 0;
+                }
+
+                // Weryfikacja listy tabu...
+                int tabuPos = 0;
+                while (tabuPos < tabuArray.size()) {
+                    // ...aktualizacja kadencji na liscie tabu
+                    tabuArray.at(tabuPos).at(0)--;
+
+                    //...usuniecie zerowych kadencji
+                    if (tabuArray.at(tabuPos).at(0) == 0)
+                        tabuArray.erase(tabuArray.begin() + tabuPos);
+                    else
+                        tabuPos++;
+                }
+
+                // ...dopisanie ostatniego ruchu do listy tabu
+                tabuArray.push_back(nextTabu);
+
+                // Zliczenie iteracji
+                stopCounter++;
+
+                // Sprawdzenie warunku zatrzymania
+                if (diversification == true) {
+                    // Przy aktywowanej dywersyfikacji - po zadanej liczbie iteracji bez poprawy
+                    if (stopCounter >= iterationsToRestart || timeNotExceeded == false)
+                        cheeseSupplied = false;
+                } else {
+                    // Przy nieaktywowanej dywersyfikacji - po uplynieciu okreslonego czasu
+                    if (timeNotExceeded == false)
+                        cheeseSupplied = false;
                 }
             }
 
-            if (bestNeighbor.empty()) {
-                // No non-tabu neighbors found,
-                // terminate the search
-//                break;
-                diversify(currentPath, gen);
-                continue;
-//                std::cout << "would break" << std::endl;
+            // Dywersyfikacja
+            if (diversification == true) {
+                if (intensification == true) {
+                    // Intensyfikacja przeszukiwania przez skrócenie kadencji
+                    // (jezeli w ostatnim przebiegu znaleziono nowe minimum)
+                    currentRoute = optimalRoute;
+                    currentTabuSteps = tabuSteps / 4;
+                    intensification = false;
+                } else {
+                    // W innym przypadku wlasciwa dywersyfikacja przez wygenerowanie nowego
+                    // rozwiazania startowego algorytmem hybrydowym losowo-zachlannym
+                    currentRoute = generateSemiRandomSolution(graph);
+                    currentTabuSteps = tabuSteps;
+                    intensification = false;
+                }
             }
 
-            currentPath = bestNeighbor;
-            currentCost = bestNeighborCost;
-            tabuList.push_back(bestNeighbor);
-
-            if (tabuList.size() > 20) {
-                // Remove the oldest entry from the
-                // tabu list if it exceeds the size
-                tabuList.erase(tabuList.begin());
-            }
-
-            if (bestNeighborCost < shortestPathLength) {
-                std::cout<< " new best solution found with len: " << bestNeighborCost << std::endl;
-                bestPath = bestNeighbor;
-                shortestPathLength = bestNeighborCost;
-
-                bestNeighborCost = INT_MAX;
-            }
+            // Reset licznika iteracji przed restartem
+            stopCounter = 0;
         }
+
+        bestPath = optimalRoute;
+        shortestPathLength = optimalRouteLength;
     }
 
     void setStrategy(NeighborhoodStrategy strategy) {
@@ -264,7 +446,7 @@ public:
     std::string toString() override {
         std::ostringstream oss;
         oss << "Shortest Path Length: " << shortestPathLength << "\nPath: ";
-        for (int node : bestPath) {
+        for (int node: bestPath) {
             oss << node << " -> ";
         }
         oss << bestPath[0]; // Close the cycle
