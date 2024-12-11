@@ -267,7 +267,6 @@ public:
         // ALGORYTM oparty na metaheurystyce tabu search z dywersyfikacja i sasiedztwem typu swap
         // Rdzen przeznaczony do uruchamiania jako jeden watek
         // (refactoring 2019)
-//        Stopwatch onboardClock;
 
         std::vector<int> optimalRoute;     // Tu bedziemy zapisywac optymalne (w danej chwili) rozwiazanie
         int optimalRouteLength = -1;            // -1 - bedziemy odtad uznawac, ze to jest nieskonczonosc ;-)
@@ -284,10 +283,8 @@ public:
         std::vector<std::vector<unsigned> > tabuArray;
         unsigned currentTabuSteps = tabuSteps;
         int stopCounter = 0;
-        bool timeNotExceeded = true;
 
         int diversification = true;
-//        onboardClock.start();
 
         int iterationsToRestart = size;
         // Rdzen algorytmu
@@ -342,7 +339,7 @@ public:
                         }
 
                         // Kryterium aspiracji...
-                        if (tabu == true && neighbourRouteLength >= optimalRouteLength)
+                        if (tabu && neighbourRouteLength >= optimalRouteLength)
                             // ...jezeli niespelnione - pomijamy ruch
                             continue;
 
@@ -399,32 +396,24 @@ public:
                 stopCounter++;
 
                 // Sprawdzenie warunku zatrzymania
-                if (diversification == true) {
-                    // Przy aktywowanej dywersyfikacji - po zadanej liczbie iteracji bez poprawy
-                    if (stopCounter >= iterationsToRestart || timeNotExceeded == false)
-                        cheeseSupplied = false;
-                } else {
-                    // Przy nieaktywowanej dywersyfikacji - po uplynieciu okreslonego czasu
-                    if (timeNotExceeded == false)
-                        cheeseSupplied = false;
-                }
+                // Przy aktywowanej dywersyfikacji - po zadanej liczbie iteracji bez poprawy
+                if (stopCounter >= iterationsToRestart)
+                    cheeseSupplied = false;
             }
 
             // Dywersyfikacja
-            if (diversification == true) {
-                if (intensification == true) {
-                    // Intensyfikacja przeszukiwania przez skrócenie kadencji
-                    // (jezeli w ostatnim przebiegu znaleziono nowe minimum)
-                    currentRoute = optimalRoute;
-                    currentTabuSteps = tabuSteps / 4;
-                    intensification = false;
-                } else {
-                    // W innym przypadku wlasciwa dywersyfikacja przez wygenerowanie nowego
-                    // rozwiazania startowego algorytmem hybrydowym losowo-zachlannym
-                    currentRoute = generateSemiRandomSolution(graph);
-                    currentTabuSteps = tabuSteps;
-                    intensification = false;
-                }
+            if (intensification) {
+                // Intensyfikacja przeszukiwania przez skrócenie kadencji
+                // (jezeli w ostatnim przebiegu znaleziono nowe minimum)
+                currentRoute = optimalRoute;
+                currentTabuSteps = tabuSteps / 4;
+                intensification = false;
+            } else {
+                // W innym przypadku wlasciwa dywersyfikacja przez wygenerowanie nowego
+                // rozwiazania startowego algorytmem hybrydowym losowo-zachlannym
+                currentRoute = generateSemiRandomSolution(graph);
+                currentTabuSteps = tabuSteps;
+                intensification = false;
             }
 
             // Reset licznika iteracji przed restartem
