@@ -105,46 +105,27 @@ private:
         return path;
     }
 
-    // Generate neighborhoods
-    std::vector<std::vector<int>> generateNeighborhood(const std::vector<int> &path) {
-        std::vector<std::vector<int>> neighborhood;
+    // Generate neighbor
+    std::vector<int> getNeighbor(const std::vector<int> &path, int v1, int v2) {
+        std::vector<int> neighbor(path);
 
         switch (strategy) {
             case SWAP:
-                for (size_t i = 0; i < path.size(); ++i) {
-                    for (size_t j = i + 1; j < path.size(); ++j) {
-                        std::vector<int> newPath = path;
-                        std::swap(newPath[i], newPath[j]);
-                        neighborhood.push_back(newPath);
-                    }
-                }
+                std::swap(neighbor[v1], neighbor[v2]);
                 break;
 
             case REVERSE:
-                for (size_t i = 0; i < path.size(); ++i) {
-                    for (size_t j = i + 1; j < path.size(); ++j) {
-                        std::vector<int> newPath = path;
-                        std::reverse(newPath.begin() + i, newPath.begin() + j + 1);
-                        neighborhood.push_back(newPath);
-                    }
-                }
+                std::reverse(neighbor.begin() + v1, neighbor.begin() + v2 + 1);
                 break;
 
             case INSERT:
-                for (size_t i = 0; i < path.size(); ++i) {
-                    for (size_t j = 0; j < path.size(); ++j) {
-                        if (i == j) continue;
-                        std::vector<int> newPath = path;
-                        int city = newPath[i];
-                        newPath.erase(newPath.begin() + i);
-                        newPath.insert(newPath.begin() + j, city);
-                        neighborhood.push_back(newPath);
-                    }
-                }
+                int city = neighbor[v1];
+                neighbor.erase(neighbor.begin() + v1);
+                neighbor.insert(neighbor.begin() + v2, city);
                 break;
         }
 
-        return neighborhood;
+        return neighbor;
     }
 
     // Check if path is tabu
@@ -284,8 +265,6 @@ public:
         unsigned currentTabuSteps = tabuSteps;
         int stopCounter = 0;
 
-        int diversification = true;
-
         int iterationsToRestart = size;
         // Rdzen algorytmu
 
@@ -312,12 +291,33 @@ public:
                 for (int i = 1; i < graph.getSize() - 1; i++) {
                     for (int j = i + 1; j < graph.getSize(); j++) {
                         std::vector<int> neighbourRoute = currentRoute;
-
+//                        std::cout << "Current route cost: " << calculatePathCost(neighbourRoute, graph) << std::endl;
                         // Zamiana
-                        unsigned buffer = neighbourRoute.at(j);
-                        neighbourRoute.at(j) = neighbourRoute.at(i);
-                        neighbourRoute.at(i) = buffer;
+                        switch (strategy) {
+                            case SWAP:
+                            {
+                                unsigned buffer = neighbourRoute.at(j);
+                                neighbourRoute.at(j) = neighbourRoute.at(i);
+                                neighbourRoute.at(i) = buffer;
+                            }
+                                break;
 
+                            case REVERSE:
+                            {
+                                std::reverse(neighbourRoute.begin() + i, neighbourRoute.begin() + j + 1);
+                            }
+                                break;
+
+                            case INSERT:
+                            {
+                                unsigned element = neighbourRoute.at(j);
+                                neighbourRoute.erase(neighbourRoute.begin() + j);
+                                neighbourRoute.insert(neighbourRoute.begin() + i, element);
+                            }
+                                break;
+                        }
+
+//                        std::cout << "Neighbor route cost: " << calculatePathCost(neighbourRoute, graph) << std::endl;
                         unsigned neighbourRouteLength = 0;
                         for (int i = 1; i < neighbourRoute.size(); i++)
                             neighbourRouteLength += graph.getEdgeWeight(neighbourRoute.at(i - 1),
@@ -401,19 +401,16 @@ public:
                     cheeseSupplied = false;
             }
 
-            // Dywersyfikacja
+            // Intensyfikacja przeszukiwania przez skrócenie kadencji
+            // (jezeli w ostatnim przebiegu znaleziono nowe minimum)
             if (intensification) {
-                // Intensyfikacja przeszukiwania przez skrócenie kadencji
-                // (jezeli w ostatnim przebiegu znaleziono nowe minimum)
                 currentRoute = optimalRoute;
                 currentTabuSteps = tabuSteps / 4;
-                intensification = false;
             } else {
-                // W innym przypadku wlasciwa dywersyfikacja przez wygenerowanie nowego
+                // Dywersyfikacja przez wygenerowanie nowego
                 // rozwiazania startowego algorytmem hybrydowym losowo-zachlannym
                 currentRoute = generateSemiRandomSolution(graph);
                 currentTabuSteps = tabuSteps;
-                intensification = false;
             }
 
             // Reset licznika iteracji przed restartem
