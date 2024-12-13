@@ -46,9 +46,11 @@ private:
     int calculatePathCost(const std::vector<int> &path, AdjacencyMatrix &graph) {
         int cost = 0;
         for (size_t i = 0; i < path.size() - 1; ++i) {
+//            std::cout << "adding cost " << path[i] << " -->  " << path[i + 1] << std::endl;
 //            std::cout << "adding cost " << graph.getEdgeWeight(path[i], path[i + 1]) << std::endl;
             cost += graph.getEdgeWeight(path[i], path[i + 1]);
         }
+        // close the cycle
 //        std::cout << "adding return cost " << path.back() << "---helo---" << path.front() << std::endl;
         cost += graph.getEdgeWeight(path.back(), path.front());
         return cost;
@@ -101,7 +103,7 @@ private:
         }
 
         // Return to the starting vertex to complete the cycle
-        path.push_back(path.front());
+//        path.push_back(path.front());
         return path;
     }
 
@@ -230,7 +232,7 @@ private:
             route.push_back(nextVertex);
         }
 
-        route.push_back(route.front());
+//        route.push_back(route.front());
         return route;
     }
 
@@ -248,6 +250,8 @@ public:
         // ALGORYTM oparty na metaheurystyce tabu search z dywersyfikacja i sasiedztwem typu swap
         // Rdzen przeznaczony do uruchamiania jako jeden watek
         // (refactoring 2019)
+//        std::random_device rd;
+//        std::mt19937 gen(rd());
 
         std::vector<int> optimalRoute;     // Tu bedziemy zapisywac optymalne (w danej chwili) rozwiazanie
         int optimalRouteLength = -1;            // -1 - bedziemy odtad uznawac, ze to jest nieskonczonosc ;-)
@@ -257,6 +261,8 @@ public:
         Greedy greedy;
         greedy.solve(graph);
         currentRoute = greedy.path;
+
+//        std::cout << "Starting route size: " << currentRoute.size() << std::endl;
 
         int tabuSteps = 20;
 
@@ -316,12 +322,23 @@ public:
                             }
                                 break;
                         }
+//                        std::cout << "Neighbour route size: " << neighbourRoute.size() << std::endl;
+
+                        if (neighbourRoute.size() == 57) exit(0);
+
+
+//                        std::ostringstream oss;
+//                        oss << "Neighbor path: ";
+//                        for (int node: neighbourRoute) {
+//                            oss << node << " -> ";
+//                        }
+//                        std::cout << oss.str() << std::endl;
 
 //                        std::cout << "Neighbor route cost: " << calculatePathCost(neighbourRoute, graph) << std::endl;
-                        unsigned neighbourRouteLength = 0;
-                        for (int i = 1; i < neighbourRoute.size(); i++)
-                            neighbourRouteLength += graph.getEdgeWeight(neighbourRoute.at(i - 1),
-                                                                        neighbourRoute.at(i));
+                        int neighbourRouteLength = calculatePathCost(neighbourRoute, graph);
+//                        std::cout << "Calculated neighbor path cost: " << neighbourRouteLength << std::endl;
+//                        // Pomin jezeli droga nie istnieje
+//                        if (neighbourRouteLength > 100000000) continue;
 
                         // Sprawdzenie, czy dany ruch nie jest na liscie tabu
                         // (dwa wierzcholki)
@@ -409,7 +426,11 @@ public:
             } else {
                 // Dywersyfikacja przez wygenerowanie nowego
                 // rozwiazania startowego algorytmem hybrydowym losowo-zachlannym
+//                std::cout << "Will construct a new solution: " << std::endl;
                 currentRoute = generateSemiRandomSolution(graph);
+//                currentRoute = constructSolution(graph, 0.3, gen);
+//                std::cout << "Constructed new solution: " << calculatePathCost(currentRoute, graph) << std::endl;
+//                std::cout << "Constructed new solution with size: " << currentRoute.size() << std::endl;
                 currentTabuSteps = tabuSteps;
             }
 
