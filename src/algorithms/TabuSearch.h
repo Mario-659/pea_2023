@@ -25,8 +25,8 @@ public:
     enum NeighborhoodStrategy {
         SWAP, REVERSE, INSERT
     };
-private:
     std::vector<int> bestPath;
+private:
     int diversificationFactor; // Helps escape local optima
     std::chrono::seconds timeLimit;
     std::vector<std::vector<int>> tabuList;

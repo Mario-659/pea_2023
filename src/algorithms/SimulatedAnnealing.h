@@ -16,12 +16,12 @@ public:
     void setTimeLimit(std::chrono::seconds timeLimit);
     void setCoolingRatio(double coolRatio);
     std::string toString() override;
+    std::vector<int> path;
 private:
     int verticesNumber;
     double temperature;
     double coolingRatio;
     std::chrono::seconds timeLimit;
-    std::vector<int> path;
     std::vector<std::vector<int>> routes;
 
     int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);

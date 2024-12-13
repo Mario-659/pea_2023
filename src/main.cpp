@@ -16,6 +16,8 @@ using namespace std;
 // reads data from file as graph, assumes first line in file stands for graph size
 void loadFromFileDir(string filename);
 void loadFromFileAtsp(string filename);
+void savePathToFile(std::vector<int> path, const std::string& filename);
+std::vector<int> readPathFromFile(const string& filePath);
 
 AdjacencyMatrix* matrixGraph = nullptr;
 
@@ -27,6 +29,7 @@ void startTSMenu() {
     TabuSearch ts;
     SimulatedAnnealing sm;
     string input;
+    std::vector<int> bestPath;
     while(true){
         cout << R"(Wybierz opcje:
                    1. Wczytaj z pliku
@@ -85,6 +88,7 @@ void startTSMenu() {
                     ts.solve(*matrixGraph);
                     t2 = chrono::high_resolution_clock::now();
                     auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+                    bestPath = ts.bestPath;
                     std::cout << "\nShortest path: " << ts.toString() << "\n" <<
                               "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
                               "Czas wykonania w nanosekundach: " << result << std::endl;
@@ -101,6 +105,7 @@ void startTSMenu() {
                 sm.solve(*matrixGraph);
                 t2 = chrono::high_resolution_clock::now();
                 auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+                bestPath = sm.path;
                 std::cout << "\nShortest path: " << sm.toString() << "\n" <<
                           "Koszt sciezki: " << sm.getShortestPathLength() << "\n" <<
                           "Czas wykonania w nanosekundach: " << result << std::endl;
@@ -119,9 +124,31 @@ void startTSMenu() {
                 }
                 break;
             case 9:
-                return;
+                cout << "Podaj nazwe pliku w ktorym zostanie zapisana sciezka: ";
+                cin >> input;
+                savePathToFile(bestPath, input);
+                cout << "Zapisano plik\n";
+                break;
             case 10:
-                return;
+                cout << "Podaj nazwe pliku z ktorego zostanie wyczytana sciezka: ";
+                cin >> input;
+                {
+                    std::vector<int> pathFromFile = readPathFromFile(input);
+                    if (pathFromFile.empty()) break;
+
+                    int cost = 0;
+                    for (size_t i = 1; i < pathFromFile.size(); ++i) {
+                        cost += matrixGraph->getEdgeWeight(pathFromFile[i - 1], pathFromFile[i]);
+                    }
+                    cost += matrixGraph->getEdgeWeight(pathFromFile.back(), pathFromFile[0]);
+
+                    cout << "Path Length: " << cost << "\nPath: ";
+                    for (int node: pathFromFile) {
+                        cout << node << " -> ";
+                    }
+                    cout << pathFromFile[0] << endl;
+                }
+                break;
             case 0:
                 return;
             default:
@@ -279,3 +306,37 @@ void displayGraphs() {
     cout << matrixGraph->toString() << endl;
 }
 
+
+void savePathToFile(std::vector<int> path, const std::string& filename) {
+    ofstream outfile(filename);
+
+    if (!outfile.is_open()) {
+        std::cout << "Nie mozna otworzyc pliku." << endl;
+        return;
+    }
+
+    outfile << path.size() << endl;
+    for (int i : path) {
+        outfile << i << endl;;
+    }
+    outfile << path[0] << endl;
+    outfile.close();
+}
+
+std::vector<int> readPathFromFile(const string& filePath) {
+    ifstream  myFile(filePath);
+    if (myFile.fail()) {
+        cout << "Podano bledna sciezke do pliku!" << endl;
+        return {};
+    }
+
+    std::vector<int> path;
+    int len;
+    myFile >> len;
+    for (int i = 0; i < len; i++ ) {
+        int city;
+        myFile >> city;
+        path.push_back(city);
+    }
+    return path;
+}
