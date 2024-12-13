@@ -11,15 +11,16 @@
 
 class SimulatedAnnealing : public TSPSolver {
 public:
-    SimulatedAnnealing(double initialCoolingRatio = 0.9999999, int timeLimit = 10);
+    SimulatedAnnealing(double initialCoolingRatio = 0.9999999, int timeLimit = 30);
     void solve(AdjacencyMatrix& graph) override;
+    void setTimeLimit(std::chrono::seconds timeLimit);
+    void setCoolingRatio(double coolRatio);
     std::string toString() override;
-
 private:
     int verticesNumber;
     double temperature;
     double coolingRatio;
-    int timeLimit;
+    std::chrono::seconds timeLimit;
     std::vector<int> path;
     std::vector<std::vector<int>> routes;
 
@@ -27,6 +28,7 @@ private:
     double getInitialTemperature(AdjacencyMatrix& graph);
     std::vector<int> getDefaultPath();
     std::vector<int> swapElementsInPath(int range, std::vector<int> oldPath);
+
 };
 
 #endif //PEA_SIMULATEDANNEALING_H

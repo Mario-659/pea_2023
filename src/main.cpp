@@ -9,6 +9,7 @@
 #include "algorithms/Dynamic.h"
 #include "algorithms/TabuSearch.h"
 #include "algorithms/Greedy.h"
+#include "algorithms/SimulatedAnnealing.h"
 
 using namespace std;
 
@@ -24,16 +25,21 @@ void startTSMenu() {
     matrixGraph = nullptr;
     chrono::high_resolution_clock::time_point t1, t2;
     TabuSearch ts;
+    SimulatedAnnealing sm;
     string input;
     while(true){
         cout << R"(Wybierz opcje:
                    1. Wczytaj z pliku
                    2. Wyswietl
                    3. Podaj wartosc kryterium stopu
-                   4. Podaj definicje sasiedztwa
-                   5. Uruchom algorytm
-                   6. Oblicz metoda zachlanna
-                   7. Zakoncz)";
+                   4. Podaj definicje sasiedztwa dla tabu search
+                   5. Uruchom algorytm tabu search
+                   6. Podaj wspolczynnik zmiany temperatury
+                   7. Uruchom algorytm symulowanego wyzarzania
+                   8. Oblicz metoda zachlanna
+                   9. Zapisz sciezke do pliku .txt
+                   10. Wczytaj sciezke z pliku .txt i oblicz droge
+                   0. Zakoncz)";
         cout << "\nInput: ";
         cin >> input;
         int option = stoi(input);
@@ -56,6 +62,7 @@ void startTSMenu() {
                 cout << "Podaj kryterium stopu w sekundach: ";
                 cin >> input;
                 ts.setTimeLimit(std::chrono::seconds(std::stoi(input)));
+                sm.setTimeLimit(std::chrono::seconds(std::stoi(input)));
                 break;
             case 4:
                 cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - insert): ";
@@ -84,7 +91,23 @@ void startTSMenu() {
                 }
                 break;
             case 6:
-                {
+                cout << "Podaj wspolczynnik zmiany temperatury: ";
+                cin >> input;
+                sm.setCoolingRatio(stod(input));
+                break;
+            case 7:
+            {
+                t1 = chrono::high_resolution_clock::now();
+                sm.solve(*matrixGraph);
+                t2 = chrono::high_resolution_clock::now();
+                auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
+                std::cout << "\nShortest path: " << sm.toString() << "\n" <<
+                          "Koszt sciezki: " << sm.getShortestPathLength() << "\n" <<
+                          "Czas wykonania w nanosekundach: " << result << std::endl;
+            }
+                break;
+            case 8:
+            {
                     Greedy greedy;
                     t1 = chrono::high_resolution_clock::now();
                     greedy.solve(*matrixGraph);
@@ -93,10 +116,13 @@ void startTSMenu() {
                     std::cout << "\nShortest path: " << greedy.toString() << "\n" <<
                               "Koszt sciezki: " << greedy.getShortestPathLength() << "\n" <<
                               "Czas wykonania w nanosekundach: " << result << std::endl;
-
                 }
                 break;
-            case 7:
+            case 9:
+                return;
+            case 10:
+                return;
+            case 0:
                 return;
             default:
                 cout << "Nieprawidlowy numer" << endl;
