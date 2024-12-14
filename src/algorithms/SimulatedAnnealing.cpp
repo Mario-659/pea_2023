@@ -1,4 +1,5 @@
 #include "SimulatedAnnealing.h"
+#include "Greedy.h"
 #include <cmath>
 #include <algorithm>
 #include <chrono>
@@ -9,8 +10,7 @@ SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit
 void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     verticesNumber = graph.getSize();
     temperature = getInitialTemperature(graph);
-    path = getDefaultPath();
-
+    path = getDefaultPath(graph);
     int optimalCost = getPathCost(path, graph);
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -65,7 +65,7 @@ int SimulatedAnnealing::getPathCost(const std::vector<int> &pathInstance, const 
 
 double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix &graph) {
     int iterations = 10000;
-    std::vector<int> samplePath = getDefaultPath();
+    std::vector<int> samplePath = getDefaultPath(graph);
     std::vector<int> oldPath;
     double averageCost = 0;
     for (int i = 0; i < iterations; i++) {
@@ -76,10 +76,10 @@ double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix &graph) {
     return abs((averageCost / iterations) / log(0.99));
 }
 
-std::vector<int> SimulatedAnnealing::getDefaultPath() {
-    std::vector<int> defaultPath(verticesNumber);
-    std::iota(defaultPath.begin(), defaultPath.end(), 0);
-    return defaultPath;
+std::vector<int> SimulatedAnnealing::getDefaultPath(AdjacencyMatrix& adjacencyMatrix) {
+    Greedy greedy;
+    greedy.solve(adjacencyMatrix);
+    return greedy.path;
 }
 
 std::vector<int> SimulatedAnnealing::swapElementsInPath(int range, std::vector<int> oldPath) {
