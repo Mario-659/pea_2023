@@ -17,6 +17,8 @@ public:
     void setCoolingRatio(double coolRatio);
     std::string toString() override;
     std::vector<int> path;
+    double initialTemperature;
+    double finalTemperature;
 private:
     int verticesNumber;
     double temperature;

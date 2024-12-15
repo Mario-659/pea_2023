@@ -10,6 +10,7 @@ SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit
 void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     verticesNumber = graph.getSize();
     temperature = getInitialTemperature(graph);
+    initialTemperature = temperature;
     path = getDefaultPath(graph);
     int optimalCost = getPathCost(path, graph);
     auto start = std::chrono::high_resolution_clock::now();
@@ -49,6 +50,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
         }
     }
 
+    finalTemperature = temperature;
     shortestPathLength = optimalCost;
 }
 
