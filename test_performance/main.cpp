@@ -11,6 +11,62 @@
 
 using namespace std;
 
+void savePathToFile(std::vector<int> path, const std::string& filename) {
+    ofstream outfile(filename);
+
+    if (!outfile.is_open()) {
+        std::cout << "Nie mozna otworzyc pliku." << endl;
+        return;
+    }
+
+    outfile << path.size() << endl;
+    for (int i : path) {
+        outfile << i << endl;;
+    }
+    outfile << path[0] << endl;
+    outfile.close();
+}
+
+AdjacencyMatrix* loadFromFileAtsp(string filename) {
+    AdjacencyMatrix* matrixGraph;
+
+
+    ifstream  myFile(filename);
+    if (myFile.fail()) {
+        cout << "Podano bledna sciezke do pliku!" << endl;
+        exit(-1);
+    }
+    string line;
+
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+
+    string temp;
+    myFile >> temp;
+    int tempInt;
+    myFile >> tempInt;
+    int numberOfCities = tempInt;
+
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+    getline(myFile, line);
+
+    matrixGraph = new AdjacencyMatrix(numberOfCities);
+    for (int i = 0; i < numberOfCities; i++) {
+        for (int j = 0; j < numberOfCities; j++) {
+            int value;
+            myFile >> value;
+            matrixGraph->setEdge(i, j, value);
+        }
+    }
+
+    myFile.close();
+
+    return matrixGraph;
+}
+
 long long runBruteForceTest(int graphSize, int density) {
     long long matrixResult = 0;
     chrono::high_resolution_clock::time_point t1, t2;
@@ -61,6 +117,54 @@ long long runBranchAndBoundTest(int graphSize, int density) {
     }
 
     return matrixResult / numberOfRuns;
+}
+
+void runHeuristicAlgorithmsTest() {
+    ofstream output_file("sm_results.csv");
+    output_file.precision(17);
+    output_file << fixed << "sample" << "," << "algorithm" << ","  << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
+
+    std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
+    std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
+    std::vector<std::chrono::seconds> measuringTimes = {std::chrono::seconds(60), std::chrono::seconds(120), std::chrono::seconds(240)};
+    std::vector<double> coolingRatios = {0.99999999, 0.99999975, 0.99999925};
+
+    std::vector<int> bestPath;
+    int bestSolution = INT_MAX;
+
+    int iterations = 5;
+
+    SimulatedAnnealing sm;
+
+    for (int iter = 0; iter < iterations; iter++) {
+        cout << "\n\nIteration: " << iter << endl;
+        for (int i = 0; i < graphFilenames.size(); i++) {
+            for (auto coolingRatio : coolingRatios) {
+                string instance = graphFilenames[i];
+                chrono::seconds timeLimit = measuringTimes[i];
+
+                AdjacencyMatrix* matrix = loadFromFileAtsp(instance);
+
+                cout << "SM - " << instance << "| time limit: " << timeLimit.count() << "s | cooling ratio: " << coolingRatio << endl;
+
+                sm.setTimeLimit(timeLimit);
+                sm.setCoolingRatio(coolingRatio);
+                sm.solve(*matrix);
+
+                if (sm.getShortestPathLength() < bestSolution) {
+                    bestSolution = sm.getShortestPathLength();
+                    bestPath = sm.path;
+                }
+
+                cout        << "Done" << endl;
+                cout        << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
+                output_file << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
+            }
+        }
+    }
+
+    output_file.close();
+    savePathToFile(bestPath, "ftv55-bestpath.txt");
 }
 
 
@@ -159,11 +263,13 @@ void runSample(vector<int> sampleSizes) {
 
 int main() {
 //    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
-    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
+//    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
 
     cout.precision(30);
+    runHeuristicAlgorithmsTest();
+
 //    runSample(sampleSizes);
-    runAssertion(11);
+//    runAssertion(11);
 
     return 0;
 }

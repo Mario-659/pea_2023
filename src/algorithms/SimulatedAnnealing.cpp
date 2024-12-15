@@ -1,7 +1,6 @@
 #include "SimulatedAnnealing.h"
 #include "Greedy.h"
 #include <cmath>
-#include <algorithm>
 #include <chrono>
 
 SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit)
@@ -14,42 +13,37 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     path = getDefaultPath(graph);
     int optimalCost = getPathCost(path, graph);
     auto start = std::chrono::high_resolution_clock::now();
+    auto bestTime = std::chrono::high_resolution_clock::now();
 
     auto const seed = 123456789;
     std::mt19937 urbg{seed};
 
-    std::vector<int> measureTimes;
     while (true) {
         std::vector<int> newPath = swapElementsInPath(verticesNumber, path);
         int newCost = getPathCost(newPath, graph);
         if (newCost < optimalCost) {
             path = newPath;
             optimalCost = newCost;
-            auto bestTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = bestTime - start;
-
+            bestTime = std::chrono::high_resolution_clock::now();
         } else {
             double probability = exp(-abs(optimalCost - newCost) / temperature);
             double uniformDistributionRandomValue = std::uniform_real_distribution<double>(0, 1)(urbg);
             if (probability > uniformDistributionRandomValue) {
                 path = newPath;
                 optimalCost = newCost;
+                bestTime = std::chrono::high_resolution_clock::now();
             }
         }
 
         temperature *= coolingRatio;
 
         auto finish = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = finish - start;
-        int timeNow = int(elapsed.count());
-        if (std::find(measureTimes.begin(), measureTimes.end(), timeNow) == measureTimes.end() && timeNow % 20 == 0) {
-            measureTimes.push_back(timeNow);
-        }
         if (std::chrono::duration_cast<std::chrono::seconds>(finish - start) > timeLimit) {
             break;
         }
     }
 
+    optimalSolutionTime = std::chrono::duration_cast<std::chrono::seconds>(bestTime - start);
     finalTemperature = temperature;
     shortestPathLength = optimalCost;
 }
