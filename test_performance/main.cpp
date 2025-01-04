@@ -174,6 +174,24 @@ void runTSPerformance() {
     output_file.close();
 }
 
+
+void runGreedyTest() {
+    std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
+    std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
+
+    Greedy greedy;
+
+    for (int i = 0; i < graphFilenames.size(); i++) {
+        string instance = graphFilenames[i];
+        AdjacencyMatrix* matrix = loadFromFileAtsp(instance);
+        greedy.solve(*matrix);
+
+        double error = static_cast<double>(greedy.getShortestPathLength() - bestKnownSolutions[i]) / bestKnownSolutions[i] * 100;
+
+        cout << "Greedy -- instance: " << instance << " -- found shortest path len: " << greedy.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+    }
+}
+
 void runSMPerformance() {
     ofstream output_file("sm_results.csv");
     output_file.precision(17);
@@ -318,6 +336,7 @@ void runSample(vector<int> sampleSizes) {
 int main() {
 //    runSMPerformance();
     runTSPerformance();
+//    runGreedyTest();
 
     return 0;
 }
