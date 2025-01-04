@@ -119,7 +119,62 @@ long long runBranchAndBoundTest(int graphSize, int density) {
     return matrixResult / numberOfRuns;
 }
 
-void runHeuristicAlgorithmsTest() {
+
+void runTSPerformance() {
+    ofstream output_file("ts_results.csv");
+    output_file.precision(17);
+//    output_file << fixed << "sample" << "," << "algorithm" << ","  << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
+
+    std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
+    std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
+    std::vector<std::chrono::seconds> measuringTimes = {std::chrono::seconds(60), std::chrono::seconds(120), std::chrono::seconds(240)};
+    std::vector<string> neighborhoodStrategies = {"swap", "insert", "reverse"};
+
+    std::vector<int> bestPath;
+    int bestSolution = INT_MAX;
+
+    int iterations = 1;
+
+    TabuSearch ts;
+
+    for (int iter = 0; iter < iterations; iter++) {
+        cout << "\n\nIteration: " << iter << endl;
+        for (int i = 0; i < graphFilenames.size(); i++) {
+            for (auto strategy : neighborhoodStrategies) {
+                string instance = graphFilenames[i];
+                chrono::seconds timeLimit = measuringTimes[i];
+
+                AdjacencyMatrix* matrix = loadFromFileAtsp(instance);
+
+                ts.setTimeLimit(timeLimit);
+
+                if (strategy == "swap") {
+                    ts.setStrategy(TabuSearch::SWAP);
+                } else if (strategy == "insert") {
+                    ts.setStrategy(TabuSearch::INSERT);
+                } else {
+                    ts.setStrategy(TabuSearch::REVERSE);
+                }
+
+                ts.solve(*matrix);
+
+                if (ts.getShortestPathLength() < bestSolution) {
+                    bestSolution = ts.getShortestPathLength();
+                    bestPath = ts.bestPath;
+                }
+
+                double error = static_cast<double>(ts.getShortestPathLength() - bestKnownSolutions[i]) / bestKnownSolutions[i] * 100;
+
+                cout        << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+                output_file << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+            }
+        }
+    }
+
+    output_file.close();
+}
+
+void runSMPerformance() {
     ofstream output_file("sm_results.csv");
     output_file.precision(17);
     output_file << fixed << "sample" << "," << "algorithm" << ","  << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
@@ -156,7 +211,6 @@ void runHeuristicAlgorithmsTest() {
                     bestPath = sm.path;
                 }
 
-                cout        << "Done" << endl;
                 cout        << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
                 output_file << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
             }
@@ -262,14 +316,8 @@ void runSample(vector<int> sampleSizes) {
 }
 
 int main() {
-//    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
-//    vector<int> sampleSizes({4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
-
-    cout.precision(30);
-    runHeuristicAlgorithmsTest();
-
-//    runSample(sampleSizes);
-//    runAssertion(11);
+//    runSMPerformance();
+    runTSPerformance();
 
     return 0;
 }
