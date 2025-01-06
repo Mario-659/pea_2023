@@ -20,6 +20,9 @@
 #include <sstream>
 #include <iostream>
 
+#define TABU_STEPS 20
+#define INTENSIFICATION_FACTOR 4
+
 class TabuSearch : public TSPSolver {
 public:
     enum NeighborhoodStrategy {
@@ -39,78 +42,36 @@ private:
         return cost;
     }
 
-    std::vector<int> generateSemiRandomSolution(AdjacencyMatrix &graph) {
-        // ALGORYTM hybrydowy losowo-zachlanny
-        // Losowa czesc wierzcholkow jest losowana, reszta zachlannie
-        // Implementacja: Jan Potocki 2019
+    std::vector<int> generateSemiRandomSolution(AdjacencyMatrix& graph) {
         std::vector<int> route;
-
-        std::random_device randomSrc;
-        std::default_random_engine randomGen(randomSrc());
-        std::uniform_int_distribution<> vertexNumberDist(1, graph.getSize());
+        std::random_device rd;
+        std::mt19937 gen(rd());
         std::uniform_int_distribution<> vertexDist(0, graph.getSize() - 1);
 
-        // Liczba losowanych wierzcholkow
-        unsigned randomVertexNumber = vertexNumberDist(randomGen);
+        int randomCount = std::uniform_int_distribution<>(1, graph.getSize())(gen);
 
-        // Czesc losowa
-        for (int i = 0; i < randomVertexNumber; i++) {
-            unsigned randomVertex;
-            bool vertexUsed;
-
-            do {
-                randomVertex = vertexDist(randomGen);
-                vertexUsed = false;
-
-                for (int j : route) {
-                    if (j == randomVertex) {
-                        vertexUsed = true;
-                        break;
-                    }
-                }
-            } while (vertexUsed);
-
-            route.push_back(randomVertex);
+        // Random part
+        while (route.size() < static_cast<size_t>(randomCount)) {
+            int candidate = vertexDist(gen);
+            if (std::find(route.begin(), route.end(), candidate) == route.end()) {
+                route.push_back(candidate);
+            }
         }
 
-        // Czesc zachlanna
-        for (int i = 0; i < graph.getSize() - randomVertexNumber; i++) {
-            int minEdge = -1;
-            unsigned nextVertex;
-            for (int j = 0; j < graph.getSize(); j++) {
-                // Odrzucenie samego siebie lub wierzcholka startowego
-                // (zeby bylo szybciej)
-                if (route.back() == j || route.front() == j)
-                    continue;
+        // Greedy part
+        while (route.size() < static_cast<size_t>(graph.getSize())) {
+            int lastVertex = route.back();
+            int nextVertex = -1;
+            int minEdge = INT_MAX;
 
-                // Odrzucenie krawedzi do wierzcholka umieszczonego juz na trasie
-                bool vertexUsed = false;
-                for (int k : route) {
-                    if (j == k) {
-                        vertexUsed = true;
-                        break;
-                    }
-                }
-                if (vertexUsed)
-                    continue;
-
-                // Znalezienie najkrotszej mozliwej jeszcze do uzycia krawedzi
-                unsigned consideredLength = graph.getEdgeWeight(route.back(), j);
-
-                // PEA 2 Plus
-                // Jan Potocki 2019
-                if (minEdge == -1) {
-                    minEdge = consideredLength;
-                    nextVertex = j;
-                } else if (minEdge > consideredLength) {
-                    minEdge = consideredLength;
+            for (int j = 0; j < graph.getSize(); ++j) {
+                if (std::find(route.begin(), route.end(), j) == route.end() && graph.getEdgeWeight(lastVertex, j) < minEdge) {
+                    minEdge = graph.getEdgeWeight(lastVertex, j);
                     nextVertex = j;
                 }
             }
             route.push_back(nextVertex);
         }
-
-//        route.push_back(route.front());
         return route;
     }
 
@@ -132,7 +93,7 @@ public:
         int optimalRouteLength = calculatePathCost(currentRoute, graph);
         std::vector<int> optimalRoute = currentRoute;
 
-        int tabuSteps = 20;
+        int tabuSteps = TABU_STEPS;
         int stopCounter = 0;
         int iterationsToRestart = graph.getSize();
         std::vector<std::vector<int>> tabuList;
@@ -209,9 +170,9 @@ public:
             }
 
             if (improvementFound) {
-                tabuSteps /= 4;
+                tabuSteps /= INTENSIFICATION_FACTOR;
             } else {
-                tabuSteps = 20;
+                tabuSteps = TABU_STEPS;
             }
         }
 
