@@ -12,22 +12,29 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     initialTemperature = temperature;
     path = getDefaultPath(graph);
     int optimalCost = getPathCost(path, graph);
-    auto start = std::chrono::high_resolution_clock::now();
+
+    std::random_device rd;
+    std::mt19937 urbg{rd};
+
     auto bestTime = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
-    auto const seed = 123456789;
-    std::mt19937 urbg{seed};
-
-    while (true) {
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start) < timeLimit) {
+        // generate new random path
         std::vector<int> newPath = swapElementsInPath(verticesNumber, path);
         int newCost = getPathCost(newPath, graph);
+
+        // accept better path
         if (newCost < optimalCost) {
             path = newPath;
             optimalCost = newCost;
             bestTime = std::chrono::high_resolution_clock::now();
         } else {
+
             double probability = exp(-abs(optimalCost - newCost) / temperature);
             double uniformDistributionRandomValue = std::uniform_real_distribution<double>(0, 1)(urbg);
+
+            // accept worse path based on probability
             if (probability > uniformDistributionRandomValue) {
                 path = newPath;
                 optimalCost = newCost;
@@ -36,11 +43,6 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
         }
 
         temperature *= coolingRatio;
-
-        auto finish = std::chrono::high_resolution_clock::now();
-        if (std::chrono::duration_cast<std::chrono::seconds>(finish - start) > timeLimit) {
-            break;
-        }
     }
 
     optimalSolutionTime = std::chrono::duration_cast<std::chrono::seconds>(bestTime - start);
