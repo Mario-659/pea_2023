@@ -20,8 +20,8 @@
 #include <sstream>
 #include <iostream>
 
-#define TABU_STEPS 20
-#define INTENSIFICATION_FACTOR 4
+#define TABU_STEPS 10
+#define INTENSIFICATION_FACTOR 2
 
 class TabuSearch : public TSPSolver {
 public:
