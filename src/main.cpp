@@ -68,7 +68,7 @@ void startTSMenu() {
                 sm.setTimeLimit(std::chrono::seconds(std::stoi(input)));
                 break;
             case 4:
-                cout << "Podaj definicje sasiedztwa (1 - swap, 2 - inverse, 3 - insert): ";
+                cout << "Podaj definicje sasiedztwa dla Tabu Search (1 - swap, 2 - inverse, 3 - insert): ";
                 cin >> input;
                 switch (stoi(input)) {
                     case 1:
@@ -91,7 +91,8 @@ void startTSMenu() {
                     bestPath = ts.bestPath;
                     std::cout << "\nShortest path: " << ts.toString() << "\n" <<
                               "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
-                              "Czas wykonania w nanosekundach: " << result << std::endl;
+//                              "Czas wykonania w nanosekundach: " << result << "\n"
+                              "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * ts.optimalSolutionTime.count() / 1000 << std::endl;
                 }
                 break;
             case 6:
@@ -108,9 +109,10 @@ void startTSMenu() {
                 bestPath = sm.path;
                 std::cout << "\nShortest path: " << sm.toString() << "\n" <<
                           "Koszt sciezki: " << sm.getShortestPathLength() << "\n" <<
-                          "Czas wykonania w nanosekundach: " << result << std::endl <<
+//                          "Czas wykonania w nanosekundach: " << result << std::endl <<
                           "exp(-1/T_k)        : " << exp(-1 / sm.finalTemperature) << std::endl <<
-                          "Temperatura koncowa: " << sm.finalTemperature << std::endl;
+                          "Temperatura koncowa: " << sm.finalTemperature << "\n"
+                          "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * sm.optimalSolutionTime.count() / 1000 << std::endl;
             }
                 break;
             case 8:

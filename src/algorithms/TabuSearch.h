@@ -29,7 +29,7 @@ public:
         SWAP, REVERSE, INSERT
     };
     std::vector<int> bestPath;
-    std::chrono::seconds optimalSolutionTime;
+    std::chrono::milliseconds optimalSolutionTime;
 private:
     NeighborhoodStrategy strategy;
     std::chrono::seconds timeLimit;
@@ -190,7 +190,7 @@ public:
             }
         }
 
-        optimalSolutionTime = std::chrono::duration_cast<std::chrono::seconds>(bestTime - start);
+        optimalSolutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(bestTime - start);
         bestPath = optimalRoute; // Store the best path found
         shortestPathLength = optimalRouteLength; // Store its length
     }

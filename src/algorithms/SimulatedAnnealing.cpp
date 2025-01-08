@@ -45,7 +45,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
         temperature *= coolingRatio;
     }
 
-    optimalSolutionTime = std::chrono::duration_cast<std::chrono::seconds>(bestTime - start);
+    optimalSolutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(bestTime - start);
     finalTemperature = temperature;
     shortestPathLength = optimalCost;
 }

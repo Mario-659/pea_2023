@@ -19,7 +19,7 @@ public:
     std::vector<int> path;
     double initialTemperature;
     double finalTemperature;
-    std::chrono::seconds optimalSolutionTime;
+    std::chrono::milliseconds optimalSolutionTime;
 private:
     int verticesNumber;
     double temperature;
