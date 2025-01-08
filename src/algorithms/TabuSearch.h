@@ -29,6 +29,7 @@ public:
         SWAP, REVERSE, INSERT
     };
     std::vector<int> bestPath;
+    std::chrono::seconds optimalSolutionTime;
 private:
     NeighborhoodStrategy strategy;
     std::chrono::seconds timeLimit;
@@ -99,6 +100,8 @@ public:
         int iterationsToRestart = graph.getSize(); // Number of iterations before diversification
         std::vector<std::vector<int>> tabuList; // Tabu list to store prohibited moves, each element consists of {tabu_steps, vertex_index_1, vertex_index_2}
 
+
+        auto bestTime = std::chrono::high_resolution_clock::now();
         auto start = std::chrono::high_resolution_clock::now();
 
         while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start) < timeLimit) {
@@ -153,6 +156,7 @@ public:
             if (nextRouteLength < optimalRouteLength) {
                 optimalRouteLength = nextRouteLength;
                 optimalRoute = nextRoute;
+                bestTime = std::chrono::high_resolution_clock::now();
                 stopCounter = 0;
                 improvementFound = true;
             } else {
@@ -186,6 +190,7 @@ public:
             }
         }
 
+        optimalSolutionTime = std::chrono::duration_cast<std::chrono::seconds>(bestTime - start);
         bestPath = optimalRoute; // Store the best path found
         shortestPathLength = optimalRouteLength; // Store its length
     }

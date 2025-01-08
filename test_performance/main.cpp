@@ -123,18 +123,22 @@ long long runBranchAndBoundTest(int graphSize, int density) {
 void runTSPerformance() {
     ofstream output_file("ts_results.csv");
     output_file.precision(17);
-//    output_file << fixed << "sample" << "," << "algorithm" << ","  << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
+    output_file << fixed << "sample" << "," << "timeLimit" << "," << "strategy" << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << "\n";
 
     std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
     std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
     std::vector<std::chrono::seconds> measuringTimes = {std::chrono::seconds(60), std::chrono::seconds(120), std::chrono::seconds(240)};
     std::vector<string> neighborhoodStrategies = {"swap", "insert", "reverse"};
 
-    std::vector<int> bestPath;
-    int bestSolution = INT_MAX;
+    std::vector<int> bestPathFtv55;
+    std::vector<int> bestPathFtv170;
+    std::vector<int> bestPathRgb358;
 
-    int iterations = 1;
+    int bestSolutionFtv55 = INT_MAX;
+    int bestSolutionFtv170 = INT_MAX;
+    int bestSolutionRgb358 = INT_MAX;
 
+    int iterations = 10;
     TabuSearch ts;
 
     for (int iter = 0; iter < iterations; iter++) {
@@ -158,20 +162,38 @@ void runTSPerformance() {
 
                 ts.solve(*matrix);
 
-                if (ts.getShortestPathLength() < bestSolution) {
-                    bestSolution = ts.getShortestPathLength();
-                    bestPath = ts.bestPath;
+                if (instance == graphFilenames[0]) {
+                    if (ts.getShortestPathLength() < bestSolutionFtv55) {
+                        bestSolutionFtv55 = ts.getShortestPathLength();
+                        bestPathFtv55 = ts.bestPath;
+                    }
+                } else if (instance == graphFilenames[2]) {
+                    if (ts.getShortestPathLength() < bestSolutionFtv170) {
+                        bestSolutionFtv170 = ts.getShortestPathLength();
+                        bestPathFtv170 = ts.bestPath;
+                    }
+                } else {
+                    if (ts.getShortestPathLength() < bestSolutionRgb358) {
+                        bestSolutionRgb358 = ts.getShortestPathLength();
+                        bestPathRgb358 = ts.bestPath;
+                    }
                 }
 
                 double error = static_cast<double>(ts.getShortestPathLength() - bestKnownSolutions[i]) / bestKnownSolutions[i] * 100;
 
-                cout        << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
-                output_file << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+//                cout        << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+//                output_file << "TS -- instance: " << instance << " -- strategy: " << strategy << " -- time limit (s): " << timeLimit.count() << "  -- found shortest path len: " << ts.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
+
+                output_file << fixed << instance << "," << timeLimit.count() << "," << strategy << ts.optimalSolutionTime.count() << "," << ts.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << error << "\n";
             }
         }
     }
 
     output_file.close();
+
+    savePathToFile(bestPathFtv55, "ftv55-bestpath.txt");
+    savePathToFile(bestPathFtv170, "ftv170-bestpath.txt");
+    savePathToFile(bestPathRgb358, "rgb358-bestpath.txt");
 }
 
 

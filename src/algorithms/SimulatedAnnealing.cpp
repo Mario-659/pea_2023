@@ -14,7 +14,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     int optimalCost = getPathCost(path, graph);
 
     std::random_device rd;
-    std::mt19937 urbg{rd};
+    std::mt19937 urbg{123455};
 
     auto bestTime = std::chrono::high_resolution_clock::now();
     auto start = std::chrono::high_resolution_clock::now();
