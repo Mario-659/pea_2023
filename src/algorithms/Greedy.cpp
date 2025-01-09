@@ -37,7 +37,6 @@ void Greedy::solve(AdjacencyMatrix &graph, int startingVertex) {
 
     // Return to the starting vertex to complete the cycle
     shortestPathLength += graph.getEdgeWeight(currentVertex, startingVertex);
-    path.push_back(startingVertex);
 }
 
 
@@ -46,8 +45,9 @@ void Greedy::solve(AdjacencyMatrix &graph) {
     int globalBestCost = std::numeric_limits<int>::max();
     std::vector<int> globalBestPath;
 
+    // Run greedy algorithm for each available starting vertex
     for (int startingVertex = 0; startingVertex < verticesNumber; ++startingVertex) {
-        // Reset the state for each starting vertex
+        // Reset the state for each vertex
         std::vector<bool> visited(verticesNumber, false);
         std::vector<int> currentPath;
         int currentCost = 0;
@@ -57,7 +57,7 @@ void Greedy::solve(AdjacencyMatrix &graph) {
         currentPath.push_back(currentVertex);
         visited[currentVertex] = true;
 
-        // Greedy algorithm to construct a tour
+        // Constructing a path
         for (int i = 1; i < verticesNumber; ++i) {
             int nearestNeighbor = -1;
             int minWeight = std::numeric_limits<int>::max();
@@ -82,18 +82,16 @@ void Greedy::solve(AdjacencyMatrix &graph) {
             currentVertex = nearestNeighbor;
         }
 
-        // Return to the starting vertex to complete the cycle
+        // Complete the cycle
         currentCost += graph.getEdgeWeight(currentVertex, startingVertex);
-//        currentPath.push_back(startingVertex);
 
-        // Check if the current path is the best so far
+        // Update the best solution found
         if (currentCost < globalBestCost) {
             globalBestCost = currentCost;
             globalBestPath = currentPath;
         }
     }
 
-    // Update the class attributes with the best solution found
     shortestPathLength = globalBestCost;
     path = globalBestPath;
 }
