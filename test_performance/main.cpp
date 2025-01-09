@@ -217,17 +217,22 @@ void runGreedyTest() {
 void runSMPerformance() {
     ofstream output_file("sm_results.csv");
     output_file.precision(17);
-    output_file << fixed << "sample" << "," << "algorithm" << ","  << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
+    output_file << fixed << "sample" << "," << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
 
     std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
     std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
     std::vector<std::chrono::seconds> measuringTimes = {std::chrono::seconds(60), std::chrono::seconds(120), std::chrono::seconds(240)};
     std::vector<double> coolingRatios = {0.99999999, 0.99999975, 0.99999925};
 
-    std::vector<int> bestPath;
-    int bestSolution = INT_MAX;
+    std::vector<int> bestPathFtv55;
+    std::vector<int> bestPathFtv170;
+    std::vector<int> bestPathRgb358;
 
-    int iterations = 5;
+    int bestSolutionFtv55 = INT_MAX;
+    int bestSolutionFtv170 = INT_MAX;
+    int bestSolutionRgb358 = INT_MAX;
+
+    int iterations = 10;
 
     SimulatedAnnealing sm;
 
@@ -246,19 +251,37 @@ void runSMPerformance() {
                 sm.setCoolingRatio(coolingRatio);
                 sm.solve(*matrix);
 
-                if (sm.getShortestPathLength() < bestSolution) {
-                    bestSolution = sm.getShortestPathLength();
-                    bestPath = sm.path;
+                if (instance == graphFilenames[0]) {
+                    if (sm.getShortestPathLength() < bestSolutionFtv55) {
+                        bestSolutionFtv55 = sm.getShortestPathLength();
+                        bestPathFtv55 = sm.path;
+                    }
+                } else if (instance == graphFilenames[1]) {
+                    if (sm.getShortestPathLength() < bestSolutionFtv170) {
+                        bestSolutionFtv170 = sm.getShortestPathLength();
+                        bestPathFtv170 = sm.path;
+                    }
+                } else {
+                    if (sm.getShortestPathLength() < bestSolutionRgb358) {
+                        bestSolutionRgb358 = sm.getShortestPathLength();
+                        bestPathRgb358 = sm.path;
+                    }
                 }
 
-                cout        << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
-                output_file << scientific << instance << "," << "SM"        << ","  <<  coolingRatio  << "," <<  exp(-1 / sm.finalTemperature) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << abs(bestKnownSolutions[i] - sm.getShortestPathLength()) / bestKnownSolutions[i] << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
+
+                double error = static_cast<double>(sm.getShortestPathLength() - bestKnownSolutions[i]) / bestKnownSolutions[i] * 100;
+
+                cout        << scientific << instance << "," <<  coolingRatio  << "," <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << error << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
+                output_file << scientific << instance << "," <<  coolingRatio  << "," <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << error << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
             }
         }
     }
 
     output_file.close();
-    savePathToFile(bestPath, "ftv55-bestpath.txt");
+
+    savePathToFile(bestPathFtv55, "sm-ftv55-bestpath.txt");
+    savePathToFile(bestPathFtv170, "sm-ftv170-bestpath.txt");
+    savePathToFile(bestPathRgb358, "sm-rgb358-bestpath.txt");
 }
 
 
@@ -356,8 +379,8 @@ void runSample(vector<int> sampleSizes) {
 }
 
 int main() {
-//    runSMPerformance();
-    runTSPerformance();
+    runSMPerformance();
+//    runTSPerformance();
 //    runGreedyTest();
 
     return 0;
