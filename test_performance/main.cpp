@@ -217,12 +217,14 @@ void runGreedyTest() {
 void runSMPerformance() {
     ofstream output_file("sm_results.csv");
     output_file.precision(17);
-    output_file << fixed << "sample" << "," << "coolingRatio" << "," << "expTk" << "," << "timeLimit" << "," << "optimalSolutionTime" << "," << "optimalSolutionValue" << "," << "bestKnownSolution" << "," << "relativeError" << ",initialTemp" << "," << "finalTemp" << "\n";
+    cout.precision(17);
+
+    output_file << fixed << "sample" << ";" << "coolingRatio" << ";" << "expTk" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << ";initialTemp" << ";" << "finalTemp" << "\n";
 
     std::vector<std::string> graphFilenames = {"ftv55.atsp", "ftv170.atsp", "rbg358.atsp"};
     std::vector<int> bestKnownSolutions = {1608, 2755, 1163};
     std::vector<std::chrono::seconds> measuringTimes = {std::chrono::seconds(60), std::chrono::seconds(120), std::chrono::seconds(240)};
-    std::vector<double> coolingRatios = {0.99999999, 0.99999975, 0.99999925};
+    std::vector<double> coolingRatios = {0.9999999, 0.99999995, 0.999999925};
 
     std::vector<int> bestPathFtv55;
     std::vector<int> bestPathFtv170;
@@ -271,8 +273,8 @@ void runSMPerformance() {
 
                 double error = static_cast<double>(sm.getShortestPathLength() - bestKnownSolutions[i]) / bestKnownSolutions[i] * 100;
 
-                cout        << scientific << instance << "," <<  coolingRatio  << "," <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << error << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
-                output_file << scientific << instance << "," <<  coolingRatio  << "," <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << "," <<  timeLimit.count() << "," << sm.optimalSolutionTime.count() << "," << sm.getShortestPathLength() << "," << bestKnownSolutions[i] << "," << error << "," << sm.initialTemperature << "," << sm.finalTemperature << "\n";
+                cout        << fixed << instance << ";" <<  coolingRatio  << ";" <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << ";" <<  timeLimit.count() << ";" << sm.optimalSolutionTime.count() << ";" << sm.getShortestPathLength() << ";" << bestKnownSolutions[i] << ";" << error << ";" << sm.initialTemperature << ";" << sm.finalTemperature << "\n";
+                output_file << fixed << instance << ";" <<  coolingRatio  << ";" <<  exp(-1.0 / (1.0 * sm.finalTemperature)) << ";" <<  timeLimit.count() << ";" << 1.0 * sm.optimalSolutionTime.count() / 1000 << ";" << sm.getShortestPathLength() << ";" << bestKnownSolutions[i] << ";" << error << ";" << sm.initialTemperature << ";" << sm.finalTemperature << "\n";
             }
         }
     }
