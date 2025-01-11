@@ -9,12 +9,16 @@ SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit
 void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     verticesNumber = graph.getSize();
     temperature = getInitialTemperature(graph);
+    std::cout << "Initial temperature: " << temperature << std::endl;
+
     initialTemperature = temperature;
     path = getDefaultPath(graph);
     int optimalCost = getPathCost(path, graph);
 
+//    std::vector<double> probabilities;
+
     std::random_device rd;
-    std::mt19937 urbg{123455};
+    std::mt19937 urbg{rd()};
 
     auto bestTime = std::chrono::high_resolution_clock::now();
     auto start = std::chrono::high_resolution_clock::now();
@@ -34,16 +38,27 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
             double probability = exp(-abs(optimalCost - newCost) / temperature);
             double uniformDistributionRandomValue = std::uniform_real_distribution<double>(0, 1)(urbg);
 
+//            probabilities.push_back(probability);
+
             // accept worse path based on probability
             if (probability > uniformDistributionRandomValue) {
                 path = newPath;
                 optimalCost = newCost;
-                bestTime = std::chrono::high_resolution_clock::now();
             }
         }
 
         temperature *= coolingRatio;
     }
+
+    std::cout << "Final temperature: " << temperature << std::endl;
+
+//    for (int i=0; i < 100; i++) {
+//        std::cout << "Probability[i]: " << probabilities[i] << std::endl;
+//    }
+//
+//    for (int i=probabilities.size()-1; i > probabilities.size() - 100; i--) {
+//        std::cout << "Probability[i]: " << probabilities[i] << std::endl;
+//    }
 
     optimalSolutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(bestTime - start);
     finalTemperature = temperature;
