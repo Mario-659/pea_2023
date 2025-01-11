@@ -110,7 +110,7 @@ void startTSMenu() {
                 std::cout << "\nShortest path: " << sm.toString() << "\n" <<
                           "Koszt sciezki: " << sm.getShortestPathLength() << "\n" <<
 //                          "Czas wykonania w nanosekundach: " << result << std::endl <<
-                          "exp(-1/T_k)        : " << exp(-1 / sm.finalTemperature) << std::endl <<
+                          "exp(-1/T_k)        : " << exp(-1.0 / sm.finalTemperature) << std::endl <<
                           "Temperatura koncowa: " << sm.finalTemperature << "\n"
                           "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * sm.optimalSolutionTime.count() / 1000 << std::endl;
             }
