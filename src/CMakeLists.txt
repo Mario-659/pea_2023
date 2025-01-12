@@ -18,10 +18,12 @@ set(SOURCES
         algorithms/TabuSearch.h
         algorithms/Greedy.h
         algorithms/Greedy.cpp
+        algorithms/Genetic.h
+        algorithms/Genetic.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_run ${SOURCES})
 
-add_library(${CMAKE_PROJECT_NAME}_lib STATIC ${SOURCES} algorithms/Dynamic.cpp algorithms/Dynamic.h algorithms/TSPSolver.h algorithms/BranchAndBound.cpp algorithms/BranchAndBound.h)
+add_library(${CMAKE_PROJECT_NAME}_lib STATIC ${SOURCES} algorithms/Dynamic.cpp algorithms/Dynamic.h algorithms/TSPSolver.h algorithms/BranchAndBound.cpp algorithms/BranchAndBound.h algorithms/Genetic.cpp algorithms/Genetic.h)
 
 

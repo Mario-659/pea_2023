@@ -10,6 +10,7 @@
 #include "algorithms/TabuSearch.h"
 #include "algorithms/Greedy.h"
 #include "algorithms/SimulatedAnnealing.h"
+#include "algorithms/Genetic.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ void startTSMenu() {
     chrono::high_resolution_clock::time_point t1, t2;
     TabuSearch ts;
     SimulatedAnnealing sm;
+    Genetic genetic;
     string input;
     std::vector<int> bestPath;
     while(true){
@@ -85,14 +87,15 @@ void startTSMenu() {
             case 5:
                 {
                     t1 = chrono::high_resolution_clock::now();
-                    ts.solve(*matrixGraph);
+//                    ts.solve(*matrixGraph);
+                    genetic.solve(*matrixGraph);
                     t2 = chrono::high_resolution_clock::now();
                     auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                     bestPath = ts.bestPath;
-                    std::cout << "\nShortest path: " << ts.toString() << "\n" <<
-                              "Koszt sciezki: " << ts.getShortestPathLength() << "\n" <<
+                    std::cout << "\nShortest path: " << genetic.toString() << "\n" <<
+                              "Koszt sciezki: " << genetic.getShortestPathLength() << "\n";
 //                              "Czas wykonania w nanosekundach: " << result << "\n"
-                              "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * ts.optimalSolutionTime.count() / 1000 << std::endl;
+//                              "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * ts.optimalSolutionTime.count() / 1000 << std::endl;
                 }
                 break;
             case 6:
