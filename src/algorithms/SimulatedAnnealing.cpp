@@ -7,15 +7,14 @@ SimulatedAnnealing::SimulatedAnnealing(double initialCoolingRatio, int timeLimit
         : coolingRatio(initialCoolingRatio), timeLimit(timeLimit) {}
 
 void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
-    verticesNumber = graph.getSize();
+    graphSize = graph.getSize();
     temperature = getInitialTemperature(graph);
+
     std::cout << "Initial temperature: " << temperature << std::endl;
 
     initialTemperature = temperature;
-    path = getDefaultPath(graph);
-    int optimalCost = getPathCost(path, graph);
-
-//    std::vector<double> probabilities;
+    path = getGreedySolution(graph); // init path with greedy solution
+    int optimalCost = calculatePathCost(path, graph);
 
     std::random_device rd;
     std::mt19937 urbg{rd()};
@@ -25,8 +24,8 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
 
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start) < timeLimit) {
         // generate new random path
-        std::vector<int> newPath = swapElementsInPath(verticesNumber, path);
-        int newCost = getPathCost(newPath, graph);
+        std::vector<int> newPath = getSwapNeighbor(graphSize, path);
+        int newCost = calculatePathCost(newPath, graph);
 
         // accept better path
         if (newCost < optimalCost) {
@@ -37,8 +36,6 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
 
             double probability = exp(-abs(optimalCost - newCost) / temperature);
             double uniformDistributionRandomValue = std::uniform_real_distribution<double>(0, 1)(urbg);
-
-//            probabilities.push_back(probability);
 
             // accept worse path based on probability
             if (probability > uniformDistributionRandomValue) {
@@ -52,20 +49,12 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
 
     std::cout << "Final temperature: " << temperature << std::endl;
 
-//    for (int i=0; i < 100; i++) {
-//        std::cout << "Probability[i]: " << probabilities[i] << std::endl;
-//    }
-//
-//    for (int i=probabilities.size()-1; i > probabilities.size() - 100; i--) {
-//        std::cout << "Probability[i]: " << probabilities[i] << std::endl;
-//    }
-
     optimalSolutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(bestTime - start);
     finalTemperature = temperature;
     shortestPathLength = optimalCost;
 }
 
-int SimulatedAnnealing::getPathCost(const std::vector<int> &pathInstance, const AdjacencyMatrix &graph) {
+int SimulatedAnnealing::calculatePathCost(const std::vector<int> &pathInstance, const AdjacencyMatrix &graph) {
     if (pathInstance.empty()) return 0;
 
     int cost = 0;
@@ -78,35 +67,36 @@ int SimulatedAnnealing::getPathCost(const std::vector<int> &pathInstance, const 
 
 double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix &graph) {
     int iterations = 10000;
-    std::vector<int> samplePath = getDefaultPath(graph);
+    std::vector<int> newPath = getGreedySolution(graph);
     std::vector<int> oldPath;
+
     double averageCost = 0;
     for (int i = 0; i < iterations; i++) {
-        oldPath = samplePath;
-        samplePath = swapElementsInPath(verticesNumber, samplePath);
-        averageCost += abs(getPathCost(samplePath, graph) - getPathCost(oldPath, graph));
+        oldPath = newPath;
+        newPath = getSwapNeighbor(graphSize, newPath);
+        averageCost += abs(calculatePathCost(newPath, graph) - calculatePathCost(oldPath, graph));
     }
     return abs((averageCost / iterations) / log(0.99));
 }
 
-std::vector<int> SimulatedAnnealing::getDefaultPath(AdjacencyMatrix& adjacencyMatrix) {
+std::vector<int> SimulatedAnnealing::getGreedySolution(AdjacencyMatrix& adjacencyMatrix) {
     Greedy greedy;
     greedy.solve(adjacencyMatrix);
     return greedy.path;
 }
 
-std::vector<int> SimulatedAnnealing::swapElementsInPath(int range, std::vector<int> oldPath) {
+std::vector<int> SimulatedAnnealing::getSwapNeighbor(int range, std::vector<int> oldPath) {
     std::vector<int> newPath = std::move(oldPath);
 
     // generate random cities to swap
-    int firstCityToSwap = rand() % range;
-    int secondCityToSwap = rand() % range;
-    while (firstCityToSwap == secondCityToSwap) {
-        secondCityToSwap = rand() % range;
+    int cityOne = rand() % range;
+    int cityTwo = rand() % range;
+
+    while (cityOne == cityTwo) {
+        cityTwo = rand() % range;
     }
 
-    // swap cities
-    iter_swap(newPath.begin() + firstCityToSwap, newPath.begin() + secondCityToSwap);
+    iter_swap(newPath.begin() + cityOne, newPath.begin() + cityTwo);
 
     return newPath;
 }
@@ -125,6 +115,6 @@ std::string SimulatedAnnealing::toString() {
     for (int node: path) {
         oss << node << " -> ";
     }
-    oss << path[0]; // Close the cycle
+    oss << path[0];
     return oss.str();
 }

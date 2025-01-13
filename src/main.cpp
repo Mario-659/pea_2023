@@ -70,7 +70,7 @@ void startTSMenu() {
                 sm.setTimeLimit(std::chrono::seconds(std::stoi(input)));
                 break;
             case 4:
-                cout << "Podaj definicje sasiedztwa dla Tabu Search (1 - swap, 2 - inverse, 3 - insert): ";
+                cout << "Podaj definicje sasiedztwa dla Tabu Search (1 - swap, 2 - reverse, 3 - insert): ";
                 cin >> input;
                 switch (stoi(input)) {
                     case 1:
