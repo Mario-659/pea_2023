@@ -11,7 +11,7 @@
 
 class SimulatedAnnealing : public TSPSolver {
 public:
-    SimulatedAnnealing(double initialCoolingRatio = 0.9999999, int timeLimit = 30);
+    SimulatedAnnealing(double initialCoolingRatio = 0.999999925, int timeLimit = 30);
     void solve(AdjacencyMatrix& graph) override;
     void setTimeLimit(std::chrono::seconds timeLimit);
     void setCoolingRatio(double coolRatio);
