@@ -88,12 +88,19 @@ void startTSMenu() {
                 {
                     t1 = chrono::high_resolution_clock::now();
 //                    ts.solve(*matrixGraph);
+
+                    genetic.stop = 60;
+                    genetic.populationSize = 500;
+                    genetic.crossingFactor = 80;
+                    genetic.mutationFactor = 1;
+
                     genetic.solve(*matrixGraph);
+
                     t2 = chrono::high_resolution_clock::now();
                     auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                     bestPath = ts.bestPath;
-                    std::cout << "\nShortest path: " << genetic.toString() << "\n" <<
-                              "Koszt sciezki: " << genetic.getShortestPathLength() << "\n";
+//                    std::cout << "\nShortest path: " << genetic.toString() << "\n" <<
+//                              "Koszt sciezki: " << genetic.getShortestPathLength() << "\n";
 //                              "Czas wykonania w nanosekundach: " << result << "\n"
 //                              "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * ts.optimalSolutionTime.count() / 1000 << std::endl;
                 }
