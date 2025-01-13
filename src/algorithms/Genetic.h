@@ -307,10 +307,11 @@ public:
 
     void solve(AdjacencyMatrix& graphMatrix) {
         bestChromosomeLength = INT_MAX;
-        population = generateStartingPopulation(graphMatrix);
         matrixSize = graphMatrix.getSize();
+        population = generateStartingPopulation(graphMatrix);
 
         cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
+
         for (int i = 0; i < graphMatrix.getSize(); i++) {
             cout << bestChromosome.genes[i] << "->";
         }
@@ -324,7 +325,7 @@ public:
         }
         cout << bestChromosome.genes[graphMatrix.getSize()] << endl;
         cout << "Czas potrzebny na znalezienie rozwiazania: " << timeToFindBest/1000000 << "s" << endl;
-        bladWzgledny = abs(bestChromosomeLength - opt) / (double)opt;
+        bladWzgledny = abs(bestChromosomeLength - opt) / (double)opt * 100;
         cout << "Blad wzgledny " << bladWzgledny << "%" << endl;
     }
 };

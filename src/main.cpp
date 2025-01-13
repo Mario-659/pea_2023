@@ -93,6 +93,7 @@ void startTSMenu() {
                     genetic.populationSize = 500;
                     genetic.crossingFactor = 80;
                     genetic.mutationFactor = 1;
+                    genetic.opt = 1608;
 
                     genetic.solve(*matrixGraph);
 
