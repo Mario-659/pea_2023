@@ -14,7 +14,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
 
     initialTemperature = temperature;
     path = getGreedySolution(graph); // init path with greedy solution
-    int optimalCost = getPathCost(path, graph);
+    int optimalCost = calculatePathCost(path, graph);
 
     std::random_device rd;
     std::mt19937 urbg{rd()};
@@ -25,7 +25,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start) < timeLimit) {
         // generate new random path
         std::vector<int> newPath = getSwapNeighbor(graphSize, path);
-        int newCost = getPathCost(newPath, graph);
+        int newCost = calculatePathCost(newPath, graph);
 
         // accept better path
         if (newCost < optimalCost) {
@@ -54,7 +54,7 @@ void SimulatedAnnealing::solve(AdjacencyMatrix &graph) {
     shortestPathLength = optimalCost;
 }
 
-int SimulatedAnnealing::getPathCost(const std::vector<int> &pathInstance, const AdjacencyMatrix &graph) {
+int SimulatedAnnealing::calculatePathCost(const std::vector<int> &pathInstance, const AdjacencyMatrix &graph) {
     if (pathInstance.empty()) return 0;
 
     int cost = 0;
@@ -69,11 +69,12 @@ double SimulatedAnnealing::getInitialTemperature(AdjacencyMatrix &graph) {
     int iterations = 10000;
     std::vector<int> newPath = getGreedySolution(graph);
     std::vector<int> oldPath;
+
     double averageCost = 0;
     for (int i = 0; i < iterations; i++) {
         oldPath = newPath;
         newPath = getSwapNeighbor(graphSize, newPath);
-        averageCost += abs(getPathCost(newPath, graph) - getPathCost(oldPath, graph));
+        averageCost += abs(calculatePathCost(newPath, graph) - calculatePathCost(oldPath, graph));
     }
     return abs((averageCost / iterations) / log(0.99));
 }

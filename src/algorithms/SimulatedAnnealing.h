@@ -27,7 +27,7 @@ private:
     std::chrono::seconds timeLimit;
     std::vector<std::vector<int>> routes;
 
-    int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
+    int calculatePathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
     double getInitialTemperature(AdjacencyMatrix& graph);
     std::vector<int> getSwapNeighbor(int range, std::vector<int> oldPath);
     std::vector<int> getGreedySolution(AdjacencyMatrix &adjacencyMatrix);
