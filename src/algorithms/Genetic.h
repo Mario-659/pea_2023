@@ -12,9 +12,9 @@ public:
     vector<int> path;
     double mutationRate = 0.01;
     double crossoverRate = 0.8;
-    int mutationType;
+    int mutationType = 1;
     int timeLimit = 120;
-    int populationSize;
+    int populationSize = 500;
 
     std::vector<int> bestPath;
 
