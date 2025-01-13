@@ -51,7 +51,7 @@ private:
 
         int randomCount = std::uniform_int_distribution<>(1, graph.getSize())(gen);
 
-        // Random part
+        // random part
         while (route.size() < static_cast<size_t>(randomCount)) {
             int candidate = vertexDist(gen);
             if (std::find(route.begin(), route.end(), candidate) == route.end()) {
@@ -59,7 +59,7 @@ private:
             }
         }
 
-        // Greedy part
+        // greedy part
         while (route.size() < static_cast<size_t>(graph.getSize())) {
             int lastVertex = route.back();
             int nextVertex = -1;
