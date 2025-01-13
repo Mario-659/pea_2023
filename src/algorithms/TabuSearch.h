@@ -43,39 +43,6 @@ private:
         return cost;
     }
 
-    std::vector<int> generateSemiRandomSolution(AdjacencyMatrix& graph) {
-        std::vector<int> route;
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> vertexDist(0, graph.getSize() - 1);
-
-        int randomCount = std::uniform_int_distribution<>(1, graph.getSize())(gen);
-
-        // Random part
-        while (route.size() < static_cast<size_t>(randomCount)) {
-            int candidate = vertexDist(gen);
-            if (std::find(route.begin(), route.end(), candidate) == route.end()) {
-                route.push_back(candidate);
-            }
-        }
-
-        // Greedy part
-        while (route.size() < static_cast<size_t>(graph.getSize())) {
-            int lastVertex = route.back();
-            int nextVertex = -1;
-            int minEdge = INT_MAX;
-
-            for (int j = 0; j < graph.getSize(); ++j) {
-                if (std::find(route.begin(), route.end(), j) == route.end() && graph.getEdgeWeight(lastVertex, j) < minEdge) {
-                    minEdge = graph.getEdgeWeight(lastVertex, j);
-                    nextVertex = j;
-                }
-            }
-            route.push_back(nextVertex);
-        }
-        return route;
-    }
-
 public:
     TabuSearch(std::chrono::seconds timeLimit, NeighborhoodStrategy strategy)
             : timeLimit(timeLimit),
@@ -87,9 +54,13 @@ public:
 
 
     void solve(AdjacencyMatrix& graph) override {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
         std::vector<int> currentRoute;
         Greedy greedy;
         greedy.solve(graph);
+        std::vector<int> greedySolution = greedy.path;
         currentRoute = greedy.path; // init solution with greedy
 
         int optimalRouteLength = calculatePathCost(currentRoute, graph);
@@ -177,8 +148,19 @@ public:
 
             // diversify if no improvement for a given number of iterations
             if (stopCounter >= iterationsToRestart) {
-                currentRoute = generateSemiRandomSolution(graph);
                 stopCounter = 0;
+                currentRoute = greedy.path;
+
+                // shuffle random part of greedy solution
+                std::uniform_int_distribution<int> dist(0, currentRoute.size() - 1);
+                int startIndex = dist(gen);
+                int endIndex = dist(gen);
+
+                if (startIndex > endIndex) {
+                    std::swap(startIndex, endIndex);
+                }
+
+                std::shuffle(currentRoute.begin() + startIndex, currentRoute.begin() + endIndex + 1, gen);
             }
 
             // intensify search if improvement is found
