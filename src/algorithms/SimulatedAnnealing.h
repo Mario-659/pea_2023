@@ -21,7 +21,7 @@ public:
     double finalTemperature;
     std::chrono::milliseconds optimalSolutionTime;
 private:
-    int verticesNumber;
+    int graphSize;
     double temperature;
     double coolingRatio;
     std::chrono::seconds timeLimit;
@@ -29,8 +29,8 @@ private:
 
     int getPathCost(const std::vector<int>& pathInstance, const AdjacencyMatrix& graph);
     double getInitialTemperature(AdjacencyMatrix& graph);
-    std::vector<int> swapElementsInPath(int range, std::vector<int> oldPath);
-    std::vector<int> getDefaultPath(AdjacencyMatrix &adjacencyMatrix);
+    std::vector<int> getSwapNeighbor(int range, std::vector<int> oldPath);
+    std::vector<int> getGreedySolution(AdjacencyMatrix &adjacencyMatrix);
 };
 
 #endif //PEA_SIMULATEDANNEALING_H
