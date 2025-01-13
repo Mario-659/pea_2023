@@ -85,20 +85,20 @@ public:
             : timeLimit(30), strategy(SWAP) {
     }
 
-    // Solve method implementing the Tabu Search algorithm
+
     void solve(AdjacencyMatrix& graph) override {
         std::vector<int> currentRoute;
         Greedy greedy;
         greedy.solve(graph);
-        currentRoute = greedy.path; // Start with a greedy solution
+        currentRoute = greedy.path; // init solution with greedy
 
         int optimalRouteLength = calculatePathCost(currentRoute, graph);
         std::vector<int> optimalRoute = currentRoute;
 
-        int tabuSteps = TABU_STEPS; // Initial tabu tenure
+        int tabuSteps = TABU_STEPS;
         int stopCounter = 0;
-        int iterationsToRestart = graph.getSize(); // Number of iterations before diversification
-        std::vector<std::vector<int>> tabuList; // Tabu list to store prohibited moves, each element consists of {tabu_steps, vertex_index_1, vertex_index_2}
+        int iterationsToRestart = graph.getSize(); // number of iterations before diversification
+        std::vector<std::vector<int>> tabuList; // each element consists of {tabu_steps, vertex_index_1, vertex_index_2}
 
 
         auto bestTime = std::chrono::high_resolution_clock::now();
@@ -110,12 +110,12 @@ public:
             int nextRouteLength = INT_MAX;
             std::vector<int> bestTabuMove(3, 0);
 
-            // Explore neighborhood, find best neighbour
+            // find best neighbour
             for (int i = 1; i < graph.getSize() - 1; ++i) {
                 for (int j = i + 1; j < graph.getSize(); ++j) {
                     std::vector<int> neighborRoute = currentRoute;
 
-                    // Apply the chosen neighborhood strategy
+                    // generate neighbor
                     switch (strategy) {
                         case SWAP:
                             std::swap(neighborRoute[i], neighborRoute[j]);
@@ -132,15 +132,15 @@ public:
 
                     int neighborCost = calculatePathCost(neighborRoute, graph);
 
-                    // Check if the move is tabu
+                    // check if the move is tabu
                     bool isTabu = std::any_of(tabuList.begin(), tabuList.end(), [&](const std::vector<int>& tabu) {
                         return (tabu[1] == i && tabu[2] == j) || (tabu[1] == j && tabu[2] == i);
                     });
 
-                    // Apply aspiration criteria: allow tabu moves if they improve the optimal solution
+                    // aspiration criteria: allow tabu moves if they improve the optimal solution
                     if (isTabu && neighborCost >= optimalRouteLength) continue;
 
-                    // Update the best move if the current neighbor is better
+                    // update the best move if the current neighbor is better
                     if (neighborCost < nextRouteLength) {
                         nextRouteLength = neighborCost;
                         nextRoute = neighborRoute;
@@ -149,10 +149,9 @@ public:
                 }
             }
 
-            // Move to the best neighbor
             currentRoute = nextRoute;
 
-            // Update the optimal solution if an improvement is found
+            // update the optimal solution if an improvement is found
             if (nextRouteLength < optimalRouteLength) {
                 optimalRouteLength = nextRouteLength;
                 optimalRoute = nextRoute;
@@ -164,25 +163,25 @@ public:
                 ++stopCounter;
             }
 
-            // Update tabu list: decrement tenure and remove expired moves
+            // decrement tenure and remove expired moves
             for (size_t i = 0; i < tabuList.size(); ) {
                 if (--tabuList[i][0] == 0) {
-                    tabuList[i] = tabuList.back(); // Replace with the last element
-                    tabuList.pop_back(); // Remove the last element
+                    tabuList[i] = tabuList.back(); // replace expired move with the last element
+                    tabuList.pop_back();
                 } else {
-                    ++i; // Increment only if no element was removed
+                    ++i; // increment only if no element was removed
                 }
             }
 
-            tabuList.push_back(bestTabuMove); // Add the best move to the tabu list
+            tabuList.push_back(bestTabuMove); // add the best found move to the tabu list
 
-            // Perform diversification if no improvement for a given number of iterations
+            // diversify if no improvement for a given number of iterations
             if (stopCounter >= iterationsToRestart) {
                 currentRoute = generateSemiRandomSolution(graph);
                 stopCounter = 0;
             }
 
-            // Adjust tabu tenure: intensify search if improvement is found
+            // intensify search if improvement is found
             if (improvementFound) {
                 tabuSteps /= INTENSIFICATION_FACTOR;
             } else {
@@ -191,8 +190,8 @@ public:
         }
 
         optimalSolutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(bestTime - start);
-        bestPath = optimalRoute; // Store the best path found
-        shortestPathLength = optimalRouteLength; // Store its length
+        bestPath = optimalRoute;
+        shortestPathLength = optimalRouteLength;
     }
 
     void setStrategy(NeighborhoodStrategy strategy) {
@@ -205,11 +204,11 @@ public:
 
     std::string toString() override {
         std::ostringstream oss;
-        oss << "Shortest Path Length: " << shortestPathLength << "\nPath: ";
+        oss << "\nPath: ";
         for (int node: bestPath) {
             oss << node << " -> ";
         }
-        oss << bestPath[0]; // Close the cycle
+        oss << bestPath[0];
         return oss.str();
     }
 };
