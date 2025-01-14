@@ -62,35 +62,18 @@ public:
     }
 
     Chromosome generateRandomChromosome(AdjacencyMatrix &adjacencyMatrix) {
-        bool *visited = new bool[matrixSize];
         Chromosome chromosome;
 
-        int starting = generateRandomInt(0, matrixSize - 1);
+        std::vector<int> cities(matrixSize);
+        std::iota(cities.begin(), cities.end(), 0); // Fill with 0, 1, ..., matrixSize - 1
+        std::shuffle(cities.begin(), cities.end(), std::mt19937(std::random_device{}()));
 
         for (int i = 0; i < matrixSize; i++) {
-            visited[i] = false;
+            chromosome.genes.push_back(cities[i]);
         }
-        visited[starting] = true;
-        chromosome.genes.push_back(starting);
-
-        int nextCity;
-        for (int i = 0; i < matrixSize - 1; i++) {
-            do {
-                nextCity = generateRandomInt(0, matrixSize - 1);
-            } while (visited[nextCity]);
-            visited[nextCity] = true;
-            chromosome.genes.push_back(nextCity);
-        }
-        delete[] visited;
         chromosome.value = calculateChromosomeLength(chromosome, adjacencyMatrix);
 
-        std::set<int> mySet(chromosome.genes.begin(), chromosome.genes.end());
-        if (chromosome.genes.size() == mySet.size()) {
-            return chromosome;
-        } else {
-            cout << "zle" << endl;
-            throw exception();
-        }
+        return chromosome;
     }
 
     Chromosome inversionMutation(Chromosome chromosome, AdjacencyMatrix &matrix) {
