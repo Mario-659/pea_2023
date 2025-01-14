@@ -191,12 +191,14 @@ public:
         vector<Chromosome> startingPopulation;
         for (int i = 0; i < populationSize; i++) {
             startingPopulation.push_back(generateRandomChromosome(adjacencyMatrix));
-            int chromosomeLength = calculateChromosomeLength(startingPopulation[i], adjacencyMatrix);
+
+            int chromosomeLength = startingPopulation[i].value;
             if (chromosomeLength < bestChromosomeLength) {
                 bestChromosomeLength = chromosomeLength;
                 bestChromosome = startingPopulation[i];
             }
         }
+
         return startingPopulation;
     }
 
