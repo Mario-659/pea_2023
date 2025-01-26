@@ -215,8 +215,8 @@ void runGreedyTest() {
     }
 }
 
-void runGeneticPerformance() {
-    ofstream output_file("genetic_results.csv");
+void runGeneticInvPerformance() {
+    ofstream output_file("inv_genetic_results.csv");
     output_file.precision(17);
     cout.precision(17);
 
@@ -235,7 +235,7 @@ void runGeneticPerformance() {
     std::vector<long long> timesOfBestSolution;
 
     int bestSolution = INT_MAX;
-    int iterations = 1;
+    int iterations = 10;
 
     Genetic genetic;
     genetic.crossingFactor = 80;
@@ -247,10 +247,12 @@ void runGeneticPerformance() {
         bestSolution = INT_MAX;
 
         for (int iter = 0; iter < iterations; iter++) {
-            cout << "population: " << populationSize << " -- iteration: " << iter  << " -- out of " << iterations << endl;
+            cout << "population: " << populationSize << " -- iteration: " << iter + 1 << " -- out of " << iterations << endl;
 
+            genetic.mutationStrategy = Genetic::INVERSE;
             genetic.populationSize = populationSize;
             genetic.solve(*matrix);
+            cout << "done";
 
             double error = static_cast<double>(genetic.bestChromosomeLength - bestKnownSolution) / bestKnownSolution * 100;
             output_file << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
@@ -258,20 +260,106 @@ void runGeneticPerformance() {
 
             if (genetic.bestChromosomeLength < bestSolution) {
                 bestSolution = genetic.bestChromosomeLength;
-                errorsOfBestSolution = genetic.bladVector;
-                timesOfBestSolution = genetic.bestTimeVector;
+
+                errorsOfBestSolution.clear();
+                for (auto measuredError : genetic.bladVector) {
+                    errorsOfBestSolution.push_back(measuredError);
+                }
+
+                timesOfBestSolution.clear();
+                for (auto timeMeasurement : genetic.timeVector) {
+                    timesOfBestSolution.push_back(timeMeasurement);
+                }
+
                 bestPathFtv170 = genetic.bestChromosome.genes;
             }
         }
 
-        ofstream out_file_times(to_string(populationSize) + "_genetic_time_vector" + to_string(bestSolution) + ".csv");
-        out_file_times << "time;error\n";
-        for (int i=0; i<timesOfBestSolution.size(); i++) {
+        ofstream out_file_times("inv" + to_string(populationSize) + "_genetic_time_vector" + to_string(bestSolution) + ".csv");
+        out_file_times << "time(microseconds);error\n";
+        std::cout << "timesOfBestSolution.size()" << timesOfBestSolution.size() << endl;
+
+        for (int i = 0; i < timesOfBestSolution.size(); i++) {
             out_file_times << timesOfBestSolution[i] << ";" << errorsOfBestSolution[i] << endl;
         }
         out_file_times.close();
 
-        savePathToFile(bestPathFtv170, to_string(populationSize) + "_genetic-ftv170-bestpath.txt");
+        savePathToFile(bestPathFtv170, "inv" + to_string(populationSize) + "_genetic-ftv170-bestpath.txt");
+    }
+
+    output_file.close();
+}
+
+void runGeneticSwapPerformance() {
+    ofstream output_file("swap_genetic_results.csv");
+    output_file.precision(17);
+    cout.precision(17);
+
+    output_file << fixed << "populationSize" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << "\n";
+    cout        << fixed << "populationSize" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << "\n";
+
+    std::string graphFilename = "ftv170.atsp";
+    int bestKnownSolution = 2755;
+    int timeLimit = 180;
+    AdjacencyMatrix* matrix = loadFromFileAtsp(graphFilename);
+
+    std::vector<int> populationSizes = {500, 1000, 2000};
+    std::vector<int> bestPathFtv170;
+
+    std::vector<double> errorsOfBestSolution;
+    std::vector<long long> timesOfBestSolution;
+
+    int bestSolution = INT_MAX;
+    int iterations = 10;
+
+    Genetic genetic;
+    genetic.crossingFactor = 80;
+    genetic.mutationFactor = 1;
+    genetic.timeLimit = timeLimit;
+    genetic.opt = bestKnownSolution;
+
+    for (auto populationSize : populationSizes) {
+        bestSolution = INT_MAX;
+
+        for (int iter = 0; iter < iterations; iter++) {
+            cout << "population: " << populationSize << " -- iteration: " << iter + 1 << " -- out of " << iterations << endl;
+
+            genetic.mutationStrategy = Genetic::SWAP;
+            genetic.populationSize = populationSize;
+            genetic.solve(*matrix);
+            cout << "done";
+
+            double error = static_cast<double>(genetic.bestChromosomeLength - bestKnownSolution) / bestKnownSolution * 100;
+            output_file << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
+            cout        << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
+
+            if (genetic.bestChromosomeLength < bestSolution) {
+                bestSolution = genetic.bestChromosomeLength;
+
+                errorsOfBestSolution.clear();
+                for (auto measuredError : genetic.bladVector) {
+                    errorsOfBestSolution.push_back(measuredError);
+                }
+
+                timesOfBestSolution.clear();
+                for (auto timeMeasurement : genetic.timeVector) {
+                    timesOfBestSolution.push_back(timeMeasurement);
+                }
+
+                bestPathFtv170 = genetic.bestChromosome.genes;
+            }
+        }
+
+        ofstream out_file_times("swap" + to_string(populationSize) + "_genetic_time_vector" + to_string(bestSolution) + ".csv");
+        out_file_times << "time(microseconds);error\n";
+        std::cout << "timesOfBestSolution.size()" << timesOfBestSolution.size() << endl;
+
+        for (int i = 0; i < timesOfBestSolution.size(); i++) {
+            out_file_times << timesOfBestSolution[i] << ";" << errorsOfBestSolution[i] << endl;
+        }
+        out_file_times.close();
+
+        savePathToFile(bestPathFtv170, "swap" + to_string(populationSize) + "_genetic-ftv170-bestpath.txt");
     }
 
     output_file.close();
@@ -447,7 +535,8 @@ int main() {
 //    runSMPerformance();
 //    runTSPerformance();
 //    runGreedyTest();
-    runGeneticPerformance();
+    runGeneticInvPerformance();
+    runGeneticSwapPerformance();
 
     return 0;
 }
