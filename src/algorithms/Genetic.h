@@ -300,19 +300,19 @@ public:
         population = generateStartingPopulation(graphMatrix);
 
         cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
-
-        for (int i = 0; i < matrixSize; i++) {
-            cout << bestChromosome.genes[i] << "->";
+        for (auto city : bestChromosome.genes) {
+            std::cout << city << " -> ";
         }
-        cout << bestChromosome.genes[matrixSize] << endl;
+        std::cout << bestChromosome.genes[0] << std::endl;
 
         geneticAlgorithm(graphMatrix);
 
-        cout << "Dlugosc najlepszego chromosomu po algorytmie: " << bestChromosomeLength << endl;
-        for (int i = 0; i < matrixSize; i++) {
-            cout << bestChromosome.genes[i] << "->";
+        cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
+        for (auto city : bestChromosome.genes) {
+            std::cout << city << " -> ";
         }
-        cout << bestChromosome.genes[matrixSize] << endl;
+        std::cout << bestChromosome.genes[0] << std::endl;
+
         cout << "Czas potrzebny na znalezienie rozwiazania: " << timeToFindBest / 1000000 << "s" << endl;
         bladWzgledny = abs(bestChromosomeLength - opt) / (double) opt * 100;
         cout << "Blad wzgledny " << bladWzgledny << "%" << endl;
