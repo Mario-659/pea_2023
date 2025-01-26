@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 using namespace std::chrono;
@@ -65,12 +66,10 @@ public:
         Chromosome chromosome;
 
         std::vector<int> cities(matrixSize);
-        std::iota(cities.begin(), cities.end(), 0); // Fill with 0, 1, ..., matrixSize - 1
+        std::iota(cities.begin(), cities.end(), 0); // fill with 0, 1, 2
         std::shuffle(cities.begin(), cities.end(), std::mt19937(std::random_device{}()));
 
-        for (int i = 0; i < matrixSize; i++) {
-            chromosome.genes.push_back(cities[i]);
-        }
+        chromosome.genes = cities;
         chromosome.value = calculateChromosomeLength(chromosome, adjacencyMatrix);
 
         return chromosome;
