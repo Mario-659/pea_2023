@@ -28,10 +28,15 @@ public:
     int bestChromosomeLength;
     long long timeToFindBest;
 
-    // kryterium stopu
-    int stop;
+    enum MutationStrategy {
+        SWAP, INVERSE
+    };
 
-    // wspolczynniki
+    MutationStrategy mutationStrategy = MutationStrategy::INVERSE;
+
+    // time limit in seconds
+    int timeLimit;
+
     int crossingFactor, mutationFactor;
 
     int populationSize;
@@ -44,10 +49,28 @@ public:
     vector<long long> bestTimeVector;
     vector<double> bestBladVector;
 
+    steady_clock::time_point start;
+
     int matrixSize;
 
     double bladWzgledny;
     int opt = 1608;
+
+    void validateBestChromosome(Chromosome chromosome) {
+        if (chromosome.value > bestChromosomeLength) {
+            return;
+        }
+
+        steady_clock::duration duration;
+        duration = steady_clock::now() - start;
+        timeToFindBest = duration_cast<microseconds>(duration).count();
+
+        timeVector.push_back(timeToFindBest);
+        bladVector.push_back(100.0 * (bestChromosomeLength - opt) / (double) opt);
+
+        bestChromosome = chromosome;
+        bestChromosomeLength = chromosome.value;
+    }
 
     int calculateChromosomeLength(Chromosome chromosome, AdjacencyMatrix &adjacencyMatrix) {
         int length = 0;
@@ -89,59 +112,75 @@ public:
         }
 
         Chromosome mutatedChromosome;
+
+        // copy first part
         for (int i = 0; i < firstIndex; i++) {
             mutatedChromosome.genes.push_back(chromosome.genes[i]);
         }
 
+        // reverse part of the path
         for (int i = firstIndex, j = secondIndex; i <= secondIndex; i++, j--) {
             mutatedChromosome.genes.push_back(chromosome.genes[j]);
         }
 
+        // copy rest of the path
         for (int i = secondIndex + 1; i < matrixSize; i++) {
             mutatedChromosome.genes.push_back(chromosome.genes[i]);
         }
+
+
         mutatedChromosome.value = calculateChromosomeLength(mutatedChromosome, matrix);
+        return mutatedChromosome;
+    }
 
+    Chromosome swapMutation(Chromosome chromosome, AdjacencyMatrix &matrix) {
+        int firstIndex, secondIndex;
+        do {
+            firstIndex = generateRandomInt(0, matrixSize - 1);
+            secondIndex = generateRandomInt(0, matrixSize - 1);
+        } while (firstIndex == secondIndex);
 
-        set<int> mySet(mutatedChromosome.genes.begin(), mutatedChromosome.genes.end());
-        if (mutatedChromosome.genes.size() == mySet.size()) {
-            return mutatedChromosome;
-        } else {
-            cout << "zle " << mutatedChromosome.genes.size() << " " << mySet.size() << endl;
-            throw exception();
-        }
+        Chromosome mutatedChromosome = chromosome;
+        std::swap(mutatedChromosome.genes[firstIndex], mutatedChromosome.genes[secondIndex]);
 
+        mutatedChromosome.value = calculateChromosomeLength(mutatedChromosome, matrix);
+        return mutatedChromosome;
     }
 
     Chromosome orderCrossover(Chromosome firstParent, Chromosome secondParent, int firstIndex, int secondIndex,
                               AdjacencyMatrix &matrix) {
 
+        // Create a new chromosome and initialize all genes to -1
         Chromosome newChromosome;
         for (int i = 0; i < matrixSize; i++) {
             newChromosome.genes.push_back(-1);
         }
 
+        // Vector to track which cities (genes) have already been added to the new chromosome
         vector<bool> taken(matrixSize, false);
 
+        // Copy the segment between firstIndex and secondIndex from the first parent to the new chromosome
         for (int i = firstIndex; i < secondIndex; i++) {
             newChromosome.genes[i] = firstParent.genes[i];
-            taken[newChromosome.genes[i]] = true;
+            taken[newChromosome.genes[i]] = true; // Mark these genes as taken
         }
 
-
+        // Start filling the rest of the new chromosome from the second parent
         int newChromosomePos = secondIndex;
 
+        // Add genes from the second parent, starting from the secondIndex, wrapping around if necessary
         for (int i = secondIndex; i < matrixSize; i++) {
             if (!taken[secondParent.genes[i]]) {
                 newChromosome.genes[newChromosomePos] = secondParent.genes[i];
-                taken[secondParent.genes[i]] = true;
+                taken[secondParent.genes[i]] = true; // Mark this gene as taken
                 if (newChromosomePos == matrixSize - 1)
-                    newChromosomePos = (newChromosomePos + 1) % matrixSize;
+                    newChromosomePos = (newChromosomePos + 1) % matrixSize; // Wrap around to the beginning
                 else
                     newChromosomePos++;
             }
         }
 
+        // Continue adding genes from the second parent, starting from the beginning up to firstIndex
         for (int i = 0; i <= firstIndex; i++) {
             if (!taken[secondParent.genes[i]]) {
                 newChromosome.genes[newChromosomePos] = secondParent.genes[i];
@@ -153,6 +192,7 @@ public:
             }
         }
 
+        // Fill the remaining slots with genes from the first parent, starting from secondIndex to the end
         for (int i = secondIndex; i < matrixSize; i++) {
             if (!taken[firstParent.genes[i]]) {
                 newChromosome.genes[newChromosomePos] = firstParent.genes[i];
@@ -164,6 +204,7 @@ public:
             }
         }
 
+        // Finally, add genes from the first parent, starting from the beginning up to firstIndex
         for (int i = 0; i <= firstIndex; i++) {
             if (!taken[firstParent.genes[i]]) {
                 newChromosome.genes[newChromosomePos] = firstParent.genes[i];
@@ -176,15 +217,9 @@ public:
         }
 
         newChromosome.value = calculateChromosomeLength(newChromosome, matrix);
-
-        set<int> mySet(newChromosome.genes.begin(), newChromosome.genes.end());
-        if (newChromosome.genes.size() == mySet.size()) {
-            return newChromosome;
-        } else {
-            throw exception();
-        }
-
+        return newChromosome;
     }
+
 
     vector<Chromosome> generateStartingPopulation(AdjacencyMatrix &adjacencyMatrix) {
         vector<Chromosome> startingPopulation;
@@ -201,7 +236,7 @@ public:
         return startingPopulation;
     }
 
-    void selection() {
+    void rankSelection() {
         sort(population.begin(), population.end(), [](const Chromosome &lhs, const Chromosome &rhs) {
             return lhs.value < rhs.value;
         });
@@ -212,86 +247,68 @@ public:
     }
 
     void geneticAlgorithm(AdjacencyMatrix &matrix) {
-        steady_clock::time_point start = steady_clock::now();
+        start = steady_clock::now();
         steady_clock::duration duration;
 
         timeVector.clear();
         bladVector.clear();
 
-        int crossoverStatus, crossoverFirstIndex;
+        int crossoverFirstIndex;
+        bool crossoverFirstChild;
 
         do {
-            crossoverStatus = 0;
+            crossoverFirstChild = false;
             crossoverFirstIndex = 0;
             for (int i = 0; i < population.size(); i++) {
                 int chance = generateRandomInt(1, 100);
 
                 if (chance < crossingFactor) {
-                    if (crossoverStatus == 0) {
-                        crossoverStatus = 1;
+                    if (!crossoverFirstChild) {
                         crossoverFirstIndex = i;
+                        crossoverFirstChild = true;
                     } else {
-                        crossoverStatus = 0;
-                        int firstIndex;
-                        int secondIndex;
+                        crossoverFirstChild = false;
+
+                        // generate first and second index for crossover separated by at least two indices
+                        int firstIndex, secondIndex;
                         do {
                             firstIndex = generateRandomInt(0, matrixSize - 1);
                             secondIndex = generateRandomInt(0, matrixSize - 1);
                         } while (abs(firstIndex - secondIndex) < 2);
+
                         if (firstIndex > secondIndex) {
-                            int holder = firstIndex;
-                            firstIndex = secondIndex;
-                            secondIndex = holder;
+                            std::swap(firstIndex, secondIndex);
                         }
 
-                        Chromosome firstNewChromosome = orderCrossover(population[crossoverFirstIndex], population[i],
-                                                                       firstIndex, secondIndex, matrix);
+                        Chromosome firstChildChromosome = orderCrossover(population[crossoverFirstIndex], population[i],
+                                                                         firstIndex, secondIndex, matrix);
 
-                        if (firstNewChromosome.value < bestChromosomeLength) {
-                            duration = steady_clock::now() - start;
-                            timeToFindBest = duration_cast<microseconds>(duration).count();
+                        validateBestChromosome(firstChildChromosome);
+                        population.push_back(firstChildChromosome);
 
-                            timeVector.push_back(timeToFindBest);
-                            bladVector.push_back(100.0 * (bestChromosomeLength - opt) / (double) opt);
+                        Chromosome secondChildChromosome = orderCrossover(population[i], population[crossoverFirstIndex],
+                                                                          firstIndex, secondIndex, matrix);
 
-                            bestChromosome = firstNewChromosome;
-                            bestChromosomeLength = firstNewChromosome.value;
-                        }
-                        population.push_back(firstNewChromosome);
-
-                        Chromosome secondNewChromosome = orderCrossover(population[i], population[crossoverFirstIndex],
-                                                                        firstIndex, secondIndex, matrix);
-                        if (secondNewChromosome.value < bestChromosomeLength) {
-                            duration = steady_clock::now() - start;
-                            timeToFindBest = duration_cast<microseconds>(duration).count();
-
-                            timeVector.push_back(timeToFindBest);
-                            bladVector.push_back(100.0 * (bestChromosomeLength - opt) / (double) opt);
-
-                            bestChromosome = secondNewChromosome;
-                            bestChromosomeLength = secondNewChromosome.value;
-                        }
-                        population.push_back(secondNewChromosome);
+                        validateBestChromosome(secondChildChromosome);
+                        population.push_back(secondChildChromosome);
                     }
                 } else if (chance < crossingFactor + mutationFactor) {
-                    Chromosome mutatedChromosome = inversionMutation(population[i], matrix);
-                    if (mutatedChromosome.value < bestChromosomeLength) {
-                        duration = steady_clock::now() - start;
-                        timeToFindBest = duration_cast<microseconds>(duration).count();
-
-                        timeVector.push_back(timeToFindBest);
-                        bladVector.push_back(100.0 * (bestChromosomeLength - opt) / (double) opt);
-
-                        bestChromosome = mutatedChromosome;
-                        bestChromosomeLength = mutatedChromosome.value;
+                    Chromosome mutatedChromosome;
+                    if (mutationStrategy == MutationStrategy::INVERSE) {
+                        mutatedChromosome = inversionMutation(population[i], matrix);
+                    } else {
+                        mutatedChromosome = swapMutation(population[i], matrix);
                     }
+
+                    validateBestChromosome(mutatedChromosome);
                     population.push_back(mutatedChromosome);
                 }
             }
-            selection();
+
+            rankSelection();
 
             duration = steady_clock::now() - start;
-        } while (duration_cast<seconds>(duration).count() < static_cast<long long>(stop) * 1);
+        } while (duration_cast<seconds>(duration).count() < static_cast<long long>(timeLimit) * 1);
     }
 
     void solve(AdjacencyMatrix &graphMatrix) {

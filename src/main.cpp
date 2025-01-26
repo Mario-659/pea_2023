@@ -89,7 +89,7 @@ void startTSMenu() {
                     t1 = chrono::high_resolution_clock::now();
 //                    ts.solve(*matrixGraph);
 
-                    genetic.stop = 60;
+                    genetic.timeLimit = 60;
                     genetic.populationSize = 500;
                     genetic.crossingFactor = 80;
                     genetic.mutationFactor = 1;
