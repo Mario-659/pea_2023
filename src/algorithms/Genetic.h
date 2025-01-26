@@ -316,17 +316,17 @@ public:
         matrixSize = graphMatrix.getSize();
         population = generateStartingPopulation(graphMatrix);
 
-//        cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
-//        for (auto city : bestChromosome.genes) {
-//            std::cout << city << " -> ";
-//        }
-//        std::cout << bestChromosome.genes[0] << std::endl;
+        cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
+        for (auto city : bestChromosome.genes) {
+            std::cout << city << " -> ";
+        }
+        std::cout << bestChromosome.genes[0] << std::endl;
         geneticAlgorithm(graphMatrix);
-//        cout << "Dlugosc najlepszego chromosomu przed algorytmem: " << bestChromosomeLength << endl;
-//        for (auto city : bestChromosome.genes) {
-//            std::cout << city << " -> ";
-//        }
-//        std::cout << bestChromosome.genes[0] << std::endl;
+        cout << "Dlugosc najlepszego chromosomu po algorytmie: " << bestChromosomeLength << endl;
+        for (auto city : bestChromosome.genes) {
+            std::cout << city << " -> ";
+        }
+        std::cout << bestChromosome.genes[0] << std::endl;
 //
 //        cout << "Czas potrzebny na znalezienie rozwiazania: " << timeToFindBest / 1000000 << "s" << endl;
 //        bladWzgledny = abs(bestChromosomeLength - opt) / (double) opt * 100;

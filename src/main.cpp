@@ -30,6 +30,10 @@ void startTSMenu() {
     TabuSearch ts;
     SimulatedAnnealing sm;
     Genetic genetic;
+    genetic.populationSize = 500;
+    genetic.crossingFactor = 80;
+    genetic.mutationFactor = 1;
+    genetic.timeLimit = 60;
     string input;
     std::vector<int> bestPath;
     while(true){
@@ -42,8 +46,13 @@ void startTSMenu() {
                    6. Podaj wspolczynnik zmiany temperatury
                    7. Uruchom algorytm symulowanego wyzarzania
                    8. Oblicz metoda zachlanna
-                   9. Zapisz sciezke do pliku .txt
-                   10. Wczytaj sciezke z pliku .txt i oblicz droge
+                   9. Podaj wspolczynnik krzyzowania dla algorytmu genetycznego
+                   10. Podaj wspolczynnik mutacji dla algorytmu genetycznego
+                   11. Podaj strategie mutacji
+                   12. Podaj liczbe osobnikow w populacji
+                   13. Uruchom algorytm genetyczny
+                   14. Zapisz sciezke do pliku .txt
+                   15. Wczytaj sciezke z pliku .txt i oblicz droge
                    0. Zakoncz)";
         cout << "\nInput: ";
         cin >> input;
@@ -68,6 +77,7 @@ void startTSMenu() {
                 cin >> input;
                 ts.setTimeLimit(std::chrono::seconds(std::stoi(input)));
                 sm.setTimeLimit(std::chrono::seconds(std::stoi(input)));
+                genetic.timeLimit = std::stoi(input);
                 break;
             case 4:
                 cout << "Podaj definicje sasiedztwa dla Tabu Search (1 - swap, 2 - reverse, 3 - insert): ";
@@ -87,21 +97,12 @@ void startTSMenu() {
             case 5:
                 {
                     t1 = chrono::high_resolution_clock::now();
-//                    ts.solve(*matrixGraph);
-
-                    genetic.timeLimit = 60;
-                    genetic.populationSize = 500;
-                    genetic.crossingFactor = 80;
-                    genetic.mutationFactor = 1;
-                    genetic.opt = 1608;
-
-                    genetic.solve(*matrixGraph);
-
+                    ts.solve(*matrixGraph);
                     t2 = chrono::high_resolution_clock::now();
                     auto result = chrono::duration_cast<chrono::nanoseconds>(t2 - t1).count();
                     bestPath = ts.bestPath;
-//                    std::cout << "\nShortest path: " << genetic.toString() << "\n" <<
-//                              "Koszt sciezki: " << genetic.getShortestPathLength() << "\n";
+                    std::cout << "\nShortest path: " << ts.toString() << "\n" <<
+                              "Koszt sciezki: " << ts.getShortestPathLength() << "\n";
 //                              "Czas wykonania w nanosekundach: " << result << "\n"
 //                              "Czas znalezienia najlepszego rozwiazania (s): " << 1.0 * ts.optimalSolutionTime.count() / 1000 << std::endl;
                 }
@@ -139,12 +140,40 @@ void startTSMenu() {
                 }
                 break;
             case 9:
+                cout << "Podaj wspolczynnik krzyzowania: ";
+                cin >> input;
+                genetic.crossingFactor = std::stoi(input);
+                break;
+            case 10:
+                cout << "Podaj wspolczynnik mutacji: ";
+                cin >> input;
+                genetic.mutationFactor = stoi(input);
+                break;
+            case 11:
+                cout << "Podaj strategie mutacji (1 - inverse, 2 - swap): ";
+                cin >> input;
+                if (stoi(input) == 1) {
+                    genetic.mutationStrategy = Genetic::INVERSE;
+                } else genetic.mutationStrategy = Genetic::SWAP;
+                break;
+            case 12:
+                cout << "Podaj liczbe osobnikow w populacji: ";
+                cin >> input;
+                genetic.populationSize = stoi(input);
+                break;
+            case 13:
+            {
+                genetic.solve(*matrixGraph);
+                bestPath = genetic.bestChromosome.genes;
+            }
+                break;
+            case 14:
                 cout << "Podaj nazwe pliku w ktorym zostanie zapisana sciezka: ";
                 cin >> input;
                 savePathToFile(bestPath, input);
                 cout << "Zapisano plik\n";
                 break;
-            case 10:
+            case 15:
                 cout << "Podaj nazwe pliku z ktorego zostanie wyczytana sciezka: ";
                 cin >> input;
                 {
