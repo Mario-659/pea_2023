@@ -221,6 +221,7 @@ void runGeneticPerformance() {
     cout.precision(17);
 
     output_file << fixed << "populationSize" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << "\n";
+    cout        << fixed << "populationSize" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << "\n";
 
     std::string graphFilename = "ftv170.atsp";
     int bestKnownSolution = 2755;
@@ -234,7 +235,7 @@ void runGeneticPerformance() {
     std::vector<long long> timesOfBestSolution;
 
     int bestSolution = INT_MAX;
-    int iterations = 10;
+    int iterations = 1;
 
     Genetic genetic;
     genetic.crossingFactor = 80;
@@ -242,19 +243,18 @@ void runGeneticPerformance() {
     genetic.timeLimit = timeLimit;
     genetic.opt = bestKnownSolution;
 
-
-
     for (auto populationSize : populationSizes) {
         bestSolution = INT_MAX;
 
         for (int iter = 0; iter < iterations; iter++) {
-            cout << "\n\nIteration: " << iter << endl;
+            cout << "population: " << populationSize << " -- iteration: " << iter  << " -- out of " << iterations << endl;
 
             genetic.populationSize = populationSize;
             genetic.solve(*matrix);
 
             double error = static_cast<double>(genetic.bestChromosomeLength - bestKnownSolution) / bestKnownSolution * 100;
             output_file << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
+            cout        << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
 
             if (genetic.bestChromosomeLength < bestSolution) {
                 bestSolution = genetic.bestChromosomeLength;
@@ -444,9 +444,10 @@ void runSample(vector<int> sampleSizes) {
 }
 
 int main() {
-    runSMPerformance();
+//    runSMPerformance();
 //    runTSPerformance();
 //    runGreedyTest();
+    runGeneticPerformance();
 
     return 0;
 }
