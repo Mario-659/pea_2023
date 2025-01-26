@@ -8,6 +8,7 @@
 #include "algorithms/BranchAndBound.h"
 #include "algorithms/TabuSearch.h"
 #include "algorithms/SimulatedAnnealing.h"
+#include "algorithms/Genetic.h"
 
 using namespace std;
 
@@ -212,6 +213,68 @@ void runGreedyTest() {
 
         cout << "Greedy -- instance: " << instance << " -- found shortest path len: " << greedy.getShortestPathLength() << " -- best known solution: " << bestKnownSolutions[i] << " -- error (%): " << fixed << setprecision(2) << error << "\n";
     }
+}
+
+void runGeneticPerformance() {
+    ofstream output_file("genetic_results.csv");
+    output_file.precision(17);
+    cout.precision(17);
+
+    output_file << fixed << "populationSize" << ";" << "timeLimit" << ";" << "optimalSolutionTime(s)" << ";" << "optimalSolutionValue" << ";" << "bestKnownSolution" << ";" << "relativeError" << "\n";
+
+    std::string graphFilename = "ftv170.atsp";
+    int bestKnownSolution = 2755;
+    int timeLimit = 180;
+    AdjacencyMatrix* matrix = loadFromFileAtsp(graphFilename);
+
+    std::vector<int> populationSizes = {500, 1000, 2000};
+    std::vector<int> bestPathFtv170;
+
+    std::vector<double> errorsOfBestSolution;
+    std::vector<long long> timesOfBestSolution;
+
+    int bestSolution = INT_MAX;
+    int iterations = 10;
+
+    Genetic genetic;
+    genetic.crossingFactor = 80;
+    genetic.mutationFactor = 1;
+    genetic.timeLimit = timeLimit;
+    genetic.opt = bestKnownSolution;
+
+
+
+    for (auto populationSize : populationSizes) {
+        bestSolution = INT_MAX;
+
+        for (int iter = 0; iter < iterations; iter++) {
+            cout << "\n\nIteration: " << iter << endl;
+
+            genetic.populationSize = populationSize;
+            genetic.solve(*matrix);
+
+            double error = static_cast<double>(genetic.bestChromosomeLength - bestKnownSolution) / bestKnownSolution * 100;
+            output_file << fixed << populationSize << ";" << timeLimit << ";" << genetic.timeToFindBest << ";" << genetic.bestChromosomeLength << ";" << bestKnownSolution << ";" << error << "\n";
+
+            if (genetic.bestChromosomeLength < bestSolution) {
+                bestSolution = genetic.bestChromosomeLength;
+                errorsOfBestSolution = genetic.bladVector;
+                timesOfBestSolution = genetic.bestTimeVector;
+                bestPathFtv170 = genetic.bestChromosome.genes;
+            }
+        }
+
+        ofstream out_file_times(to_string(populationSize) + "_genetic_time_vector" + to_string(bestSolution) + ".csv");
+        out_file_times << "time;error\n";
+        for (int i=0; i<timesOfBestSolution.size(); i++) {
+            out_file_times << timesOfBestSolution[i] << ";" << errorsOfBestSolution[i] << endl;
+        }
+        out_file_times.close();
+
+        savePathToFile(bestPathFtv170, to_string(populationSize) + "_genetic-ftv170-bestpath.txt");
+    }
+
+    output_file.close();
 }
 
 void runSMPerformance() {
