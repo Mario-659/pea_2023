@@ -129,7 +129,10 @@ public:
             secondIndex = getRandInt(0, matrixSize - 1);
         } while (firstIndex == secondIndex);
 
-        Chromosome mutatedChromosome = chromosome;
+        Chromosome mutatedChromosome;
+        for (auto city : chromosome.genes) {
+            mutatedChromosome.genes.push_back(city);
+        }
         std::swap(mutatedChromosome.genes[firstIndex], mutatedChromosome.genes[secondIndex]);
 
         mutatedChromosome.value = calculateChromosomeLength(mutatedChromosome, matrix);
