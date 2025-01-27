@@ -262,12 +262,12 @@ void runGeneticInvPerformance() {
                 bestSolution = genetic.bestChromosomeLength;
 
                 errorsOfBestSolution.clear();
-                for (auto measuredError : genetic.bladVector) {
+                for (auto measuredError : genetic.relativeErrors) {
                     errorsOfBestSolution.push_back(measuredError);
                 }
 
                 timesOfBestSolution.clear();
-                for (auto timeMeasurement : genetic.timeVector) {
+                for (auto timeMeasurement : genetic.newSolutionFoundTimes) {
                     timesOfBestSolution.push_back(timeMeasurement);
                 }
 
@@ -337,12 +337,12 @@ void runGeneticSwapPerformance() {
                 bestSolution = genetic.bestChromosomeLength;
 
                 errorsOfBestSolution.clear();
-                for (auto measuredError : genetic.bladVector) {
+                for (auto measuredError : genetic.relativeErrors) {
                     errorsOfBestSolution.push_back(measuredError);
                 }
 
                 timesOfBestSolution.clear();
-                for (auto timeMeasurement : genetic.timeVector) {
+                for (auto timeMeasurement : genetic.newSolutionFoundTimes) {
                     timesOfBestSolution.push_back(timeMeasurement);
                 }
 
